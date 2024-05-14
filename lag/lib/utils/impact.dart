@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class Impact{
-
+ 
   static String baseUrl = 'https://impact.dei.unipd.it/bwthw/';
   static String pingEndpoint = 'gate/v1/ping/';
   static String tokenEndpoint = 'gate/v1/token/';

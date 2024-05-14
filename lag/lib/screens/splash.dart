@@ -24,7 +24,7 @@ class Splash extends StatelessWidget {
       _toHomePage(context);
     } else {
       _toLoginPage(context);
-    }
+    } 
   } //_checkLogin
 
   @override
