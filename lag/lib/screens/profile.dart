@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:lag/screens/settings.dart';
+import 'package:lag/screens/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -97,7 +98,7 @@ class Profile extends StatelessWidget {
               alignment: Alignment.center,
               child: ElevatedButton(
                 onPressed: () async {
-                  _toLogin(context);
+                  _makeTokenExpire(context); // MOMENTANEO: PER VERIFICARE IL FUNZIONAMENTO DI REMEMBER ME (PRIMA ERA _toLogin())
                 },
                 style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
@@ -130,5 +131,13 @@ class Profile extends StatelessWidget {
     //Then pop the HomePage
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: ((context) => const Login())));
+  }
+
+  _makeTokenExpire(BuildContext context) async{
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove("access");
+    await sp.remove("refresh");
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: ((context) => const Splash())));
   }
 }

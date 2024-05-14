@@ -58,9 +58,7 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                 ),
               ]),
-              Text(
-                '${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}', // PROBLEMA !!!
-              ),
+              //Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
               const Text(
                 "Cumulative Score",
                 style: TextStyle(fontSize: 16),

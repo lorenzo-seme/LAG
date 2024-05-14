@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:lag/screens/profile.dart';
 import 'package:lag/screens/weeklyRecap.dart';

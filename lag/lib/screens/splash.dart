@@ -19,7 +19,7 @@ class Splash extends StatelessWidget {
         .pushReplacement(MaterialPageRoute(builder: ((context) => Login())));
   } //_toLoginPage
 
-  void _checkLogin(BuildContext context) async {
+  Future<void> _checkLogin(BuildContext context) async {
     final sp = await SharedPreferences.getInstance();
     final access = sp.getString('access');
     if (access != null) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
@@ -29,25 +29,31 @@ class Splash extends StatelessWidget {
       if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
         _toHomePage(context);
       } else {
-        if (isChecked) { // 3. CONTROLLA DI AVER SPUNTATO IL REMEMBER ME
-          final username = sp.getString('username');
-          final password = sp.getString('password');
-          final Impact impact = Impact();
-          await impact.getAndStoreTokens(username!, password!);
-          _toHomePage(context);
+        final isChecked = sp.getString('saved_credentials');
+        if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
+          print("re-authorized thanks to remember me option");
+          if (isChecked == "true") {
+            final username = sp.getString('username');
+            final password = sp.getString('password');
+            final Impact impact = Impact();
+            await impact.getAndStoreTokens(username!, password!);
+            _toHomePage(context);
+          } else {
+            _toLoginPage(context);
+          }
         } else {
           _toLoginPage(context);
         }
       }
     }
   } //_checkLogin
+   
 
   @override
   Widget build(BuildContext context) {
     Future.delayed(
         const Duration(seconds: 3),
-        () => _checkLogin(
-            context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (CAMBIA)
+        () => _checkLogin(context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (CAMBIA)
     return Scaffold(
         body: Center(
             child: Image.asset(
