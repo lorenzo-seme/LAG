@@ -77,7 +77,7 @@ class Impact{
         final sp = await SharedPreferences.getInstance();
         await sp.setString('access', decodedResponse['access']);
         await sp.setString('refresh', decodedResponse['refresh']);
-      } //if
+      } //if 
 
       //Just return the status code
       return response.statusCode;
@@ -88,5 +88,6 @@ class Impact{
     // QUINDI, AL PRIMO LOGIN, AGGIUNGIAMO LA SPUNTA DEL "REMEMBER ME"
     // SE NON METTI SPUNTA, TI RIMANDA ALLA LOGIN PAGE
   } //_refreshTokens
+
 }//Impact 
 
