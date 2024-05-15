@@ -25,7 +25,7 @@ class Splash extends StatelessWidget {
     if (access != null) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
       _toHomePage(context);
     } else {
-      final result = await Impact().refreshTokens();
+      final result = await Impact.refreshTokens();
       if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
         _toHomePage(context);
       } else {
@@ -35,8 +35,8 @@ class Splash extends StatelessWidget {
           if (isChecked == "true") {
             final username = sp.getString('username');
             final password = sp.getString('password');
-            final Impact impact = Impact();
-            await impact.getAndStoreTokens(username!, password!);
+            //final Impact impact = Impact();
+            await Impact.getAndStoreTokens(username!, password!);
             _toHomePage(context);
           } else {
             _toLoginPage(context);

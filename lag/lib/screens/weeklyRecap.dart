@@ -44,6 +44,8 @@ class WeeklyRecap extends StatelessWidget {
                     ),
                   ),
                 ),
+                // potremmo mettere qui la settimana che stiamo visualizzando
+                //Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
                 Text(DateFormat('EEE, d MMM').format(provider.showDate)),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -58,7 +60,6 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                 ),
               ]),
-              //Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
               const Text(
                 "Cumulative Score",
                 style: TextStyle(fontSize: 16),
@@ -118,21 +119,33 @@ class WeeklyRecap extends StatelessWidget {
               const SizedBox(
                 height: 5,
               ),
-              const Text("See how much you’ve been exposed throughout the day",
+              const Text("See how much you’ve been striving throughout the week",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.black45,
                   )),
+              // e qui magari il plot della settimana, per ognuna delle statistiche. In alternativa, un altra schermata come quella sopra
+              // in cui si usano le frecce per muoversi tra i vari giorni.
               AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Consumer<HomeProvider>(
                   builder: (context, provider, child) {
-                    if (provider.heartRates.isEmpty) {
+                    if (provider.heartRateData.isEmpty | provider.exerciseData.isEmpty | provider.sleepData.isEmpty) {
                       return const CircularProgressIndicator.adaptive();
                     }
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      //child: CustomPlot(pm25: provider.pm25,),
+                      child: ListView(children: [
+                        //N.B. Gestire i casi in cui i dati non sono presenti! Per ora, ai fini del debug ho messo che giri la rotellina
+                        // nei giorni in cui manca uno di questi dati..
+                        //Questa in realtà è la pagina del weeklyrecap, quindi sarebbe da cambiare il giorno indicato in alto
+                        Text('Dati del giorno ${provider.showDate.toString().substring(0,10)}',
+                              style: TextStyle(fontSize: 16)),
+                        Text('Resting heart rate: ${provider.heartRateData.last.value} bpm'),
+                        Text('Exercise duration: ${provider.exerciseData.last.duration} minutes'),
+                        Text('Sleep duration: ${provider.sleepData.last.value} hours'),
+                      ],)
+ 
                     );
                   },
                 ),
