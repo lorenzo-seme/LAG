@@ -93,7 +93,7 @@ class Impact{
     // SE NON METTI SPUNTA, TI RIMANDA ALLA LOGIN PAGE
   } //_refreshTokens
 
-  static Future<dynamic> fetchSleepData(String day) async {
+  static Future<dynamic> fetchSleepData(String startDay, String endDay) async {
 
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
@@ -106,7 +106,7 @@ class Impact{
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + sleepEndpoint + patientUsername + '/day/$day/';
+    final url = baseUrl + sleepEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response
