@@ -41,7 +41,7 @@ class _HomeState extends State<Home> {
         return WeeklyRecap();
     }
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(

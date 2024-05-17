@@ -46,7 +46,7 @@ class WeeklyRecap extends StatelessWidget {
                 ),
                 Text(DateFormat('EEE, d MMM').format(provider.showDate)),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0), 
                   child: InkWell(
                     onTap: () {
                       provider.getDataOfDay(provider.showDate.add(const Duration(days: 1)));

@@ -4,14 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:lag/utils/impact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-class HomeProvider extends ChangeNotifier {
+class HomeProvider extends ChangeNotifier { 
   //List<HR> heartRates = [];
   List<int> heartRates = []; // MOMENTANEO
   double score = 0;
 
   String nick = 'User';
-
+  
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
   DateTime? monday;
   DateTime? sunday;
