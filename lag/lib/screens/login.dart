@@ -15,7 +15,7 @@ class _LoginState extends State<Login> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final Impact impact = Impact();
+  //final Impact impact = Impact();
   bool isChecked = false;
 
   Future<void> setSavedUsername(bool isChecked) async {
@@ -137,9 +137,9 @@ class _LoginState extends State<Login> {
                       padding: const EdgeInsets.all(12.0),
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (await impact.isImpactUp()) {
+                          if (await Impact.isImpactUp()) {
                             if (_formKey.currentState!.validate()) {
-                              final result = await impact.getAndStoreTokens(userController.text,passwordController.text,);
+                              final result = await Impact.getAndStoreTokens(userController.text,passwordController.text,);
                               if (result == 200) {
                                 final sp = await SharedPreferences.getInstance();
                                 await sp.setString('username', userController.text);
