@@ -10,6 +10,11 @@ class ExerciseData{
 
   ExerciseData({required this.day, required this.avgHR, required this.duration});
 
+  ExerciseData.empty(String day, Map<String, dynamic> json) :
+  day = DateFormat('yyyy-MM-dd').parse(json["date"]),
+  avgHR = 0,
+  duration = 0;
+
   ExerciseData.fromJson(String day, Map<String, dynamic> json) :
       day = DateFormat('yyyy-MM-dd').parse(json["date"]),
       // per ora ritorno soltanto i dati del primo esercizio della giornata. Magari dovremmo fare somma di tutte le attività

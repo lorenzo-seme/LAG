@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+//import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/utils/custom_plot.dart';
 import 'package:provider/provider.dart';
@@ -129,6 +131,10 @@ class WeeklyRecap extends StatelessWidget {
                   )),
               // e qui magari il plot della settimana, per ognuna delle statistiche. In alternativa, un altra schermata come quella sopra
               // in cui si usano le frecce per muoversi tra i vari giorni.
+              const SizedBox(
+                height: 5,
+              ),
+              Text('Sleep Data'),
               AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Consumer<HomeProvider>(
@@ -142,6 +148,7 @@ class WeeklyRecap extends StatelessWidget {
                       child: CustomPlot(
                           sleep: provider.sleepData,
                         ),
+
                         /*
                       child: ListView(children: [
                         //N.B. Gestire i casi in cui i dati non sono presenti! Per ora, ai fini del debug ho messo che giri la rotellina
@@ -155,11 +162,28 @@ class WeeklyRecap extends StatelessWidget {
                         Text('Sleep duration of monday: ${provider.sleepData[0].value} hours'),
                         Text('Sleep duration of tuesday: ${provider.sleepData[1].value} hours'),
                       ],)
- */
+*/
                     );
                   },
                 ),
               ),
+              (provider.heartRateData.isEmpty | provider.exerciseData.isEmpty | provider.sleepData.isEmpty) ? const CircularProgressIndicator.adaptive() :
+                Column(
+                  mainAxisAlignment : MainAxisAlignment.start,
+                  children:[
+                    Text('Exercise plot'),
+                    Text('Monday: ${provider.exerciseData[0].duration} minutes',
+                    style: TextStyle(fontSize: 10),),
+                    Text('Tuesday: ${provider.exerciseData[1].duration} minutes',
+                    style: TextStyle(fontSize: 10)),
+                    Text('Heart rate at rest plot'),
+                    Text('Monday: ${provider.heartRateData[0].value} bpm',
+                    style: TextStyle(fontSize: 10)),
+                    Text('Tuesday: ${provider.heartRateData[1].value} bpm',
+                    style: TextStyle(fontSize: 10))
+                    ]
+                  )
+
             ],
           );
         }),

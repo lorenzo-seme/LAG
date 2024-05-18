@@ -42,6 +42,8 @@ class HomeProvider extends ChangeNotifier {
     getDataOfWeek(showDate);
   }
 
+
+/*
   // method to get the data of the chosen day
   Future<void> getDataOfDay(DateTime showDate) async {
     showDate = DateUtils.dateOnly(showDate);
@@ -55,6 +57,8 @@ class HomeProvider extends ChangeNotifier {
     print('Got data for $showDate: ${heartRates.length}');
     notifyListeners();
   }
+
+  */
 
   Future<void> dateSubtractor(DateTime showDate) async {
     this.showDate = showDate.subtract(const Duration(days: 7));
@@ -87,8 +91,8 @@ class HomeProvider extends ChangeNotifier {
     heartRateData = [];
     exerciseData = [];
 
-    await fetchSleepData(monday.toString(), sunday.toString());
-    //await fetchAllData(monday.add(Duration(days: i)).toString());
+    //await fetchSleepData(monday.toString(), sunday.toString());
+    await fetchAllData(monday.toString(), sunday.toString());
     
     _loading(); 
 
@@ -129,42 +133,63 @@ class HomeProvider extends ChangeNotifier {
     }//if
   }//fetchSleepData
 
-  Future<void> fetchHeartRateData(String day) async {
-    day = day.substring(0,10);
+  Future<void> fetchHeartRateData(String startDay, String endDay) async {
+    startDay = startDay.substring(0,10);
+    endDay = endDay.substring(0,10);
     //heartRateData = [];
     //Get the response
-    final data = await Impact.fetchHeartRateData(day);
+    final data = await Impact.fetchHeartRateData(startDay, endDay);
 
     //if OK parse the response adding all the elements to the list, otherwise do nothing
     if (data != null) {
       if (!data['data'].isEmpty){
-        heartRateData.add(HeartRateData.fromJson(data['data']['date'], data['data']));
-        print(heartRateData.last);
+        for(int i=0; i<data['data'].length; i++)
+        {
+          if(!data['data'][i]['data'].isEmpty)
+          {
+            heartRateData.add(HeartRateData.fromJson(data['data'][i]['date'], data['data'][i]));
+          }
+          else
+          {
+            heartRateData.add(HeartRateData.empty(data['data'][i]['date'], data['data'][i]));
+          }
+          print(heartRateData.last);
+        }
       }
       notifyListeners();
     }//if
   }//fetchHeartRateData
 
-  Future<void> fetchExerciseData(String day) async {
-    day = day.substring(0,10);
+  Future<void> fetchExerciseData(String startDay, String endDay) async {
+    startDay = startDay.substring(0,10);
+    endDay = endDay.substring(0,10);
     //exerciseData = [];
     //Get the response
-    final data = await Impact.fetchExerciseData(day);
+    final data = await Impact.fetchExerciseData(startDay, endDay);
 
     //if OK parse the response adding all the elements to the list, otherwise do nothing
     if (data != null) {
       if (!data['data'].isEmpty){
-        exerciseData.add(ExerciseData.fromJson(data['data']['date'], data['data']));
-        print(exerciseData.last);
-      }
+        for(int i=0; i<data['data'].length; i++)
+        {
+          if(!data['data'][i]['data'].isEmpty)
+          {
+            exerciseData.add(ExerciseData.fromJson(data['data'][i]['date'], data['data'][i]));
+          }
+          else
+          {
+            exerciseData.add(ExerciseData.empty(data['data'][i]['date'], data['data'][i]));
+          }
+          print(exerciseData.last);
+        }
       notifyListeners();
-    }//if
+      }}//if
   }//fetchExerciseData
 
-  Future<void> fetchAllData(String day) async {
-    //await fetchExerciseData(day);
-    //await fetchHeartRateData(day);
-    //await fetchSleepData(day);
+  Future<void> fetchAllData(String startDay, String endDay) async {
+    await fetchExerciseData(startDay,endDay);
+    await fetchHeartRateData(startDay,endDay);
+    await fetchSleepData(startDay,endDay);
 
   }//fetchAllData
 
@@ -174,4 +199,5 @@ class HomeProvider extends ChangeNotifier {
     score = 0;
     notifyListeners();
   }
+  
 }

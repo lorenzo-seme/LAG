@@ -8,6 +8,10 @@ class HeartRateData{
 
   HeartRateData({required this.day, required this.value});
 
+  HeartRateData.empty(String day, Map<String, dynamic> json) :
+    day = DateFormat('yyyy-MM-dd').parse(json["date"]),
+    value = 0;
+
   HeartRateData.fromJson(String day, Map<String, dynamic> json) :
       day = DateFormat('yyyy-MM-dd').parse(json["date"]),
       value = double.parse((json["data"]["value"]).toStringAsFixed(1));

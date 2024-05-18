@@ -124,7 +124,7 @@ class Impact{
 
   } //_fetchSleepData
 
-static Future<dynamic> fetchHeartRateData(String day) async {
+static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async {
 
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
@@ -137,7 +137,7 @@ static Future<dynamic> fetchHeartRateData(String day) async {
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + heartRateEndpoint + patientUsername + '/day/$day/';
+    final url = baseUrl + heartRateEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response
@@ -156,7 +156,7 @@ static Future<dynamic> fetchHeartRateData(String day) async {
 
   } //_fetchHeartRateData
 
-  static Future<dynamic> fetchExerciseData(String day) async {
+  static Future<dynamic> fetchExerciseData(String startDay, String endDay) async {
 
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
@@ -169,7 +169,7 @@ static Future<dynamic> fetchHeartRateData(String day) async {
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + exerciseEndpoint + patientUsername + '/day/$day/';
+    final url = baseUrl + exerciseEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response
