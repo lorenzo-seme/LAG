@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+//import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/utils/custom_plot.dart';
 import 'package:provider/provider.dart';
 
 
@@ -36,8 +39,9 @@ class WeeklyRecap extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
-                      provider.getDataOfDay(provider.showDate.subtract(const Duration(days: 1)));
-                      provider.getDataOfWeek(provider.showDate.subtract(const Duration(days: 1)));
+                      //provider.getDataOfDay(provider.showDate.subtract(const Duration(days: 1)));
+                      provider.getDataOfWeek(provider.showDate.subtract(const Duration(days: 7)));
+                      provider.dateSubtractor(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_before,
@@ -45,14 +49,15 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                 ),
                 // potremmo mettere qui la settimana che stiamo visualizzando
-                //Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
-                Text(DateFormat('EEE, d MMM').format(provider.showDate)),
+                Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
+                //Text(DateFormat('EEE, d MMM').format(provider.showDate)),
                 Padding(
                   padding: const EdgeInsets.all(8.0), 
                   child: InkWell(
                     onTap: () {
-                      provider.getDataOfDay(provider.showDate.add(const Duration(days: 1)));
-                      provider.getDataOfWeek(provider.showDate.add(const Duration(days: 1)));
+                      //provider.getDataOfDay(provider.showDate.add(const Duration(days: 1)));
+                      provider.getDataOfWeek(provider.showDate.add(const Duration(days: 7)));
+                      provider.dateAdder(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_next,
@@ -126,30 +131,59 @@ class WeeklyRecap extends StatelessWidget {
                   )),
               // e qui magari il plot della settimana, per ognuna delle statistiche. In alternativa, un altra schermata come quella sopra
               // in cui si usano le frecce per muoversi tra i vari giorni.
+              const SizedBox(
+                height: 5,
+              ),
+              Text('Sleep Data'),
               AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Consumer<HomeProvider>(
                   builder: (context, provider, child) {
-                    if (provider.heartRateData.isEmpty | provider.exerciseData.isEmpty | provider.sleepData.isEmpty) {
+                    if(provider.sleepData.isEmpty){
+                    //if (provider.heartRateData.isEmpty | provider.exerciseData.isEmpty | provider.sleepData.isEmpty) {
                       return const CircularProgressIndicator.adaptive();
                     }
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
+                      child: CustomPlot(
+                          sleep: provider.sleepData,
+                        ),
+
+                        /*
                       child: ListView(children: [
                         //N.B. Gestire i casi in cui i dati non sono presenti! Per ora, ai fini del debug ho messo che giri la rotellina
                         // nei giorni in cui manca uno di questi dati..
                         //Questa in realtà è la pagina del weeklyrecap, quindi sarebbe da cambiare il giorno indicato in alto
-                        Text('Dati del giorno ${provider.showDate.toString().substring(0,10)}',
-                              style: TextStyle(fontSize: 16)),
-                        Text('Resting heart rate: ${provider.heartRateData.last.value} bpm'),
-                        Text('Exercise duration: ${provider.exerciseData.last.duration} minutes'),
-                        Text('Sleep duration: ${provider.sleepData.last.value} hours'),
+                        //Text('Dati del giorno ${provider.showDate.toString().substring(0,10)}',
+                              //style: TextStyle(fontSize: 16)),
+                        Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'),
+                        //Text('Resting heart rate: ${provider.heartRateData.last.value} bpm'),
+                        //Text('Exercise duration: ${provider.exerciseData.last.duration} minutes'),
+                        Text('Sleep duration of monday: ${provider.sleepData[0].value} hours'),
+                        Text('Sleep duration of tuesday: ${provider.sleepData[1].value} hours'),
                       ],)
- 
+*/
                     );
                   },
                 ),
               ),
+              (provider.heartRateData.isEmpty | provider.exerciseData.isEmpty | provider.sleepData.isEmpty) ? const CircularProgressIndicator.adaptive() :
+                Column(
+                  mainAxisAlignment : MainAxisAlignment.start,
+                  children:[
+                    Text('Exercise plot'),
+                    Text('Monday: ${provider.exerciseData[0].duration} minutes',
+                    style: TextStyle(fontSize: 10),),
+                    Text('Tuesday: ${provider.exerciseData[1].duration} minutes',
+                    style: TextStyle(fontSize: 10)),
+                    Text('Heart rate at rest plot'),
+                    Text('Monday: ${provider.heartRateData[0].value} bpm',
+                    style: TextStyle(fontSize: 10)),
+                    Text('Tuesday: ${provider.heartRateData[1].value} bpm',
+                    style: TextStyle(fontSize: 10))
+                    ]
+                  )
+
             ],
           );
         }),
