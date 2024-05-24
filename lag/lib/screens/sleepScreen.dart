@@ -41,7 +41,7 @@ class SleepScreen extends StatelessWidget {
                     onTap: () {
                       //provider.getDataOfDay(provider.showDate.subtract(const Duration(days: 1)));
                       provider.getDataOfWeek(provider.showDate.subtract(const Duration(days: 7)));
-                      provider.dateSubtractor(provider.showDate);
+                      //provider.dateSubtractor(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_before,
@@ -57,7 +57,7 @@ class SleepScreen extends StatelessWidget {
                     onTap: () {
                       //provider.getDataOfDay(provider.showDate.add(const Duration(days: 1)));
                       provider.getDataOfWeek(provider.showDate.add(const Duration(days: 7)));
-                      provider.dateAdder(provider.showDate);
+                      //provider.dateAdder(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_next,

@@ -81,16 +81,6 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total).toStringAsFixed(1));
   }
-  
-  Future<void> dateSubtractor(DateTime start) async {
-    this.start = start.subtract(const Duration(days: 7));
-    notifyListeners();
-  }
-
-  Future<void> dateAdder(DateTime start) async {
-    this.start = start.add(const Duration(days: 7));
-    notifyListeners();
-  }
 
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime showDate) async {
