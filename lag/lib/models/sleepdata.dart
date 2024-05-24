@@ -27,20 +27,23 @@ class SleepData{
           json["data"] is List ? json["data"][0]["duration"] * math.pow(10, -3)/3600 : json["data"]["duration"] * math.pow(10, -3)/3600
         ).toStringAsFixed(1)),
       minutesAsleep = double.parse((
-          json["data"] is List ? json["data"][0]["minutesAsleep"] : json["data"]["minutesAsleep"])),
+          json["data"] is List ? json["data"][0]["minutesAsleep"] : json["data"]["minutesAsleep"]
+          ).toStringAsFixed(1)),
       efficiency = double.parse((
-          json["data"] is List ? json["data"][0]["efficiency"] : json["data"]["efficiency"])),      
+          json["data"] is List ? json["data"][0]["efficiency"] : json["data"]["efficiency"]
+          ).toStringAsFixed(1)),      
       minutesToFallAsleep = double.parse((
-          json["data"] is List ? json["data"][0]["minutesToFallAsleep"] : json["data"]["minutesToFallAsleep"])),
-      levels = (json["data"] is List ? {"deep": double.parse(json["data"][0]["levels"]["summary"]["deep"]["minutes"]),
-                                                            "wake": double.parse(json["data"][0]["levels"]["summary"]["wake"]["minutes"]),
-                                                            "light": double.parse(json["data"][0]["levels"]["summary"]["light"]["minutes"]),
-                                                            "rem": double.parse(json["data"][0]["levels"]["summary"]["rem"]["minutes"]),
+          json["data"] is List ? json["data"][0]["minutesToFallAsleep"] : json["data"]["minutesToFallAsleep"]
+          ).toStringAsFixed(1)),
+      levels = (json["data"] is List ? {"deep": double.parse((json["data"][0]["levels"]["summary"]["deep"]["minutes"]).toStringAsFixed(1)),
+                                                            "wake": double.parse((json["data"][0]["levels"]["summary"]["wake"]["minutes"]).toStringAsFixed(1)),
+                                                            "light": double.parse((json["data"][0]["levels"]["summary"]["light"]["minutes"]).toStringAsFixed(1)),
+                                                            "rem": double.parse((json["data"][0]["levels"]["summary"]["rem"]["minutes"]).toStringAsFixed(1)),
                                                             } : {
-                                                            "deep": double.parse(json["data"]["levels"]["summary"]["deep"]["minutes"]),
-                                                            "wake": double.parse(json["data"]["levels"]["summary"]["wake"]["minutes"]),
-                                                            "light": double.parse(json["data"]["levels"]["summary"]["light"]["minutes"]),
-                                                            "rem": double.parse(json["data"]["levels"]["summary"]["rem"]["minutes"])});        
+                                                            "deep": double.parse((json["data"]["levels"]["summary"]["deep"]["minutes"]).toStringAsFixed(1)),
+                                                            "wake": double.parse((json["data"]["levels"]["summary"]["wake"]["minutes"]).toStringAsFixed(1)),
+                                                            "light": double.parse((json["data"]["levels"]["summary"]["light"]["minutes"]).toStringAsFixed(1)),
+                                                            "rem": double.parse((json["data"]["levels"]["summary"]["rem"]["minutes"]).toStringAsFixed(1))});        
   
   // nota che in alcuni (rari) giorni, il contenuto di json["data"] è una lista di un solo elemento (problema del server probabilmente)
   // gestiamo questa possibilità con l'operatore ternario
