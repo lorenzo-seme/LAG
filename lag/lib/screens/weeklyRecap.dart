@@ -37,21 +37,21 @@ class WeeklyRecap extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
-                      provider.getDataOfWeek(provider.showDate.subtract(const Duration(days: 7)));
-                      provider.dateSubtractor(provider.showDate);
+                      provider.getDataOfWeek(provider.start.subtract(const Duration(days: 7)));
+                      //provider.dateSubtractor(provider.start);
                     },
                     child: const Icon(
                       Icons.navigate_before,
                     ),
                   ),
                 ),
-                Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'),
+                Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
-                      provider.getDataOfWeek(provider.showDate.add(const Duration(days: 7)));
-                      provider.dateAdder(provider.showDate);
+                      provider.getDataOfWeek(provider.start.add(const Duration(days: 7)));
+                      //provider.dateAdder(provider.start);
                     },
                     child: const Icon(
                       Icons.navigate_next,

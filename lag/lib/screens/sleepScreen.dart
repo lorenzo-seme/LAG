@@ -49,7 +49,7 @@ class SleepScreen extends StatelessWidget {
                   ),
                 ),
                 // potremmo mettere qui la settimana che stiamo visualizzando
-                Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
+                Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'), // PROBLEMA !!!
                 //Text(DateFormat('EEE, d MMM').format(provider.showDate)),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
