@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:lag/screens/home.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/utils/impact.dart';
@@ -22,7 +23,7 @@ class Splash extends StatelessWidget {
   Future<void> _checkLogin(BuildContext context) async {
     final sp = await SharedPreferences.getInstance();
     final access = sp.getString('access');
-    if (access != null) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
+    if (access != null && !(JwtDecoder.isExpired(access))) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
       _toHomePage(context);
     } else {
       final result = await Impact.refreshTokens();
@@ -31,7 +32,7 @@ class Splash extends StatelessWidget {
       } else {
         final isChecked = sp.getString('saved_credentials');
         if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
-          print("re-authorized thanks to remember me option");
+          // print("re-authorized thanks to remember me option");
           if (isChecked == "true") {
             final username = sp.getString('username');
             final password = sp.getString('password');

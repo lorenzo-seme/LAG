@@ -58,7 +58,29 @@ class HomeProvider extends ChangeNotifier {
   }
 
   */
+  
+  double sleepAvg() {
+    if(sleepData.isEmpty){return 0.0;}
+    double total = 0;
+    int counter = 0;
+    for(int i=0;i<sleepData.length;i++){
+      if(sleepData[i].value!=0){
+        counter = counter + 1;
+      }
+      total = total + sleepData[i].value;
+    }
+    return double.parse((total / counter).toStringAsFixed(1));
+  }
 
+  double exerciseDuration(){
+    if(exerciseData.isEmpty){return 0.0;}
+    double total = 0;
+    for(int i=0;i<exerciseData.length;i++){
+      total = total + exerciseData[i].duration;
+    }
+    return double.parse((total).toStringAsFixed(1));
+  }
+  
   Future<void> dateSubtractor(DateTime showDate) async {
     this.showDate = showDate.subtract(const Duration(days: 7));
     notifyListeners();
@@ -68,9 +90,6 @@ class HomeProvider extends ChangeNotifier {
     this.showDate = showDate.add(const Duration(days: 7));
     notifyListeners();
   }
-
-
-
 
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime showDate) async {

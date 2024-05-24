@@ -22,6 +22,8 @@ class ExerciseData{
       avgHR = json["data"][0]["averageHeartRate"],
       duration = double.parse((json["data"][0]["duration"] * math.pow(10, -3)/60).toStringAsFixed(1));
 
+  // qui mettere metodo che somma tutti gli exercise del giorno
+
   @override
   String toString() {
     return 'ExerciseData(day: $day, averageHeartRate: $avgHR, duration: $duration)';

@@ -5,21 +5,48 @@ import 'dart:math' as math;
 // model to store data from server in a dedicated object type
 class SleepData{
   final DateTime day;
-  final double value;
-  SleepData({required this.day, required this.value});
+  final duration;
+  final minutesAsleep;
+  final efficiency;
+  final minutesToFallAsleep;
+  final levels;
+  SleepData({required this.day, required this.duration, required this.minutesAsleep, required this.efficiency,
+    required this.minutesToFallAsleep, required this.levels});
 
   SleepData.empty(String day, Map<String, dynamic> json) :
       day = DateFormat('yyyy-MM-dd').parse(json["date"]),
-      value = 0;
+      duration = null,
+      minutesAsleep = null,
+      efficiency = null,
+      minutesToFallAsleep = null,
+      levels = null;
 
   SleepData.fromJson(String day, Map<String, dynamic> json) :
       day = DateFormat('yyyy-MM-dd').parse(json["date"]),
-      value = double.parse((
+      duration = double.parse((
           json["data"] is List ? json["data"][0]["duration"] * math.pow(10, -3)/3600 : json["data"]["duration"] * math.pow(10, -3)/3600
-        ).toStringAsFixed(1));
+        ).toStringAsFixed(1)),
+      minutesAsleep = double.parse((
+          json["data"] is List ? json["data"][0]["minutesAsleep"] : json["data"]["minutesAsleep"])),
+      efficiency = double.parse((
+          json["data"] is List ? json["data"][0]["efficiency"] : json["data"]["efficiency"])),      
+      minutesToFallAsleep = double.parse((
+          json["data"] is List ? json["data"][0]["minutesToFallAsleep"] : json["data"]["minutesToFallAsleep"])),
+      levels = (json["data"] is List ? {"deep": double.parse(json["data"][0]["levels"]["summary"]["deep"]["minutes"]),
+                                                            "wake": double.parse(json["data"][0]["levels"]["summary"]["wake"]["minutes"]),
+                                                            "light": double.parse(json["data"][0]["levels"]["summary"]["light"]["minutes"]),
+                                                            "rem": double.parse(json["data"][0]["levels"]["summary"]["rem"]["minutes"]),
+                                                            } : {
+                                                            "deep": double.parse(json["data"]["levels"]["summary"]["deep"]["minutes"]),
+                                                            "wake": double.parse(json["data"]["levels"]["summary"]["wake"]["minutes"]),
+                                                            "light": double.parse(json["data"]["levels"]["summary"]["light"]["minutes"]),
+                                                            "rem": double.parse(json["data"]["levels"]["summary"]["rem"]["minutes"])});        
+  
+  // nota che in alcuni (rari) giorni, il contenuto di json["data"] è una lista di un solo elemento (problema del server probabilmente)
+  // gestiamo questa possibilità con l'operatore ternario
 
   @override
   String toString() {
-    return 'SleepData(day: $day, value: $value)';
+    return 'SleepData(day: $day, duration: $duration, minutesAsleep: $minutesAsleep, minutesToFallAsleep: $minutesToFallAsleep,efficiency: $efficiency)';
   }//toString
 }//SleepData
