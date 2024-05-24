@@ -7,8 +7,8 @@ import 'package:lag/utils/custom_plot.dart';
 import 'package:provider/provider.dart';
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
-class WeeklyRecap extends StatelessWidget {
-  const WeeklyRecap({super.key});
+class SleepScreen extends StatelessWidget {
+  const SleepScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

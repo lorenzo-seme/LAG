@@ -64,7 +64,7 @@ class CustomPlot extends StatelessWidget {
         .map(
           (e) => {
             'date': DateFormat('EEEE').format(e.day),
-            'points': e.value,
+            'points': e.duration,
             'type': 'pm25',
           },
         )
