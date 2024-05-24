@@ -64,10 +64,10 @@ class HomeProvider extends ChangeNotifier {
     double total = 0;
     int counter = 0;
     for(int i=0;i<sleepData.length;i++){
-      if(sleepData[i].value!=0){
+      if(sleepData[i].duration!=null){
         counter = counter + 1;
+        total = total + sleepData[i].duration;
       }
-      total = total + sleepData[i].value;
     }
     return double.parse((total / counter).toStringAsFixed(1));
   }
