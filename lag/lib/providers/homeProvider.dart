@@ -8,6 +8,7 @@ import 'package:lag/utils/impact.dart';
 //import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// RINDONDANZA NEL METHODO GETDATAOFWEEK PERCHè START E END SONO GIà DEFINITI NELLA CLASSE, BASTEREBBE DARE LORO IN INPUT ANZICHè SHOWDATE
 
 class HomeProvider extends ChangeNotifier {
   //List<HR> heartRates = [];
