@@ -20,8 +20,8 @@ class HomeProvider extends ChangeNotifier {
   String nick = 'User';
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
-  DateTime? monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
-  DateTime? sunday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday)).add(Duration(days: 6));
+  DateTime start = DateTime.now().subtract(const Duration(days: 7));
+  DateTime end = DateTime.now().subtract(const Duration(days: 1));
 
   final Impact impact = Impact();
 
@@ -38,7 +38,7 @@ class HomeProvider extends ChangeNotifier {
 
     // Fetch data 
     //getDataOfDay(showDate);
-    getDataOfWeek(showDate);
+    getDataOfWeek(start);
   }
 
 
@@ -80,37 +80,27 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total).toStringAsFixed(1));
   }
-  
-  Future<void> dateSubtractor(DateTime showDate) async {
-    this.showDate = showDate.subtract(const Duration(days: 7));
-    notifyListeners();
-  }
-
-  Future<void> dateAdder(DateTime showDate) async {
-    this.showDate = showDate.add(const Duration(days: 7));
-    notifyListeners();
-  }
 
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime showDate) async {
-    DateTime monday = showDate.subtract(Duration(days: showDate.weekday - DateTime.monday));
-    DateTime sunday = monday.add(Duration(days: 6));
+    DateTime start = showDate;
+    DateTime end = start.add(Duration(days: 6));
     
     DateFormat dateFormat = DateFormat('E, d MMM');
-    String formattedMonday = dateFormat.format(monday);
-    String formattedSunday = dateFormat.format(sunday);
+    String formattedStart = dateFormat.format(start);
+    String formattedEnd = dateFormat.format(end);
 
-    String dateRange = '$formattedMonday - $formattedSunday';
+    String dateRange = '$formattedStart - $formattedEnd';
 
-    this.monday = monday;
-    this.sunday = sunday;
+    this.start = start;
+    this.end = end;
 
     sleepData = [];
     heartRateData = [];
     exerciseData = [];
 
     //await fetchSleepData(monday.toString(), sunday.toString());
-    await fetchAllData(monday.toString(), sunday.toString());
+    await fetchAllData(start.toString(), end.toString());
     
     _loading(); 
 
@@ -118,7 +108,7 @@ class HomeProvider extends ChangeNotifier {
     //heartRates = [1, 2, 3]; // Esempio temporaneo
 
     score = Random().nextDouble() * 100;
-    print('Got data for week from $monday to $sunday');//: ${heartRates.length}');
+    print('Got data for week from $start to $end');//: ${heartRates.length}');
     notifyListeners();
     print('\n $dateRange \n');
   }

@@ -41,7 +41,7 @@ class SleepScreen extends StatelessWidget {
                     onTap: () {
                       //provider.getDataOfDay(provider.showDate.subtract(const Duration(days: 1)));
                       provider.getDataOfWeek(provider.showDate.subtract(const Duration(days: 7)));
-                      provider.dateSubtractor(provider.showDate);
+                      //provider.dateSubtractor(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_before,
@@ -49,7 +49,7 @@ class SleepScreen extends StatelessWidget {
                   ),
                 ),
                 // potremmo mettere qui la settimana che stiamo visualizzando
-                Text('${DateFormat('EEE, d MMM').format(provider.monday!)} - ${DateFormat('EEE, d MMM').format(provider.sunday!)}'), // PROBLEMA !!!
+                Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'), // PROBLEMA !!!
                 //Text(DateFormat('EEE, d MMM').format(provider.showDate)),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -57,7 +57,7 @@ class SleepScreen extends StatelessWidget {
                     onTap: () {
                       //provider.getDataOfDay(provider.showDate.add(const Duration(days: 1)));
                       provider.getDataOfWeek(provider.showDate.add(const Duration(days: 7)));
-                      provider.dateAdder(provider.showDate);
+                      //provider.dateAdder(provider.showDate);
                     },
                     child: const Icon(
                       Icons.navigate_next,

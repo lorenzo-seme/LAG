@@ -20,9 +20,16 @@ class ExerciseData{
       // per ora ritorno soltanto i dati del primo esercizio della giornata. Magari dovremmo fare somma di tutte le attività
       // della giornata
       avgHR = json["data"][0]["averageHeartRate"],
-      duration = double.parse((json["data"][0]["duration"] * math.pow(10, -3)/60).toStringAsFixed(1));
-
-  // qui mettere metodo che somma tutti gli exercise del giorno
+      duration = _calculateTotalDuration(json);
+      
+  static double _calculateTotalDuration(Map<String, dynamic> json) {
+    double totalDuration = 0;
+    int dataLength = json["data"].length;
+    for (int i = 0; i < dataLength; i++) {
+      totalDuration += double.parse((json["data"][i]["duration"] * math.pow(10, -3)/60));
+    }
+    return totalDuration;
+  }
 
   @override
   String toString() {
