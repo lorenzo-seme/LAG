@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/algorithms/sleepScore.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 // import 'package:lag/utils/custom_plot.dart';
@@ -43,7 +44,7 @@ class SleepScreen extends StatelessWidget {
               const Text("PLOT DAYS VS SCORE",style: TextStyle(fontSize: 32)),
               
               // qui crea un qualcosa che prelevi dalla lista provider.sleepData della settimana i vari parametri di ogni giorno e faccia le media
-
+              Text("$getSleepScore(context, provider.sleepData)")
               
 
             ],
@@ -54,3 +55,4 @@ class SleepScreen extends StatelessWidget {
     );
   }
 }
+

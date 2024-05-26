@@ -173,8 +173,16 @@ class _PersonalInfoState extends State<PersonalInfo> {
                       final sp = await SharedPreferences.getInstance();
                       await sp.setString('bs', bs.toString());
                       await sp.setString('dob', dateController.text.toString());
-                      await sp.setString(
-                          'name', nameController.text.toString());
+                      await sp.setString('name', nameController.text.toString());
+                      // Calculate userAge from date of birth
+                      DateTime birthDate = DateTime.parse(dateController.text.toString());
+                      DateTime now = DateTime.now();
+                      int userAge = now.year - birthDate.year;
+                        if (now.month < birthDate.month ||
+                          (now.month == birthDate.month && now.day < birthDate.day)) {
+                        userAge--;
+                        }
+                      await sp.setString('userAge', userAge.toString());
                       Navigator.of(context).pop();
                     }
                   },

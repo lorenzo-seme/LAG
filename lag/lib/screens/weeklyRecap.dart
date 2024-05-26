@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+//import 'package:lag/algorithms/sleepScore.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
+//import 'dart:async';
+
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
+
+  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +115,39 @@ class WeeklyRecap extends StatelessWidget {
                             onTap: () => _toSleepPage(context, provider.start, provider.end),
                           ),
                         ),
+                  /*Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: const Icon(Icons.bedtime),
+                      trailing: FutureBuilder<double>(
+                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return snapshot.data! >= 80 // PER IL MOMENTO OKAY; SI POTREBBE FARE DISTINZIONE TRA BUONO, MEDIO, CATTIVO
+                                ? const Icon(Icons.thumb_up)
+                                : const Icon(Icons.thumb_down);
+                          } else if (snapshot.hasError) {
+                            return const Icon(Icons.error);
+                          }
+                          return const CircularProgressIndicator.adaptive(); // Indicator while loading data
+                        },
+                      ),
+                      title: FutureBuilder<double>(
+                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text('Sleep : ${snapshot.data} hours');
+                          } else if (snapshot.hasError) {
+                            return const Text('Error');
+                          }
+                          return const Text('Loading...'); // Placeholder while loading data
+                        },
+                      ),
+                      subtitle: const Text('Average hours of sleep for this week'),
+                      onTap: () => _toSleepPage(context, provider.start, provider.end),
+                    ),
+                  ),*/
+
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
                   (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
@@ -248,3 +287,11 @@ class WeeklyRecap extends StatelessWidget {
       ));
 } //_toSleepPage
 }
+
+/*
+Future<double> calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture) async {
+  List<double> sleepData = await sleepDataFuture;
+  double sum = sleepData.fold(0, (previous, current) => previous + current);
+  double average = sum / sleepData.length;
+  return average;
+}*/

@@ -61,6 +61,7 @@ class HomeProvider extends ChangeNotifier {
 
   */
   
+  
   double sleepAvg() {
     if(sleepData.isEmpty){return 0.0;}
     double total = 0;
@@ -73,6 +74,7 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total / counter).toStringAsFixed(1));
   }
+  
 
   double exerciseDuration(){
     if(exerciseData.isEmpty){return 0.0;}
