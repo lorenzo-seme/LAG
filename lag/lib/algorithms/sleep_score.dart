@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<Map<String, List<double>>> getSleepScore(BuildContext context, List sleeplist) async {
+Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
   List<double> scores = [];
   List<double> sleepHoursScores = [];
 

@@ -112,7 +112,7 @@ class WeeklyRecap extends StatelessWidget {
                             ),
                             title: Text('Sleep : ${Provider.of<HomeProvider>(context).sleepAvg()} hours'),
                             subtitle: const Text('Average hours of sleep for this week'),
-                            onTap: () => _toSleepPage(context, provider.start, provider.end),
+                            onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
                           ),
                         ),
                   /*Card(
@@ -280,12 +280,20 @@ class WeeklyRecap extends StatelessWidget {
     );
   }
   
+  /*
   // Method for navigation weeklyRecap -> sleepScreen
   void _toSleepPage(BuildContext context, DateTime start, DateTime end) {
   Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SleepScreen(startDate: start, endDate: end)
-      ));
+      )); 
 } //_toSleepPage
+*/
+  // Method for navigation weeklyRecap -> sleepScreen
+  void _toSleepPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => SleepScreen(startDate: start, endDate: end, provider: provider)
+    ));
+  }
 }
 
 /*
