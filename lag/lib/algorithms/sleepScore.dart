@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<List<double>> getSleepScore(BuildContext context, List sleeplist) async {
+Future<Map<String, List<double>>> getSleepScore(BuildContext context, List sleeplist) async {
   List<double> scores = [];
+  List<double> sleepHoursScores = [];
+
   SharedPreferences sp = await SharedPreferences.getInstance();
   int userAge = sp.getInt('userAge') ?? 25; // Default at 25 if not specified
   String ageGroup = determineAgeGroup(userAge);
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data
+    double sleepHoursScore = -1;
     
     // ordered according decreasing weigth
     // EFFICIENCY
@@ -20,6 +23,7 @@ Future<List<double>> getSleepScore(BuildContext context, List sleeplist) async {
       double sleepHoursScore = calculateSleepHoursScore(sleepHours, ageGroup);
       score += sleepHoursScore * 0.3; 
     }
+    sleepHoursScores.add(sleepHoursScore); // to be returned
     // MINUTES TO FALL ASLEEP
     if (sleepData.minutesToFallAsleep != null) {
       double minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
@@ -43,10 +47,14 @@ Future<List<double>> getSleepScore(BuildContext context, List sleeplist) async {
     }
     scores.add(score);
   }
-  return scores;
+  Map<String, List<double>> output = {
+    "sleepHoursScores" : sleepHoursScores,
+    "scores" : scores,
+  };
+  return output;
 }
 
-double calculateMinutesToFallAsleepScore(int minutes) {
+double calculateMinutesToFallAsleepScore(double minutes) {
   if (minutes <= 5) { return 50; // sign of sleep deprivation
   } else if (minutes <= 10) { return 75; 
   } else if (minutes <= 20) { return 100; // between 10 and 20 minutes = normal healthy latency
@@ -72,7 +80,7 @@ double calculatePhaseScore(double phaseMinutes, double totalMinutes, double minP
 String determineAgeGroup(int age) {
   if (age>=5 && age<=12) {return "School-age"; // supposing <5 y.o. children do not use this app
   } else if (age<=18) {return "Teen";
-  } else if (age<=25) {return "Young adult";
+  } else if (age<=25) {return "Young Adult";
   } else if (age<=65) {return "Adult";
   } else {return "Older Adult";
   }
@@ -87,7 +95,6 @@ double calculateSleepHoursScore(double sleepHours, String ageGroup) {
     "Adult" : [7, 9, 6, 10],
     "Older Adult" :[7, 8, 5, 9]
   };
-
   List<double> scoreData = sleepScoreTable[ageGroup]!;
   double minIdeal = scoreData[0];
   double maxIdeal = scoreData[1];
