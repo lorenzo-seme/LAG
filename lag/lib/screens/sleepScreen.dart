@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart'; 
 import 'package:intl/intl.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
@@ -146,7 +146,7 @@ class SleepScreen extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: CustomPlot(
-                          sleep: provider.sleepData,
+                          data: provider.sleepData,
                         ),
 
                         /*
