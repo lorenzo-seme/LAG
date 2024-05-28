@@ -1,7 +1,8 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
+import 'package:lag/models/allData.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -15,6 +16,7 @@ class HomeProvider extends ChangeNotifier {
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
+  List<AllData> allData = [];
  
   double score = 0;
 
