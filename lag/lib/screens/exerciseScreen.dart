@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/utils/custom_plot.dart';

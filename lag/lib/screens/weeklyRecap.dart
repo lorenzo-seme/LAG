@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/models/exercisedata.dart';
 //import 'package:lag/algorithms/sleepScore.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -102,7 +101,7 @@ class WeeklyRecap extends StatelessWidget {
                     ),
                 const SizedBox(height: 10),
                 Text('Sleep Data'),
-                (provider.sleepData.isEmpty) ? const CircularProgressIndicator.adaptive() :
+                (provider.heartRateData.isEmpty) ? const CircularProgressIndicator.adaptive() :
                   Card(
                           elevation: 5,
                           child: ListTile(

@@ -18,10 +18,7 @@ class HeartRateData extends AllData{
         super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
 
   @override
-   Map<String, dynamic> toJson() { 
-    return {
-      "day": getFormattedDate(),
-      "value": value,
-    };
-  }
-}//SleepData
+  String toString() {
+    return 'day: $day, value: $value';
+    }
+}

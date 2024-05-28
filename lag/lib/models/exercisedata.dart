@@ -41,12 +41,9 @@ class ExerciseData extends AllData {
     return totalDuration;
   }
 
-  /*@override
-  Map<String, dynamic> toJson() {
-    return {
-      "day": getFormattedDate(),
-      "avg": avgHR,
-      "duration": duration,
-    };*/
+  @override
+  String toString() {
+    return 'day: $day, avgHR: $avgHR, duration: $duration';
   }
+}
 

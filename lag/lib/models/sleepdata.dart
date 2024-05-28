@@ -26,7 +26,7 @@ class SleepData extends AllData{
 
   
   SleepData.fromJson(String day, Map<String, dynamic> json)
-      : duration = double.parse((json["data"] is List ? json["data"][0]["duration"] : json["data"]["duration"]) * math.pow(10, -3) / 3600).toStringAsFixed(1),
+      : duration = double.parse(((json["data"] is List ? json["data"][0]["duration"] : json["data"]["duration"]) * math.pow(10, -3) / 3600).toStringAsFixed(1)),
         minutesAsleep = double.parse((json["data"] is List ? json["data"][0]["minutesAsleep"] : json["data"]["minutesAsleep"]).toStringAsFixed(1)),
         efficiency = double.parse((json["data"] is List ? json["data"][0]["efficiency"] : json["data"]["efficiency"]).toStringAsFixed(1)),
         minutesToFallAsleep = double.parse((json["data"] is List ? json["data"][0]["minutesToFallAsleep"] : json["data"]["minutesToFallAsleep"]).toStringAsFixed(1)),

@@ -10,6 +10,4 @@ abstract class AllData {
     return DateFormat('yyyy-MM-dd').format(day);
   }
 
-  // Abstract method to be implemented by subclasses
-  //Map<String, dynamic> toJson();
 }
