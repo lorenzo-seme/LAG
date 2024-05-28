@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; 
@@ -14,7 +15,7 @@ class HomeProvider extends ChangeNotifier {
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
-
+ 
   double score = 0;
 
   String nick = 'User';
@@ -59,6 +60,7 @@ class HomeProvider extends ChangeNotifier {
 
   */
   
+  
   double sleepAvg() {
     if(sleepData.isEmpty){return 0.0;}
     double total = 0;
@@ -71,6 +73,7 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total / counter).toStringAsFixed(1));
   }
+  
 
   double exerciseDuration(){
     if(exerciseData.isEmpty){return 0.0;}
@@ -84,7 +87,7 @@ class HomeProvider extends ChangeNotifier {
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime showDate) async {
     DateTime start = showDate;
-    DateTime end = start.add(Duration(days: 6));
+    DateTime end = start.add(const Duration(days: 6));
     
     DateFormat dateFormat = DateFormat('E, d MMM');
     String formattedStart = dateFormat.format(start);
@@ -176,6 +179,7 @@ class HomeProvider extends ChangeNotifier {
     final data = await Impact.fetchExerciseData(startDay, endDay);
 
     //if OK parse the response adding all the elements to the list, otherwise do nothing
+  
     if (data != null) {
       if (!data['data'].isEmpty){
         for(int i=0; i<data['data'].length; i++)
@@ -193,6 +197,7 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
       }}//if
   }//fetchExerciseData
+  
 
   Future<void> fetchAllData(String startDay, String endDay) async {
     await fetchExerciseData(startDay,endDay);

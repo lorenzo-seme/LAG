@@ -42,14 +42,7 @@ class SleepData extends AllData{
   // gestiamo questa possibilità con l'operatore ternario
 
   @override
-  Map<String, dynamic> toJson() {
-    return {
-      'day': DateFormat('yyyy-MM-dd').format(day),
-      'duration': duration,
-      'minutesAsleep': minutesAsleep,
-      'efficiency': efficiency,
-      'minutesToFallAsleep': minutesToFallAsleep,
-      'levels': levels,
-    };
+  String toString() {
+    return 'day: $day, duration: $duration, minutesAsleep: $minutesAsleep, efficiency: $efficiency, minutesToFallAsleep: $minutesToFallAsleep, levels: $levels';
   }//toString
 }//SleepData

@@ -11,5 +11,5 @@ abstract class AllData {
   }
 
   // Abstract method to be implemented by subclasses
-  Map<String, dynamic> toJson();
+  //Map<String, dynamic> toJson();
 }
