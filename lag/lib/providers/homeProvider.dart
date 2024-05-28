@@ -24,15 +24,16 @@ class HomeProvider extends ChangeNotifier {
   String nick = 'User';
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
-  DateTime start = DateTime.now().subtract(const Duration(days: 7));
+  DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
+  //DateTime start = DateTime.now().subtract(const Duration(days: 7));
   DateTime end = DateTime.now().subtract(const Duration(days: 1));
-
+  DateTime start = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
+  
   final Impact impact = Impact();
 
   // constructor of provider which manages the fetching of all data from the servers and then notifies the ui to build
   // HomeProvider() {getDataOfDay(showDate);}
   HomeProvider() {_init();}
-  
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
@@ -43,7 +44,7 @@ class HomeProvider extends ChangeNotifier {
 
     // Fetch data 
     //getDataOfDay(showDate);
-    getDataOfWeek(start);
+    getDataOfWeek(start, end);
   }
 
 
@@ -89,9 +90,9 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // method to get the data of the chosen week
-  Future<void> getDataOfWeek(DateTime showDate) async {
-    DateTime start = showDate;
-    DateTime end = start.add(const Duration(days: 6));
+  Future<void> getDataOfWeek(DateTime start, DateTime end) async {
+    //DateTime start = showDate;
+    //DateTime end = start.add(const Duration(days: 6));
     
     DateFormat dateFormat = DateFormat('E, d MMM');
     String formattedStart = dateFormat.format(start);
@@ -99,8 +100,8 @@ class HomeProvider extends ChangeNotifier {
 
     String dateRange = '$formattedStart - $formattedEnd';
 
-    this.start = start;
-    this.end = end;
+    //this.start = start;
+    //this.end = end;
 
     sleepData = [];
     heartRateData = [];
@@ -131,18 +132,30 @@ class HomeProvider extends ChangeNotifier {
     //if OK parse the response adding all the elements to the list, otherwise do nothing
     if (data != null) {
       if (!data['data'].isEmpty){
-        for(int i=0; i<data['data'].length; i++)
-        {
-          if(!data['data'][i]['data'].isEmpty)
+        if (data["data"] is List) {
+          for(int i=0; i<data['data'].length; i++)
           {
-            sleepData.add(SleepData.fromJson(data['data'][i]['date'], data['data'][i]));
+            if(!data['data'][i]['data'].isEmpty)
+            {
+              sleepData.add(SleepData.fromJson(data['data'][i]['date'], data['data'][i]));
+            }
+            else
+            {
+              sleepData.add(SleepData.empty(data['data'][i]['date'], data['data'][i]));
+            }
+            //print(sleepData.last);
           }
-          else
-          {
-            sleepData.add(SleepData.empty(data['data'][i]['date'], data['data'][i]));
-          }
-          print(sleepData.last);
-        }
+        } else {
+          if(!data['data']['data'].isEmpty)
+            {
+              sleepData.add(SleepData.fromJson(data['data']['date'], data['data']));
+            }
+            else
+            {
+              sleepData.add(SleepData.empty(data['data']['date'], data['data']));
+            }
+            //print(sleepData.last);
+        } 
         calculateSleepScore(startDay, endDay);
       }
       notifyListeners();
@@ -159,17 +172,29 @@ class HomeProvider extends ChangeNotifier {
     //if OK parse the response adding all the elements to the list, otherwise do nothing
     if (data != null) {
       if (!data['data'].isEmpty){
-        for(int i=0; i<data['data'].length; i++)
-        {
-          if(!data['data'][i]['data'].isEmpty)
+        if (data["data"] is List) {
+          for(int i=0; i<data['data'].length; i++)
           {
-            heartRateData.add(HeartRateData.fromJson(data['data'][i]['date'], data['data'][i]));
+            if(!data['data'][i]['data'].isEmpty)
+            {
+              heartRateData.add(HeartRateData.fromJson(data['data'][i]['date'], data['data'][i]));
+            }
+            else
+            {
+              heartRateData.add(HeartRateData.empty(data['data'][i]['date'], data['data'][i]));
+            }
+            //print(heartRateData.last);
           }
-          else
-          {
-            heartRateData.add(HeartRateData.empty(data['data'][i]['date'], data['data'][i]));
-          }
-          print(heartRateData.last);
+        } else {
+          if(!data['data']['data'].isEmpty)
+            {
+              heartRateData.add(HeartRateData.fromJson(data['data']['date'], data['data']));
+            }
+            else
+            {
+              heartRateData.add(HeartRateData.empty(data['data']['date'], data['data']));
+            }
+            //print(heartRateData.last);
         }
       }
       notifyListeners();
@@ -187,17 +212,29 @@ class HomeProvider extends ChangeNotifier {
   
     if (data != null) {
       if (!data['data'].isEmpty){
-        for(int i=0; i<data['data'].length; i++)
-        {
-          if(!data['data'][i]['data'].isEmpty)
+        if (data["data"] is List) {
+          for(int i=0; i<data['data'].length; i++)
           {
-            exerciseData.add(ExerciseData.fromJson(data['data'][i]['date'], data['data'][i]));
+            if(!data['data'][i]['data'].isEmpty)
+            {
+              exerciseData.add(ExerciseData.fromJson(data['data'][i]['date'], data['data'][i]));
+            }
+            else
+            {
+              exerciseData.add(ExerciseData.empty(data['data'][i]['date'], data['data'][i]));
+            }
+            //print(exerciseData.last);
           }
-          else
-          {
-            exerciseData.add(ExerciseData.empty(data['data'][i]['date'], data['data'][i]));
-          }
-          print(exerciseData.last);
+        } else {
+          if(!data['data']['data'].isEmpty)
+            {
+              exerciseData.add(ExerciseData.fromJson(data['data']['date'], data['data']));
+            }
+            else
+            {
+              exerciseData.add(ExerciseData.empty(data['data']['date'], data['data']));
+            }
+            //print(exerciseData.last);
         }
       notifyListeners();
       }}//if
@@ -218,10 +255,29 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-void calculateSleepScore(String startDay, String endDay) async{
-  sleepScores = await getSleepScore(sleepData);
-  notifyListeners();
-}
+  void calculateSleepScore(String startDay, String endDay) async{
+    sleepScores = await getSleepScore(sleepData);
+    notifyListeners();
+  }
+
+  // methods to update start and end: dateSubtractor & dateAdder
+  void dateSubtractor(DateTime start) {
+    this.start = start.subtract(const Duration(days: 7));
+    end = this.start.add(const Duration(days: 6));
+    notifyListeners();
+  }//dateSubtractor
+
+  void dateAdder(DateTime start) {
+    this.start = start.add(const Duration(days: 7));
+    if (this.start.year == monday.year && this.start.month == monday.month && this.start.day == monday.day) {
+      end = showDate;
+    } else {
+      end = this.start.add(const Duration(days: 6));
+    }
+    notifyListeners();
+  }//dateAdder 
+
+  
   
 }
 

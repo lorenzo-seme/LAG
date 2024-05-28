@@ -7,7 +7,8 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
   List<double> combinedPhaseScores = [];
 
   SharedPreferences sp = await SharedPreferences.getInstance();
-  int userAge = sp.getInt('userAge') ?? 25; // Default at 25 if not specified
+  int userAge = (sp.getString('userAge')) == null ? 25 : int.parse(sp.getString('userAge')!); // Default at 25 if not specified
+  // MESSAGGIO NEL CASO L'UTENTE NON ABBIA IMPOSTATO LA DATA DI NASCITA, SCORE SUBOTTIMO
   String ageGroup = determineAgeGroup(userAge);
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data

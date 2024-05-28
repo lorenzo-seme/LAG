@@ -34,26 +34,31 @@ class WeeklyRecap extends StatelessWidget {
                 Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 20),
                 const Text('7-days Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: InkWell(onTap: () {
-                        provider.getDataOfWeek(provider.start.subtract(const Duration(days: 7)));
-                        //provider.dateSubtractor(provider.start);
+                    child: InkWell(onTap: () async {
+                      provider.dateSubtractor(provider.start);
+                      await provider.getDataOfWeek(provider.start, provider.end);
                       },
                       child: const Icon(Icons.navigate_before),
                     ),
                   ),
+                  (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
+                  Text(DateFormat('EEE, d MMM').format(provider.start)):
                   Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        provider.getDataOfWeek(provider.start.add(const Duration(days: 7)));
-                        //provider.dateAdder(provider.start);
-                      },
-                      child: const Icon(Icons.navigate_next),
-                    ),
+                    child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
+                      const Icon(Icons.stop) :
+                      InkWell(
+                        onTap: () async {
+                          provider.dateAdder(provider.start);
+                          await provider.getDataOfWeek(provider.start, provider.end);
+                        },
+                        child: const Icon(Icons.navigate_next),
+                      ), 
                   ),
                 ]),
                 const Text("Cumulative Score",style: TextStyle(fontSize: 16)),

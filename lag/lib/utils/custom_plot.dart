@@ -69,7 +69,7 @@ List<Map<String, dynamic>> _parseData(List<AllData> data) {
     double points;
     if (e is SleepData) {
       type = 'sleep';
-      points = e.duration;
+      points = (e.duration == null) ? 0 : e.duration!;
     } else if (e is ExerciseData) {
       type = 'exercise';
       points = e.duration;

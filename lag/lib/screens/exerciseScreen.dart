@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/utils/custom_plot.dart';
-import 'package:provider/provider.dart';
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class ExerciseScreen extends StatelessWidget {
@@ -31,15 +30,10 @@ class ExerciseScreen extends StatelessWidget {
             ),
       
       body: SafeArea(
-      child: ChangeNotifierProvider(
-        create: (context) =>
-            HomeProvider(), // homeprovider is the class implementing the change notifier
-        builder: (context, child) => Padding(
+      child: Padding(
           padding: const EdgeInsets.only(
               left: 12.0, right: 12.0, top: 10, bottom: 20),
-          child: Consumer<HomeProvider>(
-            builder: (context, provider, child) {
-              return Column(
+          child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -57,11 +51,9 @@ class ExerciseScreen extends StatelessWidget {
                               child: CustomPlot(data: provider.exerciseData),
                             ),
                     ) 
-                  ]);
-            },
+                  ]),
+            ),
           ),
-        ),
-      ),
-    ),);
+        );
   }
 }

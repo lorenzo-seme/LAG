@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:lag/utils/custom_plot.dart';
 // import 'package:lag/utils/custom_plot.dart';
 
 
@@ -29,7 +30,8 @@ class SleepScreen extends StatelessWidget {
           },
         ),
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
           child: Column(
@@ -37,9 +39,13 @@ class SleepScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 5),
-              Text('${DateFormat('EEE, d MMM').format(startDate)} - ${DateFormat('EEE, d MMM').format(endDate)}'),
-              const SizedBox(height: 5),
-              const Text("PLOT DAYS VS SCORE", style: TextStyle(fontSize: 32)),
+              (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
+                  Text(DateFormat('EEE, d MMM').format(provider.start)):
+                  Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),              const SizedBox(height: 5),
+              //const Text("PLOT DAYS VS SCORE", style: TextStyle(fontSize: 32)),
+              Container(
+                      height: 100,
+                      child:CustomPlot(data: provider.sleepData)),
               const SizedBox(height: 10,),
               const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
               _buildSleepHoursDataCard(provider.sleepData),
@@ -67,9 +73,11 @@ class SleepScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    )
+  );
+}
 
+// PROVA AD IMPLEMENTARE UNA COSA TIPO CHE QUANDO CLICCHI LA CARD PER MORE INFO LA CARD SI ESPANDE E FA VEDERE IL TESTO
   Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
     return Card(
       elevation: 5,
