@@ -1,6 +1,7 @@
+
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -10,9 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lag/algorithms/sleep_score.dart';
 
 
-// RINDONDANZA NEL METHODO GETDATAOFWEEK PERCHè START E END SONO GIà DEFINITI NELLA CLASSE, BASTEREBBE DARE LORO IN INPUT ANZICHè SHOWDATE
-
-class HomeProvider extends ChangeNotifier {
+class HomeProvider extends ChangeNotifier { 
   //List<HR> heartRates = [];
   List<int> heartRates = []; // MOMENTANEO
   List<SleepData> sleepData = [];
@@ -23,7 +22,7 @@ class HomeProvider extends ChangeNotifier {
   double score = 0;
 
   String nick = 'User';
-
+  
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
   DateTime start = DateTime.now().subtract(const Duration(days: 7));
   DateTime end = DateTime.now().subtract(const Duration(days: 1));
@@ -92,7 +91,7 @@ class HomeProvider extends ChangeNotifier {
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime showDate) async {
     DateTime start = showDate;
-    DateTime end = start.add(Duration(days: 6));
+    DateTime end = start.add(const Duration(days: 6));
     
     DateFormat dateFormat = DateFormat('E, d MMM');
     String formattedStart = dateFormat.format(start);
@@ -185,6 +184,7 @@ class HomeProvider extends ChangeNotifier {
     final data = await Impact.fetchExerciseData(startDay, endDay);
 
     //if OK parse the response adding all the elements to the list, otherwise do nothing
+  
     if (data != null) {
       if (!data['data'].isEmpty){
         for(int i=0; i<data['data'].length; i++)
@@ -202,6 +202,7 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
       }}//if
   }//fetchExerciseData
+  
 
   Future<void> fetchAllData(String startDay, String endDay) async {
     await fetchExerciseData(startDay,endDay);

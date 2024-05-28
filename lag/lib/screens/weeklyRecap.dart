@@ -3,6 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 //import 'package:lag/algorithms/sleepScore.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/InfoRHR.dart';
+import 'package:lag/screens/exerciseScreen.dart';
+import 'package:lag/screens/infoExercise.dart';
+import 'package:lag/screens/infoSleep.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
 //import 'dart:async';
@@ -19,9 +23,7 @@ class WeeklyRecap extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: ChangeNotifierProvider(
-        create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
-        builder: (context, child) => Padding(
+          child: Padding(
           padding:
               const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
           child: Consumer<HomeProvider>(builder: (context, provider, child) {
@@ -100,7 +102,7 @@ class WeeklyRecap extends StatelessWidget {
                     ),
                 const SizedBox(height: 10),
                 Text('Sleep Data'),
-                (provider.sleepData.isEmpty) ? const CircularProgressIndicator.adaptive() :
+                (provider.heartRateData.isEmpty) ? const CircularProgressIndicator.adaptive() :
                   Card(
                           elevation: 5,
                           child: ListTile(
@@ -160,7 +162,7 @@ class WeeklyRecap extends StatelessWidget {
                                     Text('Exercise : ${Provider.of<HomeProvider>(context).exerciseDuration()} minutes'),
                                 subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                //onTap: () => _toExercisePage(context),
+                                onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
                       ),
                 const SizedBox(height: 20), 
@@ -178,23 +180,19 @@ class WeeklyRecap extends StatelessWidget {
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          // handle button press
-                        },
-                        child: SizedBox(
+                      SizedBox(
                             width: 300,
                             height: 200,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                InkWell(/*
+                                InkWell(
                                   onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
-                                          builder: (_) => WhatExposure())),*/
+                                          builder: (_) => InfoSleep())),
                                   child: Hero(transitionOnUserGestures: true,
-                                    tag: 'exposure',
+                                    tag: 'sleep',
                                     child: Container(
                                       width: 300,
                                       height: 200,
@@ -221,27 +219,25 @@ class WeeklyRecap extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            )),
-                      ),
+                            )
+                        ),
                       const SizedBox(
                         width: 8,
                       ),
-                      InkWell(
-                        onTap: () {
-                          // handle button press
-                        },
-                        child: SizedBox(
+                      SizedBox(
                             width: 300,
                             height: 200,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                InkWell(/*
+                                InkWell(
                                   onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
-                                          builder: (_) => WhatAirPollution())),*/
-                                  child: Container(
+                                          builder: (_) => InfoExercise())),
+                                  child: Hero(
+                                    tag: 'exercise',
+                                    child: Container(
                                     width: 300,
                                     height: 200,
                                     decoration: const BoxDecoration(
@@ -256,7 +252,7 @@ class WeeklyRecap extends StatelessWidget {
                                             'assets/exercise.jpg'),
                                       ),
                                     ),
-                                  ),
+                                  ),),
                                 ),
                                 const Padding(
                                   padding: EdgeInsets.only(top: 8.0),
@@ -266,8 +262,51 @@ class WeeklyRecap extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                            )),
+                            )
+                        ),
+                      const SizedBox(
+                        width: 8,
                       ),
+                      SizedBox(
+                            width: 300,
+                            height: 200,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) => InfoRHR())),
+                                  child: Hero(
+                                    tag: 'rhr',
+                                    child: Container(
+                                    width: 300,
+                                    height: 200,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15.0),
+                                          bottomLeft: Radius.circular(15.0),
+                                          bottomRight: Radius.circular(15.0),
+                                          topRight: Radius.circular(15.0)),
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: AssetImage(
+                                            'assets/rhr.png'),
+                                      ),
+                                    ),
+                                  ),),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "Why RHR reflects my health status?",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
                     ],
                   ),
                 )
@@ -276,8 +315,7 @@ class WeeklyRecap extends StatelessWidget {
           }),
         ),
       )
-      )
-    );
+      );
   }
   
   /*
@@ -294,7 +332,13 @@ class WeeklyRecap extends StatelessWidget {
       builder: (context) => SleepScreen(startDate: start, endDate: end, provider: provider)
     ));
   }
+
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
+  }
 }
+
 
 /*
 Future<double> calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture) async {

@@ -63,7 +63,6 @@ class SleepScreen extends StatelessWidget {
                   Expanded(child: _buildPhasesDataCard(provider.sleepData)),
                 ],
               ),
-              const Text("HO NOTATO CHE SE DALLA HOME PASSIAMO AL PROFILO E POI TORNIAMO INDIETRO, LA DATA SI INIZIALIZZA DI NUOVO!!"),
             ],
           ),
         ),
