@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
   List<double> scores = [];
   List<double> sleepHoursScores = [];
+  List<double> minutesToFallAsleepScores = [];
+  List<double> combinedPhaseScores = [];
 
   SharedPreferences sp = await SharedPreferences.getInstance();
   int userAge = sp.getInt('userAge') ?? 25; // Default at 25 if not specified
@@ -10,22 +12,25 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data
     double sleepHoursScore = -1;
+    double minutesToFallAsleepScore = -1;
+    double combinedPhaseScore = -1;
     
     // ordered according decreasing weigth
     // EFFICIENCY
     if (sleepData.efficiency != null) {
       score = sleepData.efficiency * 0.4; // higher weigth for efficiency
+      // è POSSIBILE CHE MANCHI SOLO UN CAMPO IN SLEEP DATA (ES. SOLO EFFICIENCY?) O SE C'è UNO CI SONO TUTTI???
     }
     // MINUTE ASLEEP
     if (sleepData.minutesAsleep != null) {
       double sleepHours = sleepData.minutesAsleep / 60;
-      double sleepHoursScore = calculateSleepHoursScore(sleepHours, ageGroup);
+      sleepHoursScore = calculateSleepHoursScore(sleepHours, ageGroup);
       score += sleepHoursScore * 0.3; 
+      print('Updated sleepHoursScore: $sleepHoursScore');
     }
-    sleepHoursScores.add(sleepHoursScore); // to be returned
     // MINUTES TO FALL ASLEEP
     if (sleepData.minutesToFallAsleep != null) {
-      double minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
+      minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
       score += minutesToFallAsleepScore * 0.2; 
     }
     // LEVELS
@@ -45,10 +50,15 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
       score = score.clamp(0, 100); // final score, between 0 and 100
     }
     scores.add(score);
+    sleepHoursScores.add(sleepHoursScore); // to be returned
+    minutesToFallAsleepScores.add(minutesToFallAsleepScore);
+    combinedPhaseScores.add(combinedPhaseScore);
   }
   Map<String, List<double>> output = {
     "sleepHoursScores" : sleepHoursScores,
     "scores" : scores,
+    "minutesToFallAsleepScores" : minutesToFallAsleepScores,
+    "combinedPhaseScores" : combinedPhaseScores,
   };
   return output;
 }

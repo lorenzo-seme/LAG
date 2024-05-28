@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:fl_chart/fl_chart.dart';
 // import 'package:lag/utils/custom_plot.dart';
 
 
@@ -41,8 +42,28 @@ class SleepScreen extends StatelessWidget {
               const Text("PLOT DAYS VS SCORE", style: TextStyle(fontSize: 32)),
               const SizedBox(height: 10,),
               const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
-              _buildSleepDataCard(provider.sleepData),
-              const Text("1. SCORES VA MA NON L'ALTRA CHIAVE NO?? VERIFICA L'IMPLEMENTAZIONE IN SLEEP SCORE QUALCOSA NON VA \n 2. HO NOTATO CHE SE DALLA HOME PASSIAMO AL PROFILO E POI TORNIAMO INDIETRO, LA DATA SI INIZIALIZZA DI NUOVO!!"),
+              _buildSleepHoursDataCard(provider.sleepData),
+              _buildMinutesToFallDataCard(provider.sleepData),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 20,
+                      child: PieChart(
+                      PieChartData(
+                        sections: [ // QUI MODIFICA
+                          PieChartSectionData(value: 40, color: Colors.blue, title: 'Deep Sleep'),
+                          PieChartSectionData(value: 30, color: Colors.red, title: 'REM Sleep'),
+                          PieChartSectionData(value: 30, color: Colors.green, title: 'Light Sleep'),
+                        ],
+                      ),
+                    ),
+                    )
+                  ),
+                  Expanded(child: _buildPhasesDataCard(provider.sleepData)),
+                ],
+              ),
+              const Text("HO NOTATO CHE SE DALLA HOME PASSIAMO AL PROFILO E POI TORNIAMO INDIETRO, LA DATA SI INIZIALIZZA DI NUOVO!!"),
             ],
           ),
         ),
@@ -50,19 +71,50 @@ class SleepScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSleepDataCard(List<SleepData> sleepData) {
+  Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
     return Card(
       elevation: 5,
       child: ListTile(
         leading: const Icon(Icons.hotel),
         trailing: SizedBox(
           width: 10,
-          child: getSleepScoreIcon(provider.sleepScores["sleepHoursScores"]!),
+          child: getScoreIcon(provider.sleepScores["sleepHoursScores"]!),
         ),
-        title: Text(
-          calculateAverageSleepMinutes(sleepData) == null
-              ? "No data available"
-              : "${double.parse((calculateAverageSleepMinutes(sleepData)! / 60).toStringAsFixed(1))} hours slept",
+        title: Text("${getFormattedDuration(sleepData, 1)} slept",
+          style: const TextStyle(fontSize: 14.0),
+        ),
+        subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
+      ),
+    );
+  }
+
+  Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
+    return Card(
+      elevation: 5,
+      child: ListTile(
+        leading: const Icon(Icons.hourglass_bottom),
+        trailing: SizedBox(
+          width: 10,
+          child: getScoreIcon(provider.sleepScores["minutesToFallAsleepScores"]!),
+        ),
+        title: Text("${getFormattedDuration(sleepData, 2)} to fall asleep",
+          style: const TextStyle(fontSize: 14.0),
+        ),
+        subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
+      ),
+    );
+  }
+
+  Widget _buildPhasesDataCard(List<SleepData> sleepData) {
+    return Card(
+      elevation: 5,
+      child: ListTile(
+        leading: const Icon(Icons.nightlight_round),
+        trailing: SizedBox(
+          width: 10,
+          child: getScoreIcon(provider.sleepScores["combinedPhaseScores"]!),
+        ), 
+        title: Text("${getFormattedDuration(sleepData, 2)} to fall asleep", // QUI MODIFICA
           style: const TextStyle(fontSize: 14.0),
         ),
         subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
@@ -71,12 +123,19 @@ class SleepScreen extends StatelessWidget {
   }
 }
 
-double? calculateAverageSleepMinutes(List<SleepData> sleepDataList) {
+
+// GENERAL FUNCTIONS
+
+double? calculateAverage(List<SleepData> sleepDataList, int n) {
   double sum = 0;
   int count = 0;
   for (SleepData data in sleepDataList) {
-    if (data.minutesAsleep != null) {
+    if (n==1 && data.minutesAsleep != null) {
       sum += data.minutesAsleep!;
+      count++;
+    }
+    if (n==2 && data.minutesToFallAsleep != null) {
+      sum += data.minutesToFallAsleep!;
       count++;
     }
   }
@@ -85,17 +144,38 @@ double? calculateAverageSleepMinutes(List<SleepData> sleepDataList) {
   return average;
 }
 
-Widget getSleepScoreIcon(List<double> scores) {
+Widget getScoreIcon(List<double> scores) {
   List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
   if (validScores.isEmpty) {
     return const Icon(Icons.error); // if no valid scores
   }
   double averageScore = validScores.reduce((a, b) => a + b) / validScores.length; 
-  if (averageScore >= 80) {
-    return const Icon(Icons.sentiment_satisfied); // average score above 80
-  } else if (averageScore >= 60) {
+  if (averageScore >= 90) {
+    return const Icon(Icons.sentiment_very_satisfied); // average score above 80
+  } else if (averageScore >= 80) {
+    return const Icon(Icons.sentiment_satisfied); // average score between 60 and 80
+  } else if (averageScore >= 70) {
     return const Icon(Icons.sentiment_neutral); // average score between 60 and 80
+  } else if (averageScore >= 60) {
+    return const Icon(Icons.sentiment_dissatisfied); // average score between 60 and 80
   } else {
-    return const Icon(Icons.sentiment_dissatisfied); // average score below 60
+    return const Icon(Icons.sentiment_very_dissatisfied); // average score below 60
+  }
+}
+
+String formatDuration(double totalMinutes) {
+  int hours = (totalMinutes / 60).floor();
+  int minutes = (totalMinutes % 60).round();
+  if (hours==0) {return "$minutes minutes";
+  } else {return "$hours hours and $minutes minutes";
+  }
+}
+
+String getFormattedDuration(List<SleepData> sleepData, int n) {
+  double? average= calculateAverage(sleepData, n);
+  if (average== null) {
+    return "No data available";
+  } else {
+    return formatDuration(average);
   }
 }
