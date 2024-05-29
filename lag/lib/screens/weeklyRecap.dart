@@ -23,9 +23,7 @@ class WeeklyRecap extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: ChangeNotifierProvider(
-        create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
-        builder: (context, child) => Padding(
+          child: Padding(
           padding:
               const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
           child: Consumer<HomeProvider>(builder: (context, provider, child) {
@@ -116,7 +114,7 @@ class WeeklyRecap extends StatelessWidget {
                             ),
                             title: Text('Sleep : ${Provider.of<HomeProvider>(context).sleepAvg()} hours'),
                             subtitle: const Text('Average hours of sleep for this week'),
-                            onTap: () => _toSleepPage(context, provider.start, provider.end),
+                            onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
                           ),
                         ),
                   /*Card(
@@ -164,7 +162,7 @@ class WeeklyRecap extends StatelessWidget {
                                     Text('Exercise : ${Provider.of<HomeProvider>(context).exerciseDuration()} minutes'),
                                 subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                onTap: () => _toExercisePage(context, provider.start, provider.end),
+                                onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
                       ),
                 const SizedBox(height: 20), 
@@ -317,22 +315,30 @@ class WeeklyRecap extends StatelessWidget {
           }),
         ),
       )
-      )
-    );
+      );
   }
   
+  /*
   // Method for navigation weeklyRecap -> sleepScreen
   void _toSleepPage(BuildContext context, DateTime start, DateTime end) {
   Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SleepScreen(startDate: start, endDate: end)
-      ));
+      )); 
 } //_toSleepPage
-
-  void _toExercisePage(BuildContext context, DateTime start, DateTime end) {
+*/
+  // Method for navigation weeklyRecap -> sleepScreen
+  void _toSleepPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end)));
+      builder: (context) => SleepScreen(startDate: start, endDate: end, provider: provider)
+    ));
+  }
+
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
   }
 }
+
 
 /*
 Future<double> calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture) async {

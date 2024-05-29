@@ -2,13 +2,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/models/allData.dart'; 
+//import 'package:lag/models/allData.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/utils/impact.dart';
 //import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lag/algorithms/sleep_score.dart';
+
 
 class HomeProvider extends ChangeNotifier { 
   //List<HR> heartRates = [];
@@ -16,8 +18,8 @@ class HomeProvider extends ChangeNotifier {
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
-  List<AllData> allData = [];
- 
+  Map<String, List<double>> sleepScores = {};
+
   double score = 0;
 
   String nick = 'User';
@@ -31,6 +33,7 @@ class HomeProvider extends ChangeNotifier {
   // constructor of provider which manages the fetching of all data from the servers and then notifies the ui to build
   // HomeProvider() {getDataOfDay(showDate);}
   HomeProvider() {_init();}
+  
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
@@ -141,6 +144,7 @@ class HomeProvider extends ChangeNotifier {
           }
           print(sleepData.last);
         }
+        calculateSleepScore(startDay, endDay);
       }
       notifyListeners();
     }//if
@@ -214,5 +218,12 @@ class HomeProvider extends ChangeNotifier {
     score = 0;
     notifyListeners();
   }
+
+void calculateSleepScore(String startDay, String endDay) async{
+  sleepScores = await getSleepScore(sleepData);
+  notifyListeners();
+}
   
 }
+
+

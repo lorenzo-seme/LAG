@@ -4,14 +4,18 @@ import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/utils/custom_plot.dart';
-import 'package:provider/provider.dart';
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class ExerciseScreen extends StatelessWidget {
   final DateTime startDate;
   final DateTime endDate;
+  final HomeProvider provider;
 
-  const ExerciseScreen({super.key, required this.startDate, required this.endDate});
+  const ExerciseScreen(
+      {super.key,
+      required this.startDate,
+      required this.endDate,
+      required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -25,42 +29,36 @@ class ExerciseScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
-            },
-            ),
-            ),
-      
+          },
+        ),
+      ),
       body: SafeArea(
-      child: ChangeNotifierProvider(
-        create: (context) =>
-            HomeProvider(), // homeprovider is the class implementing the change notifier
-        builder: (context, child) => Padding(
+        child: Padding(
           padding: const EdgeInsets.only(
               left: 12.0, right: 12.0, top: 10, bottom: 20),
-          child: Consumer<HomeProvider>(
-            builder: (context, provider, child) {
-              return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 5),
-                    Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
-                    const SizedBox(height: 10),
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: provider.exerciseData.isEmpty
-                          ? const Center(
-                              child: CircularProgressIndicator.adaptive(),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CustomPlot(data: provider.exerciseData),
-                            ),
-                    ) 
-                  ]);
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 5),
+              Text(
+                  '${DateFormat('EEE, d MMM').format(startDate)} - ${DateFormat('EEE, d MMM').format(endDate)}'),
+              const SizedBox(height: 10),
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: provider.exerciseData.isEmpty
+                    ? const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomPlot(data: provider.exerciseData),
+                      ),
+              )
+            ],
           ),
         ),
       ),
-    ),);
+    );
   }
 }
