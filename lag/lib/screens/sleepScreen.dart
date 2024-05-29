@@ -4,6 +4,7 @@ import 'package:lag/algorithms/sleep_score.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
+//import 'package:lag/utils/barplot.dart';
 import 'package:lag/utils/custom_plot.dart';
 
 class SleepScreen extends StatefulWidget {
@@ -18,21 +19,27 @@ class SleepScreen extends StatefulWidget {
 }
 
 class _SleepScreenState extends State<SleepScreen> {
+  bool _isPhasesCardExpanded = false;
+  bool _isSleepHoursCardExpanded = false;
+  bool _isMinutesToFallCardExpanded = false;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Sleep Data',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black, ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
+        backgroundColor: const Color.fromARGB(255, 227, 211, 244), // Cambia il colore della barra dell'app
       ),
+
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -45,13 +52,17 @@ class _SleepScreenState extends State<SleepScreen> {
                 (widget.provider.start.year == widget.provider.end.year &&
                         widget.provider.start.month == widget.provider.end.month &&
                         widget.provider.start.day == widget.provider.end.day)
-                    ? Text(DateFormat('EEE, d MMM').format(widget.provider.start))
-                    : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}'),
+                    ? Text(DateFormat('EEE, d MMM').format(widget.provider.start), textAlign: TextAlign.center,)
+                    : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}', textAlign: TextAlign.center),
                 const SizedBox(height: 5),
-                Container(
+
+                SizedBox(
                   height: 100,
-                  child: CustomPlot(data: widget.provider.sleepData),
+                  child: CustomPlot(data: widget.provider.sleepData), // PROVE QUI
+                  //child: SizedBox(height: 4000, 
+                  //  child: BarChartSample7()),
                 ),
+
                 const SizedBox(height: 10),
                 const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
                 _buildSleepHoursDataCard(widget.provider.sleepData),
@@ -67,78 +78,183 @@ class _SleepScreenState extends State<SleepScreen> {
   }
 
   Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
-    return Card(
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    curve: Curves.easeInOut,
+    child: Card(
+      color: const Color.fromARGB(255, 242, 239, 245),
       elevation: 5,
-      child: ExpansionTile(
-        leading: const Icon(Icons.hotel),
-        trailing: SizedBox(
-          width: 10,
-          child: getScoreIcon(widget.provider.sleepScores["sleepHoursScores"]!),
-        ),
-        title: Text(
-          "${getFormattedDuration(sleepData, 1)} slept",
-          style: const TextStyle(fontSize: 14.0),
-        ),
-        subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
-        children: [ Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_sleepHoursAdvice(widget.provider.sleepScores["ageFlag"]!),
-                       const Text("- National Sleep Foundation",
-                            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0))],
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _isSleepHoursCardExpanded = !_isSleepHoursCardExpanded;
+          });
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.hotel),
+              trailing: SizedBox(
+                width: 10,
+                child: getScoreIcon(widget.provider.sleepScores["sleepHoursScores"]!),
+              ),
+              title: Text(
+                "${getFormattedDuration(sleepData, 1)} slept",
+                style: const TextStyle(fontSize: 14.0),
+              ),
+              subtitle: !_isSleepHoursCardExpanded
+                  ? const Text('Tap to learn more', style: TextStyle(fontSize: 10.0))
+                  : null,
             ),
-          ), ],
+            if (_isSleepHoursCardExpanded)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sleepHoursAdvice(widget.provider.sleepScores["ageFlag"]!),
+                    const Text(
+                      "- National Sleep Foundation",
+                      style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
-    return Card(
+Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    curve: Curves.easeInOut,
+    child: Card(
+      color: const Color.fromARGB(255, 242, 239, 245),
       elevation: 5,
-      child: ExpansionTile(
-        leading: const Icon(Icons.hourglass_bottom),
-        trailing: SizedBox(
-          width: 10,
-          child: getScoreIcon(widget.provider.sleepScores["minutesToFallAsleepScores"]!),
-        ),
-        title: Text(
-          "${getFormattedDuration(sleepData, 2)} to fall asleep",
-          style: const TextStyle(fontSize: 14.0),
-        ),
-        subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
-        children: const [ Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Text("A normal sleep latency typically takes between 10 and 20 minutes to fall asleep. \nFalling asleep in less than 5 minutes is a sign of sleep deprivation, but it could also be a sign of a sleep disorder.\nRegularly taking more than 20-30 minutes to fall asleep is often a sign of insomnia. Among the causes are stress, anxiety, and depression",
-                       style: TextStyle(fontSize: 11.0),)],
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _isMinutesToFallCardExpanded = !_isMinutesToFallCardExpanded;
+          });
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const SizedBox(width: 10, child: Icon(Icons.hourglass_bottom)),
+              trailing: SizedBox(
+                width: 10,
+                child: getScoreIcon(widget.provider.sleepScores["minutesToFallAsleepScores"]!),
+              ),
+              title: Text(
+                "${getFormattedDuration(sleepData, 2)} to fall asleep",
+                style: const TextStyle(fontSize: 14.0),
+              ),
+              subtitle: !_isMinutesToFallCardExpanded
+                  ? const Text('Tap to learn more', style: TextStyle(fontSize: 10.0))
+                  : null,
             ),
-          ), ],
+            if (_isMinutesToFallCardExpanded)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "A normal sleep latency typically takes between 10 and 20 minutes to fall asleep. \nFalling asleep in less than 5 minutes is a sign of sleep deprivation, but it could also be a sign of a sleep disorder.\nRegularly taking more than 20-30 minutes to fall asleep is often a sign of insomnia. Among the causes are stress, anxiety, and depression",
+                      style: TextStyle(fontSize: 11.0),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildPhasesDataCard(List<SleepData> sleepData) {
-    return Card(
-      elevation: 5,
-      child: ListTile(
-        leading: SizedBox(
-          width: 50, // Larghezza del grafico a torta
-          height: 50, // Altezza del grafico a torta
-          child: (calculatePercentage(sleepData)==null) ?
-            const Icon(Icons.nightlight) :
-            _buildPieChart(sleepData),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isPhasesCardExpanded = !_isPhasesCardExpanded;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 10),
+        curve: Curves.easeInOut,
+        child: Card(
+          color: const Color.fromARGB(255, 242, 239, 245),
+          elevation: 5,
+          child: Column(
+            children: [
+              ListTile(
+                leading: SizedBox(
+                    width: _isPhasesCardExpanded ? 10 : 70,
+                    height: _isPhasesCardExpanded ? 100 : 50,
+                    child: _isPhasesCardExpanded 
+                        ? const Icon(Icons.nightlight)
+                        : (calculatePercentage(sleepData) == null)
+                          ? const Icon(Icons.nightlight)
+                          : _buildPieChart(sleepData, _isPhasesCardExpanded)
+                  ),
+                
+                trailing: _isPhasesCardExpanded 
+                          ? SizedBox(
+                            width: 10, 
+                            child: getScoreIcon(widget.provider.sleepScores["combinedPhaseScores"]!),
+                            ) 
+                          : null,
+                title: const Text(
+                  "Sleep phases distribution",
+                  style: TextStyle(fontSize: 14.0),
+                  textAlign: TextAlign.left,
+                  ),
+                subtitle: !_isPhasesCardExpanded
+                          ? const Text('Tap to learn more', style: TextStyle(fontSize: 10.0))
+                          : null,
+              ),
+              if (_isPhasesCardExpanded)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    //crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: 140, height: 140,
+                            child: _buildPieChart(sleepData, _isPhasesCardExpanded),
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: 140, height: 40,
+                            child: Column(
+                              children: [Text("DEEP: ${((calculatePercentage(sleepData)!)["deep"]!).toInt().toDouble()}%",
+                                              style: const TextStyle(fontSize: 11),),
+                                         Text("REM: ${((calculatePercentage(sleepData)!)["rem"]!).toInt().toDouble()}%",
+                                              style: const TextStyle(fontSize: 11),)],
+                            )
+                          )
+                        ],),
+                      const SizedBox(width: 20),
+                      const SizedBox(
+                        width: 135, height: 200,
+                        child: Text("To maintain your health and wellbeing, you need approximately \n20-25% REM sleep and 10-20% DEEP sleep. \nAn unusually large amount of REM sleep in a single night often indicates sleep deprivation",
+                                    style: TextStyle(fontSize: 11.0),)
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
-        trailing: SizedBox(
-          width: 10,
-          child: getScoreIcon(widget.provider.sleepScores["combinedPhaseScores"]!),
         ),
-        title: Text(
-          "${getFormattedDuration(sleepData, 2)} to fall asleep", // NECESSARIO MODIFICARE A PARTIRE DA QUI
-          style: const TextStyle(fontSize: 14.0),
-        ),
-        subtitle: const Text('Tap to learn more', style: TextStyle(fontSize: 10.0)),
       ),
     );
   }
@@ -258,33 +374,41 @@ Map<String, double>? calculatePercentage(List<SleepData> sleepDataList) {
   }
 }
 
-PieChart _buildPieChart(sleepData) {
+PieChart _buildPieChart(sleepData, _isPhasesCardExpanded) {
+  double radius = 30;
+  bool title = false;  
+  (_isPhasesCardExpanded) ? radius=75 : radius=30;
+  (_isPhasesCardExpanded) ? title=true : title=false;
   return PieChart(
             PieChartData(
               sections: [
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["deep"],
                   color: const Color(0xFF8A2BE2), // Viola scuro per Deep Sleep
-                  title: '',
-                  radius: 30,
+                  title: "DEEP", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
+                  showTitle: title,
+                  radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["rem"],
                   color: const Color(0xFFBA55D3), // Viola medio per REM Sleep
-                  title: '',
-                  radius: 30,
+                  title: "REM", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
+                  showTitle: title,
+                  radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["light"],
                   color: const Color(0xFF9370DB), // Viola chiaro per Light Sleep
-                  title: '',
-                  radius: 30,
+                  title: "LIGHT", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
+                  showTitle: title,
+                  radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["wake"],
                   color: const Color.fromARGB(255, 216, 158, 216), // Viola chiaro per Awake
-                  title: '',
-                  radius: 30,
+                  title: "WAKE", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
+                  showTitle: title,
+                  radius: radius,
                 ),
               ],
               centerSpaceColor: Colors.transparent,
@@ -294,3 +418,71 @@ PieChart _buildPieChart(sleepData) {
             ),
           );
 }
+
+/*
+Widget buildSleepHoursBarChart(List<SleepData> sleepData) {
+  // Lista dei giorni della settimana
+  List<String> weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  // Lista delle ore dormite per ogni giorno
+  List hoursSlept = sleepData.map((data) => (data.minutesAsleep ?? 0) / 60).toList();
+  // Se non ci sono dati disponibili per un giorno, viene impostato il valore a 0
+
+  // Trova l'ora massima dormita
+  double maxHoursSlept = hoursSlept.reduce((value, element) => value > element ? value : element);
+
+  return BarChart(
+    BarChartData(
+      alignment: BarChartAlignment.spaceAround,
+      maxY: maxHoursSlept.ceilToDouble() + 1, // Aggiungi 1 per dare un po' di spazio extra in alto
+      /*barTouchData: BarTouchData(
+        enabled: false,
+        touchTooltipData: BarTouchTooltipData(
+          tooltipPadding: EdgeInsets.zero,
+          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            return BarTooltipItem(
+              '${hoursSlept[groupIndex].toStringAsFixed(2)} hours', // Mostra il numero di ore dormite come tooltip
+              TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          },
+        ),
+      ),*/
+      titlesData: FlTitlesData(
+        show: true,
+        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        bottomTitles: AxisTitles(
+          axisNameWidget: Text("days"),
+          axisNameSize: 5,
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 10,
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        
+        show: false,
+      ),
+      barGroups: List.generate(
+        weekDays.length,
+        (weekDays) => BarChartGroupData(
+          x: weekDays,
+          barRods: [
+            BarChartRodData(
+              toY: hoursSlept[weekDays], // Altezza della barra rappresenta le ore dormite per il giorno corrispondente
+              color: Color.fromARGB(255, 188, 136, 244),
+            ),
+          ],
+        ),
+      ),
+    ),
+    swapAnimationDuration: Duration(milliseconds: 150), // Optional
+    swapAnimationCurve: Curves.linear, 
+  );
+}
+*/
