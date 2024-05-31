@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
@@ -90,10 +92,10 @@ double calculatePhaseScore(double phaseMinutes, double totalMinutes, double minP
     return 100.0; // healthy range
   } else if (phasePercent < minPercent) {
     double deficit = minPercent - phasePercent;
-    return 100.0 - (deficit * 5); // -5 points for every % less 
+    return max(100.0 - (deficit * 7),0); // -7 points for every % less 
   } else {
     double surplus = phasePercent - maxPercent;
-    return 100.0 - (surplus * 5); // -5 points for every % more
+    return max(100.0 - (surplus * 7),0); // -7 points for every % more
   }
 }
 

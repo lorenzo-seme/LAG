@@ -128,6 +128,7 @@ class HomeProvider extends ChangeNotifier {
     //sleepData = [];
     //Get the response
     final data = await Impact.fetchSleepData(startDay, endDay);
+    sleepScores = {};
 
     //if OK parse the response adding all the elements to the list, otherwise do nothing
     if (data != null) {
