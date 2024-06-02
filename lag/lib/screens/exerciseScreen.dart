@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/utils/custom_plot.dart';
 
@@ -50,8 +51,16 @@ class ExerciseScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: CustomPlot(data: provider.exerciseData),
                             ),
-                    ) 
-                  ]),
+                    ),
+                    Center(
+                      child: ElevatedButton(
+                        child: Text('Temporary button, to RHR screen'),
+                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => RhrScreen(startDate: provider.start, endDate: provider.end, provider: provider))),
+                      ),
+                    ),
+                  ]
+                ),
             ),
           ),
         );

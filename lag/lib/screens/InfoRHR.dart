@@ -35,7 +35,7 @@ class InfoRHR extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: const Text(
                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed velit neque. Quisque facilisis gravida tincidunt. In volutpat mollis metus, ut viverra massa rhoncus vel. Aenean vestibulum dignissim ultricies. Duis quis luctus elit, ac commodo orci. Curabitur feugiat, ante ac auctor malesuada, arcu leo tempus quam, eu tincidunt nisi lorem quis nisi. Proin pulvinar dolor eu diam sollicitudin, id viverra libero porttitor. Nullam venenatis tortor vitae rhoncus luctus. Sed nec enim finibus, varius felis id, facilisis diam. Vestibulum fermentum urna sit amet augue eleifend consectetur. Nam tincidunt hendrerit ex, nec dignissim dui vulputate tempor. Duis auctor pulvinar nunc ut pharetra.'),
-              )
+               ),
             ],
           ),
         ),

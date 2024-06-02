@@ -113,11 +113,11 @@ class WeeklyRecap extends StatelessWidget {
                           child: ListTile(
                             leading: const Icon(Icons.bedtime),
                             trailing: Container(
-                              child: Provider.of<HomeProvider>(context).sleepAvg() >= 8
+                              child: provider.sleepAvg() >= 8
                                   ? const Icon(Icons.thumb_up)
                                   : const Icon(Icons.thumb_down),
                             ),
-                            title: Text('Sleep : ${Provider.of<HomeProvider>(context).sleepAvg()} hours'),
+                            title: Text('Sleep : ${provider.sleepAvg()} hours'),
                             subtitle: const Text('Average hours of sleep for this week'),
                             onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
                           ),
@@ -162,9 +162,9 @@ class WeeklyRecap extends StatelessWidget {
                               elevation: 5,
                               child: ListTile(
                                 leading: Icon(Icons.directions_run),
-                                trailing: Container(child: (Provider.of<HomeProvider>(context).exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                                trailing: Container(child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
                                 title:
-                                    Text('Exercise : ${Provider.of<HomeProvider>(context).exerciseDuration()} minutes'),
+                                    Text('Exercise : ${provider.exerciseDuration()} minutes'),
                                 subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
                                 onTap: () => _toExercisePage(context, provider.start, provider.end, provider),

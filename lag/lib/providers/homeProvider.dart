@@ -13,7 +13,7 @@ import 'package:lag/algorithms/sleep_score.dart';
 
 class HomeProvider extends ChangeNotifier { 
   //List<HR> heartRates = [];
-  List<int> heartRates = []; // MOMENTANEO
+  //List<int> heartRates = []; // MOMENTANEO
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
@@ -65,6 +65,19 @@ class HomeProvider extends ChangeNotifier {
 
   */
   
+  double rhrAvg() {
+    if(heartRateData.isEmpty){return 0.0;}
+    double total = 0;
+    int counter = 0;
+    for(int i=0;i<heartRateData.length;i++){
+      if(heartRateData[i].value!=0){
+        counter = counter + 1;
+        total = total + heartRateData[i].value;
+      }
+    }
+    print('${heartRateData[0]}');
+    return double.parse((total / counter).toStringAsFixed(1));
+  }
   
   double sleepAvg() {
     if(sleepData.isEmpty){return 0.0;}
@@ -197,6 +210,7 @@ class HomeProvider extends ChangeNotifier {
             //print(heartRateData.last);
         }
       }
+      print('Got ${heartRateData[0]}');
       notifyListeners();
     }//if
   }//fetchHeartRateData
