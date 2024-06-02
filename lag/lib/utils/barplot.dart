@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:lag/algorithms/sleep_score.dart';
 
 class BarChartSample7 extends StatefulWidget {
-  const BarChartSample7({super.key, required this.yValues, required this.ageFlag});
+  const BarChartSample7({super.key, required this.yValues, required this.ageFlag, required this.minToFall, required this.pieCharts, required this.legend});
   
   final List<double> yValues;
   final List<double> ageFlag;
+  final List<double> minToFall;
+  final List<PieChart?> pieCharts;
+  final List<String?> legend;
 
   @override
   State<BarChartSample7> createState() => _BarChartSample7State();
@@ -126,6 +129,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
             }).toList(),
             maxY: (maxY.toInt()).toDouble(),
             
+            /*
             barTouchData: BarTouchData(
               enabled: true,
               handleBuiltInTouches: true,
@@ -156,6 +160,61 @@ class _BarChartSample7State extends State<BarChartSample7> {
                   );
                 },
               ),
+            ),*/
+            barTouchData: BarTouchData(
+              enabled: true,
+              handleBuiltInTouches: false, // Disable built-in tooltip
+              touchCallback: (FlTouchEvent event, barTouchResponse) {
+                if (event.isInterestedForInteractions &&
+                    barTouchResponse != null &&
+                    barTouchResponse.spot != null) {
+                  final spot = barTouchResponse.spot!;
+                  int hours = spot.touchedRodData.toY.toInt();
+                  int minutes = ((spot.touchedRodData.toY - hours) * 60).toInt();
+                  int minToFallAsleep = widget.minToFall[spot.touchedBarGroupIndex].toInt();
+                  PieChart? pie = widget.pieCharts[spot.touchedBarGroupIndex];
+                  String? legend = widget.legend[spot.touchedBarGroupIndex];
+
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        //title: Text('Sleep Data'),
+                        content: SizedBox(height: 380, width: 250,
+                          child: Column(
+                          children: [const Text('Time asleep:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('$hours hours and $minutes minutes'),
+                                    const SizedBox(height: 10),
+                                    const Text('Time to fall asleep:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('$minToFallAsleep minutes'),
+                                    const SizedBox(height: 10),
+                                    const Text('Sleep phases distribution:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 200, // Height of the PieChart
+                                          width: 200, // Width of the PieChart
+                                          child: pie ?? const SizedBox(height: 1),
+                                        ),
+                                        const SizedBox(height: 1),
+                                        legend!=null 
+                                          ? Text(legend) 
+                                          : const SizedBox(height: 1),
+                                      ],),
+                            ])),
+                        actions: [
+                          TextButton(
+                            child: Text('Close'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
             ),
           ),
         ),

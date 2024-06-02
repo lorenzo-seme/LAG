@@ -24,12 +24,28 @@ class _SleepScreenState extends State<SleepScreen> {
   
   @override
   Widget build(BuildContext context) {
+    String dataCheckMessage = checkData(widget.provider.sleepData);
+    bool noDataAvailable = dataCheckMessage == "No data available";
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Sleep Data',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black, ),
-        ),
+        title: Row(
+          children: [
+            const Icon(Icons.bedtime),
+            const SizedBox(width: 10),
+            (widget.provider.start.year == widget.provider.end.year &&
+                    widget.provider.start.month == widget.provider.end.month &&
+                    widget.provider.start.day == widget.provider.end.day)
+                ? Text(DateFormat('EEE, d MMM').format(widget.provider.start), 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold))
+                : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}', 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+          ],
+        ),        
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -38,92 +54,58 @@ class _SleepScreenState extends State<SleepScreen> {
         ),
         backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
       ),
-
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
-                (widget.provider.start.year == widget.provider.end.year &&
-                        widget.provider.start.month == widget.provider.end.month &&
-                        widget.provider.start.day == widget.provider.end.day)
-                    ? Text(DateFormat('EEE, d MMM').format(widget.provider.start), 
-                        textAlign: TextAlign.center, 
-                        style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 15))
-                    : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}', 
-                        textAlign: TextAlign.center, 
-                        style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Color.fromARGB(255, 227, 211, 244), // Colore e opacità dell'ombra
-                              offset: Offset(2, 2), // Spostamento dell'ombra (dx, dy)
-                              blurRadius: 3, // Raggio di sfocatura dell'ombra
-                            ),
-                          ],
-                        )
-                      ),
-                //const SizedBox(height: 5),
-                Text(checkData(widget.provider.sleepData),
-                  style: const TextStyle(fontSize: 10)),
-
-                
-                checkData(widget.provider.sleepData) == "No data available" 
-                ? const SizedBox(height: 1)
-                : Column(
-                    children: [
-                      const SizedBox(height: 15),
-                      const Text("Hours asleep per day", 
-                        style: TextStyle(fontSize: 14.0, 
-                          color: Color.fromARGB(202, 97, 20, 169),
-                          fontWeight: FontWeight.bold)),
-                      SizedBox(
-                        height: 230,
-                        width: 330,
-                        child: _buildBarPlot(widget.provider.sleepData, widget.provider.sleepScores["ageFlag"]!),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
-                      _buildSleepHoursDataCard(widget.provider.sleepData),
-                      _buildMinutesToFallDataCard(widget.provider.sleepData),
-                      _buildPhasesDataCard(widget.provider.sleepData),
-                    ],
+      body: noDataAvailable
+        ? _buildNoDataMessage()
+        : SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  const Text("How many hours did you sleep each night?", 
+                    style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
+                  Text(dataCheckMessage,
+                    style: const TextStyle(fontSize: 10)),
+                  const Text('Tap on bars to discover more details',
+                    style: TextStyle(fontSize: 10,
+                    color: Color.fromARGB(202, 97, 20, 169))),
+                  SizedBox(
+                    height: 230,
+                    width: 330,
+                    child: _buildBarPlot(widget.provider.sleepData, widget.provider.sleepScores["ageFlag"]!),
                   ),
-                
-                /*
-
-                Visibility(
-                  visible: checkData(widget.provider.sleepData) != "No data available",
-                  child: Column(
-                    children: [
-                      const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
-                      SizedBox(
-                        height: 230,
-                        width: 330,
-                        child: _buildBarPlot(widget.provider.sleepData, widget.provider.sleepScores["ageFlag"]!),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
-                      _buildSleepHoursDataCard(widget.provider.sleepData),
-                      _buildMinutesToFallDataCard(widget.provider.sleepData),
-                      _buildPhasesDataCard(widget.provider.sleepData),
-                    ],
-                  ),
-                )
-                */
-              ],
-            ),
+                  const SizedBox(height: 10),
+                  const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
+                  _buildSleepHoursDataCard(widget.provider.sleepData),
+                  _buildMinutesToFallDataCard(widget.provider.sleepData),
+                  _buildPhasesDataCard(widget.provider.sleepData),
+                ],
+              ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
+Widget _buildNoDataMessage() {
+  return const Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(Icons.error, size: 50),
+        SizedBox(height: 10),
+        Text("No data available", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    ),
+  );
+}
+
+
+Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
   return AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     curve: Curves.easeInOut,
@@ -333,17 +315,29 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
   
   _buildBarPlot(List<SleepData> sleepData, List<double> ageFlag) {
     List<double> hoursList = [];
+    List<double> minToFallList = [];
+    List<PieChart?> pieList = [];
+    List<String?> legend = [];
     for (SleepData data in sleepData) {
       if (data.minutesAsleep != null) {
         hoursList.add(data.minutesAsleep/60);
+        minToFallList.add(data.minutesToFallAsleep);
+        pieList.add(_buildPieChart([data], true));
+        legend.add("DEEP: ${((calculatePercentage([data])!)["deep"]!).toStringAsFixed(1)}% \nREM: ${((calculatePercentage([data])!)["rem"]!).toStringAsFixed(1)}%");
       } else {
         hoursList.add(0);
+        minToFallList.add(0);
+        pieList.add(null);
+        legend.add(null);
       }
     }
     while (hoursList.length < 7) {
       hoursList.add(0);
+      minToFallList.add(0);
+      pieList.add(null);
+      legend.add(null);
     }
-    return BarChartSample7(yValues: hoursList, ageFlag: ageFlag);    
+    return BarChartSample7(yValues: hoursList, ageFlag: ageFlag, minToFall: minToFallList, pieCharts: pieList, legend: legend);    
   }
 
 }
@@ -437,7 +431,7 @@ Map<String, double>? calculatePercentage(List<SleepData> sleepDataList) {
   }
 }
 
-PieChart _buildPieChart(sleepData, _isPhasesCardExpanded) {
+PieChart _buildPieChart(List<SleepData> sleepData, bool _isPhasesCardExpanded) {
   double radius = 30;
   bool title = false;  
   (_isPhasesCardExpanded) ? radius=75 : radius=30;

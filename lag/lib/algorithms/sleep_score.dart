@@ -37,12 +37,12 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
     if (sleepData.minutesAsleep != null) {
       double sleepHours = sleepData.minutesAsleep / 60;
       sleepHoursScore = calculateSleepHoursScore(sleepHours, ageGroup);
-      score += sleepHoursScore * 0.3; 
+      score += sleepHoursScore * 0.35; 
     }
     // MINUTES TO FALL ASLEEP
     if (sleepData.minutesToFallAsleep != null) {
       minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
-      score += minutesToFallAsleepScore * 0.2; 
+      score += minutesToFallAsleepScore * 0.05; // wery low weight since we noticed that this quantity is always zero (maybe is due to Fitbit)
     }
     // LEVELS
     if (sleepData.levels != null) {
@@ -54,7 +54,7 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
       double deepScore = calculatePhaseScore(deepMinutes, totalMinutes, 10, 20); // 10%-20% for deep
 
       combinedPhaseScore = (remScore + deepScore) / 2.0; // average of the two phases
-      score += combinedPhaseScore * 0.1; 
+      score += combinedPhaseScore * 0.2; 
       print('Updated sleepHoursScore: $combinedPhaseScore');
     }
     print('Updated sleepHoursScore: $combinedPhaseScore');

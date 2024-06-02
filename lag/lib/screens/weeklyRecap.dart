@@ -106,55 +106,22 @@ class WeeklyRecap extends StatelessWidget {
                     style: TextStyle(fontSize: 12,color: Colors.black45),
                     ),
                 const SizedBox(height: 10),
-                Text('Sleep Data'),
-                (provider.heartRateData.isEmpty) ? const CircularProgressIndicator.adaptive() :
-                  Card(
-                          elevation: 5,
-                          child: ListTile(
-                            leading: const Icon(Icons.bedtime),
-                            trailing: Container(
-                              child: Provider.of<HomeProvider>(context).sleepAvg() >= 8
-                                  ? const Icon(Icons.thumb_up)
-                                  : const Icon(Icons.thumb_down),
-                            ),
-                            title: Text('Sleep : ${Provider.of<HomeProvider>(context).sleepAvg()} hours'),
-                            subtitle: const Text('Average hours of sleep for this week'),
-                            onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
-                          ),
-                        ),
-                  /*Card(
+                const Text('Sleep Data'),
+                (provider.sleepData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  : Card(
                     elevation: 5,
                     child: ListTile(
                       leading: const Icon(Icons.bedtime),
-                      trailing: FutureBuilder<double>(
-                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return snapshot.data! >= 80 // PER IL MOMENTO OKAY; SI POTREBBE FARE DISTINZIONE TRA BUONO, MEDIO, CATTIVO
-                                ? const Icon(Icons.thumb_up)
-                                : const Icon(Icons.thumb_down);
-                          } else if (snapshot.hasError) {
-                            return const Icon(Icons.error);
-                          }
-                          return const CircularProgressIndicator.adaptive(); // Indicator while loading data
-                        },
+                      trailing: Container(
+                        child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
                       ),
-                      title: FutureBuilder<double>(
-                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Text('Sleep : ${snapshot.data} hours');
-                          } else if (snapshot.hasError) {
-                            return const Text('Error');
-                          }
-                          return const Text('Loading...'); // Placeholder while loading data
-                        },
-                      ),
-                      subtitle: const Text('Average hours of sleep for this week'),
-                      onTap: () => _toSleepPage(context, provider.start, provider.end),
+                      title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
+                      subtitle: const Text('about quality of your sleep this week',
+                                          style: TextStyle(fontSize: 11),),
+                      onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
                     ),
-                  ),*/
-
+                  ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
                   (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
@@ -323,21 +290,14 @@ class WeeklyRecap extends StatelessWidget {
       );
   }
   
-  /*
-  // Method for navigation weeklyRecap -> sleepScreen
-  void _toSleepPage(BuildContext context, DateTime start, DateTime end) {
-  Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => SleepScreen(startDate: start, endDate: end)
-      )); 
-} //_toSleepPage
-*/
   // Method for navigation weeklyRecap -> sleepScreen
   void _toSleepPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SleepScreen(startDate: start, endDate: end, provider: provider)
     ));
   }
-
+  
+  // Method for navigation weeklyRecap -> exerciseScreen
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
@@ -345,10 +305,12 @@ class WeeklyRecap extends StatelessWidget {
 }
 
 
-/*
-Future<double> calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture) async {
-  List<double> sleepData = await sleepDataFuture;
-  double sum = sleepData.fold(0, (previous, current) => previous + current);
-  double average = sum / sleepData.length;
-  return average;
-}*/
+String calculateAverageSleepScore(List<double> scores) {
+  List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
+  if (validScores.isEmpty) {
+    return "No data available"; // if no valid scores
+  } else {
+    double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
+    return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
+  }
+}
