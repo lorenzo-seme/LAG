@@ -4,8 +4,7 @@ import 'package:lag/algorithms/sleep_score.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
-//import 'package:lag/utils/barplot.dart';
-import 'package:lag/utils/custom_plot.dart';
+import 'package:lag/utils/barplot.dart';
 
 class SleepScreen extends StatefulWidget {
   final DateTime startDate;
@@ -25,59 +24,88 @@ class _SleepScreenState extends State<SleepScreen> {
   
   @override
   Widget build(BuildContext context) {
+    String dataCheckMessage = checkData(widget.provider.sleepData);
+    bool noDataAvailable = dataCheckMessage == "No data available";
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Sleep Data',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black, ),
-        ),
+        title: Row(
+          children: [
+            const Icon(Icons.bedtime),
+            const SizedBox(width: 10),
+            (widget.provider.start.year == widget.provider.end.year &&
+                    widget.provider.start.month == widget.provider.end.month &&
+                    widget.provider.start.day == widget.provider.end.day)
+                ? Text(DateFormat('EEE, d MMM').format(widget.provider.start), 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold))
+                : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}', 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+          ],
+        ),        
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        backgroundColor: const Color.fromARGB(255, 227, 211, 244), // Cambia il colore della barra dell'app
+        backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
       ),
-
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
-                (widget.provider.start.year == widget.provider.end.year &&
-                        widget.provider.start.month == widget.provider.end.month &&
-                        widget.provider.start.day == widget.provider.end.day)
-                    ? Text(DateFormat('EEE, d MMM').format(widget.provider.start), textAlign: TextAlign.center,)
-                    : Text('${DateFormat('EEE, d MMM').format(widget.provider.start)} - ${DateFormat('EEE, d MMM').format(widget.provider.end)}', textAlign: TextAlign.center),
-                const SizedBox(height: 5),
-
-                SizedBox(
-                  height: 100,
-                  child: CustomPlot(data: widget.provider.sleepData), // PROVE QUI
-                  //child: SizedBox(height: 4000, 
-                  //  child: BarChartSample7()),
-                ),
-
-                const SizedBox(height: 10),
-                const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
-                _buildSleepHoursDataCard(widget.provider.sleepData),
-                _buildMinutesToFallDataCard(widget.provider.sleepData),
-                _buildPhasesDataCard(widget.provider.sleepData),
-                
-              ],
-            ),
+      body: noDataAvailable
+        ? _buildNoDataMessage()
+        : SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  const Text("How many hours did you sleep each night?", 
+                    style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
+                  Text(dataCheckMessage,
+                    style: const TextStyle(fontSize: 10)),
+                  const Text('Tap on bars to discover more details',
+                    style: TextStyle(fontSize: 10,
+                    color: Color.fromARGB(202, 97, 20, 169))),
+                  SizedBox(
+                    height: 230,
+                    width: 330,
+                    child: _buildBarPlot(widget.provider.sleepData, widget.provider.sleepScores["ageFlag"]!),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
+                  _buildSleepHoursDataCard(widget.provider.sleepData),
+                  _buildMinutesToFallDataCard(widget.provider.sleepData),
+                  _buildPhasesDataCard(widget.provider.sleepData),
+                ],
+              ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
+Widget _buildNoDataMessage() {
+  return const Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(Icons.error, size: 50),
+        SizedBox(height: 10),
+        Text("No data available", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    ),
+  );
+}
+
+
+Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
   return AnimatedContainer(
     duration: const Duration(milliseconds: 300),
     curve: Curves.easeInOut,
@@ -236,9 +264,9 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
                           SizedBox(
                             width: 140, height: 40,
                             child: Column(
-                              children: [Text("DEEP: ${((calculatePercentage(sleepData)!)["deep"]!).toInt().toDouble()}%",
+                              children: [Text("DEEP: ${((calculatePercentage(sleepData)!)["deep"]!).toStringAsFixed(1)}%",
                                               style: const TextStyle(fontSize: 11),),
-                                         Text("REM: ${((calculatePercentage(sleepData)!)["rem"]!).toInt().toDouble()}%",
+                                         Text("REM: ${((calculatePercentage(sleepData)!)["rem"]!).toStringAsFixed(1)}%",
                                               style: const TextStyle(fontSize: 11),)],
                             )
                           )
@@ -283,6 +311,35 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
       } else {return const Text("");}
     }
   }
+  
+  
+  _buildBarPlot(List<SleepData> sleepData, List<double> ageFlag) {
+    List<double> hoursList = [];
+    List<double> minToFallList = [];
+    List<PieChart?> pieList = [];
+    List<String?> legend = [];
+    for (SleepData data in sleepData) {
+      if (data.minutesAsleep != null) {
+        hoursList.add(data.minutesAsleep/60);
+        minToFallList.add(data.minutesToFallAsleep);
+        pieList.add(_buildPieChart([data], true));
+        legend.add("DEEP: ${((calculatePercentage([data])!)["deep"]!).toStringAsFixed(1)}% \nREM: ${((calculatePercentage([data])!)["rem"]!).toStringAsFixed(1)}%");
+      } else {
+        hoursList.add(0);
+        minToFallList.add(0);
+        pieList.add(null);
+        legend.add(null);
+      }
+    }
+    while (hoursList.length < 7) {
+      hoursList.add(0);
+      minToFallList.add(0);
+      pieList.add(null);
+      legend.add(null);
+    }
+    return BarChartSample7(yValues: hoursList, ageFlag: ageFlag, minToFall: minToFallList, pieCharts: pieList, legend: legend);    
+  }
+
 }
 
 // GENERAL FUNCTIONS
@@ -374,7 +431,7 @@ Map<String, double>? calculatePercentage(List<SleepData> sleepDataList) {
   }
 }
 
-PieChart _buildPieChart(sleepData, _isPhasesCardExpanded) {
+PieChart _buildPieChart(List<SleepData> sleepData, bool _isPhasesCardExpanded) {
   double radius = 30;
   bool title = false;  
   (_isPhasesCardExpanded) ? radius=75 : radius=30;
@@ -419,70 +476,25 @@ PieChart _buildPieChart(sleepData, _isPhasesCardExpanded) {
           );
 }
 
-/*
-Widget buildSleepHoursBarChart(List<SleepData> sleepData) {
-  // Lista dei giorni della settimana
-  List<String> weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  // Lista delle ore dormite per ogni giorno
-  List hoursSlept = sleepData.map((data) => (data.minutesAsleep ?? 0) / 60).toList();
-  // Se non ci sono dati disponibili per un giorno, viene impostato il valore a 0
-
-  // Trova l'ora massima dormita
-  double maxHoursSlept = hoursSlept.reduce((value, element) => value > element ? value : element);
-
-  return BarChart(
-    BarChartData(
-      alignment: BarChartAlignment.spaceAround,
-      maxY: maxHoursSlept.ceilToDouble() + 1, // Aggiungi 1 per dare un po' di spazio extra in alto
-      /*barTouchData: BarTouchData(
-        enabled: false,
-        touchTooltipData: BarTouchTooltipData(
-          tooltipPadding: EdgeInsets.zero,
-          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-            return BarTooltipItem(
-              '${hoursSlept[groupIndex].toStringAsFixed(2)} hours', // Mostra il numero di ore dormite come tooltip
-              TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          },
-        ),
-      ),*/
-      titlesData: FlTitlesData(
-        show: true,
-        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        bottomTitles: AxisTitles(
-          axisNameWidget: Text("days"),
-          axisNameSize: 5,
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 10,
-          ),
-        ),
-      ),
-      borderData: FlBorderData(
-        
-        show: false,
-      ),
-      barGroups: List.generate(
-        weekDays.length,
-        (weekDays) => BarChartGroupData(
-          x: weekDays,
-          barRods: [
-            BarChartRodData(
-              toY: hoursSlept[weekDays], // Altezza della barra rappresenta le ore dormite per il giorno corrispondente
-              color: Color.fromARGB(255, 188, 136, 244),
-            ),
-          ],
-        ),
-      ),
-    ),
-    swapAnimationDuration: Duration(milliseconds: 150), // Optional
-    swapAnimationCurve: Curves.linear, 
-  );
+String checkData(List<SleepData> sleepData) {
+  List<String> noDataDays = [];
+  bool noDataFlag = true;
+  for (SleepData data in sleepData) {
+    if (data.efficiency == null) {
+      String formattedDay = DateFormat('EEEE', 'en_US').format(data.day);
+      noDataDays.add(formattedDay);
+    } else {
+      noDataFlag = false;
+    }
+  }
+  if (noDataDays.isEmpty) {
+    return "All days have data";
+  } else if (noDataFlag) {
+    return "No data available";
+  } else if (noDataDays.length == 1) {
+    return "${noDataDays[0]}: No data available";
+  } else {
+    return "${noDataDays.join(' ,')}: No data available";
+  }
 }
-*/
+
