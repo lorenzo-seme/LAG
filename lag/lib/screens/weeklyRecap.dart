@@ -140,7 +140,7 @@ class WeeklyRecap extends StatelessWidget {
                 const SizedBox(height: 20), 
                 const Text(
                   "Learn Something More",
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 18),
                 ),
                 const SizedBox(
                   height: 15,
