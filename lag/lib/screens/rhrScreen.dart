@@ -152,7 +152,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                     ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 12.0))
                                     : null,
                               ),
-                              if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge))
+                              if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge)) ...[
                                 AlertDialog(title: const Text('Alert'),
                                   content: const SingleChildScrollView(
                                     child: ListBody(
@@ -165,6 +165,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                     TextButton(
                                       child: const Text('Yes'),
                                       onPressed: () {
+                                        widget.provider.showAlertForAge = false;
                                         Navigator.of(context).push(
                                           MaterialPageRoute(builder: (context) => PersonalInfo())
                                         );
@@ -179,7 +180,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                       child: const Text('No'))
                                   ],
                                 ),
-                              if(_isRhrCalculatorExpanded)
+                                ] else if(_isRhrCalculatorExpanded)...[
                                 Padding(
                                   padding: EdgeInsets.all(16.0),
                                   child: Column(
@@ -286,6 +287,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                     ],
                                   ),
                                 )
+                              ],
                             ],
                           ),
                       ),
