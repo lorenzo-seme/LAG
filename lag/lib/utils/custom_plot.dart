@@ -88,5 +88,5 @@ List<Map<String, dynamic>> _parseData(List<AllData> data) {
     };
   }).toList();
 }
-} 
+
 
