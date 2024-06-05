@@ -106,7 +106,12 @@ class Impact{
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + sleepEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    String url = "";
+    if (startDay == endDay) {
+      url = baseUrl + sleepEndpoint + patientUsername + '/day/$startDay';
+    } else {
+      url = baseUrl + sleepEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    }
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response
@@ -137,7 +142,12 @@ static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async 
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + heartRateEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    String url = "";
+    if (startDay == endDay) {
+      url = baseUrl + heartRateEndpoint + patientUsername + '/day/$startDay';
+    } else {
+      url = baseUrl + heartRateEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    }
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response
@@ -169,7 +179,12 @@ static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async 
     }//if
 
     //Create the (representative) request
-    final url = baseUrl + exerciseEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    String url = "";
+    if (startDay == endDay) {
+      url = baseUrl + exerciseEndpoint + patientUsername + '/day/$startDay';
+    } else {
+      url = baseUrl + exerciseEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
+    }
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     //Get the response

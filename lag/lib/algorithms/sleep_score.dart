@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
@@ -5,9 +7,19 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
   List<double> sleepHoursScores = [];
   List<double> minutesToFallAsleepScores = [];
   List<double> combinedPhaseScores = [];
+  List<double> ageFlag = [];
 
   SharedPreferences sp = await SharedPreferences.getInstance();
-  int userAge = (sp.getString('userAge')) == null ? 25 : int.parse(sp.getString('userAge')!); // Default at 25 if not specified
+  // int userAge = (sp.getString('userAge')) == null ? 25 : int.parse(sp.getString('userAge')!); // Default at 25 if not specified
+  int userAge = -1; // initialized
+  if ((sp.getString('userAge')) == null) {
+    userAge = 25; // Default at 25 if not specified
+    ageFlag.add(-1);
+  } else {
+    userAge = int.parse(sp.getString('userAge')!);
+    ageFlag.add(double.parse(sp.getString('userAge')!));
+  }
+  // MESSAGGIO NEL CASO L'UTENTE NON ABBIA IMPOSTATO LA DATA DI NASCITA, SCORE SUBOTTIMO
   String ageGroup = determineAgeGroup(userAge);
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data
@@ -25,27 +37,27 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
     if (sleepData.minutesAsleep != null) {
       double sleepHours = sleepData.minutesAsleep / 60;
       sleepHoursScore = calculateSleepHoursScore(sleepHours, ageGroup);
-      score += sleepHoursScore * 0.3; 
-      print('Updated sleepHoursScore: $sleepHoursScore');
+      score += sleepHoursScore * 0.35; 
     }
     // MINUTES TO FALL ASLEEP
     if (sleepData.minutesToFallAsleep != null) {
       minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
-      score += minutesToFallAsleepScore * 0.2; 
+      score += minutesToFallAsleepScore * 0.05; // wery low weight since we noticed that this quantity is always zero (maybe is due to Fitbit)
     }
     // LEVELS
     if (sleepData.levels != null) {
       double remMinutes = sleepData.levels['rem'];
       double deepMinutes = sleepData.levels['deep'];
-      double totalMinutes = sleepData.minutesAsleep * 60;
+      double totalMinutes = sleepData.levels['rem'] + sleepData.levels['deep'] + sleepData.levels['light'] + sleepData.levels['wake'];
 
       double remScore = calculatePhaseScore(remMinutes, totalMinutes, 20, 25); // 20%-25% for REM
       double deepScore = calculatePhaseScore(deepMinutes, totalMinutes, 10, 20); // 10%-20% for deep
 
-      double combinedPhaseScore = (remScore + deepScore) / 2.0; // average of the two phases
-      score += combinedPhaseScore * 0.1; 
+      combinedPhaseScore = (remScore + deepScore) / 2.0; // average of the two phases
+      score += combinedPhaseScore * 0.2; 
+      print('Updated sleepHoursScore: $combinedPhaseScore');
     }
-    
+    print('Updated sleepHoursScore: $combinedPhaseScore');
     if (score!=-1) {
       score = score.clamp(0, 100); // final score, between 0 and 100
     }
@@ -59,6 +71,7 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
     "scores" : scores,
     "minutesToFallAsleepScores" : minutesToFallAsleepScores,
     "combinedPhaseScores" : combinedPhaseScores,
+    "ageFlag" : ageFlag,
   };
   return output;
 }
@@ -79,16 +92,16 @@ double calculatePhaseScore(double phaseMinutes, double totalMinutes, double minP
     return 100.0; // healthy range
   } else if (phasePercent < minPercent) {
     double deficit = minPercent - phasePercent;
-    return 100.0 - (deficit * 5); // -5 points for every % less 
+    return max(100.0 - (deficit * 7),0); // -7 points for every % less 
   } else {
     double surplus = phasePercent - maxPercent;
-    return 100.0 - (surplus * 5); // -5 points for every % more
+    return max(100.0 - (surplus * 7),0); // -7 points for every % more
   }
 }
 
 String determineAgeGroup(int age) {
-  if (age>=5 && age<=12) {return "School-age"; // supposing <5 y.o. children do not use this app
-  } else if (age<=18) {return "Teen";
+  if (age>=6 && age<=13) {return "School-age"; // supposing <5 y.o. children do not use this app
+  } else if (age<=17) {return "Teen";
   } else if (age<=25) {return "Young Adult";
   } else if (age<=65) {return "Adult";
   } else {return "Older Adult";

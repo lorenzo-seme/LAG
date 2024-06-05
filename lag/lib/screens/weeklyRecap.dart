@@ -34,26 +34,31 @@ class WeeklyRecap extends StatelessWidget {
                 Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 20),
                 const Text('7-days Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: InkWell(onTap: () {
-                        provider.getDataOfWeek(provider.start.subtract(const Duration(days: 7)));
-                        //provider.dateSubtractor(provider.start);
+                    child: InkWell(onTap: () async {
+                      provider.dateSubtractor(provider.start);
+                      await provider.getDataOfWeek(provider.start, provider.end);
                       },
                       child: const Icon(Icons.navigate_before),
                     ),
                   ),
+                  (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
+                  Text(DateFormat('EEE, d MMM').format(provider.start)):
                   Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        provider.getDataOfWeek(provider.start.add(const Duration(days: 7)));
-                        //provider.dateAdder(provider.start);
-                      },
-                      child: const Icon(Icons.navigate_next),
-                    ),
+                    child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
+                      const Icon(Icons.stop) :
+                      InkWell(
+                        onTap: () async {
+                          provider.dateAdder(provider.start);
+                          await provider.getDataOfWeek(provider.start, provider.end);
+                        },
+                        child: const Icon(Icons.navigate_next),
+                      ), 
                   ),
                 ]),
                 const Text("Cumulative Score",style: TextStyle(fontSize: 16)),
@@ -101,55 +106,22 @@ class WeeklyRecap extends StatelessWidget {
                     style: TextStyle(fontSize: 12,color: Colors.black45),
                     ),
                 const SizedBox(height: 10),
-                Text('Sleep Data'),
-                (provider.heartRateData.isEmpty) ? const CircularProgressIndicator.adaptive() :
-                  Card(
-                          elevation: 5,
-                          child: ListTile(
-                            leading: const Icon(Icons.bedtime),
-                            trailing: Container(
-                              child: Provider.of<HomeProvider>(context).sleepAvg() >= 8
-                                  ? const Icon(Icons.thumb_up)
-                                  : const Icon(Icons.thumb_down),
-                            ),
-                            title: Text('Sleep : ${Provider.of<HomeProvider>(context).sleepAvg()} hours'),
-                            subtitle: const Text('Average hours of sleep for this week'),
-                            onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
-                          ),
-                        ),
-                  /*Card(
+                const Text('Sleep Data'),
+                (provider.sleepData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  : Card(
                     elevation: 5,
                     child: ListTile(
                       leading: const Icon(Icons.bedtime),
-                      trailing: FutureBuilder<double>(
-                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return snapshot.data! >= 80 // PER IL MOMENTO OKAY; SI POTREBBE FARE DISTINZIONE TRA BUONO, MEDIO, CATTIVO
-                                ? const Icon(Icons.thumb_up)
-                                : const Icon(Icons.thumb_down);
-                          } else if (snapshot.hasError) {
-                            return const Icon(Icons.error);
-                          }
-                          return const CircularProgressIndicator.adaptive(); // Indicator while loading data
-                        },
+                      trailing: Container(
+                        child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
                       ),
-                      title: FutureBuilder<double>(
-                        future: calculateAverageSleepScore(context, getSleepScore(context, provider.sleepData)),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Text('Sleep : ${snapshot.data} hours');
-                          } else if (snapshot.hasError) {
-                            return const Text('Error');
-                          }
-                          return const Text('Loading...'); // Placeholder while loading data
-                        },
-                      ),
-                      subtitle: const Text('Average hours of sleep for this week'),
-                      onTap: () => _toSleepPage(context, provider.start, provider.end),
+                      title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
+                      subtitle: const Text('about quality of your sleep this week',
+                                          style: TextStyle(fontSize: 11),),
+                      onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
                     ),
-                  ),*/
-
+                  ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
                   (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
@@ -157,9 +129,9 @@ class WeeklyRecap extends StatelessWidget {
                               elevation: 5,
                               child: ListTile(
                                 leading: Icon(Icons.directions_run),
-                                trailing: Container(child: (Provider.of<HomeProvider>(context).exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                                trailing: Container(child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
                                 title:
-                                    Text('Exercise : ${Provider.of<HomeProvider>(context).exerciseDuration()} minutes'),
+                                    Text('Exercise : ${provider.exerciseDuration()} minutes'),
                                 subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
                                 onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
@@ -168,7 +140,7 @@ class WeeklyRecap extends StatelessWidget {
                 const SizedBox(height: 20), 
                 const Text(
                   "Learn Something More",
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 18),
                 ),
                 const SizedBox(
                   height: 15,
@@ -318,21 +290,14 @@ class WeeklyRecap extends StatelessWidget {
       );
   }
   
-  /*
-  // Method for navigation weeklyRecap -> sleepScreen
-  void _toSleepPage(BuildContext context, DateTime start, DateTime end) {
-  Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => SleepScreen(startDate: start, endDate: end)
-      )); 
-} //_toSleepPage
-*/
   // Method for navigation weeklyRecap -> sleepScreen
   void _toSleepPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SleepScreen(startDate: start, endDate: end, provider: provider)
     ));
   }
-
+  
+  // Method for navigation weeklyRecap -> exerciseScreen
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
@@ -340,10 +305,12 @@ class WeeklyRecap extends StatelessWidget {
 }
 
 
-/*
-Future<double> calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture) async {
-  List<double> sleepData = await sleepDataFuture;
-  double sum = sleepData.fold(0, (previous, current) => previous + current);
-  double average = sum / sleepData.length;
-  return average;
-}*/
+String calculateAverageSleepScore(List<double> scores) {
+  List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
+  if (validScores.isEmpty) {
+    return "No data available"; // if no valid scores
+  } else {
+    double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
+    return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
+  }
+}

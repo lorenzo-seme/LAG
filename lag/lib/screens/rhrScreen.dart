@@ -1,54 +1,329 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-//import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
-// import 'package:lag/utils/custom_plot.dart';
-import 'package:provider/provider.dart';
+import 'package:lag/screens/personal_info.dart';
+//import 'package:lag/utils/barplot.dart';
+import 'package:lag/utils/custom_plot.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
-class RhrScreen extends StatelessWidget {
+class RhrScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
+  final HomeProvider provider;
 
-  const RhrScreen({super.key, required this.startDate, required this.endDate});
+  const RhrScreen({super.key, required this.startDate, required this.endDate, required this.provider});
+
+  @override
+  _RhrScreenState createState() => _RhrScreenState();
+}
+
+class _RhrScreenState extends State<RhrScreen>{
+  bool _isAvgRhrCardExpanded = false;
+  bool _isRhrCalculatorExpanded = false;
+
+  final List<String> items = [
+    'Light',
+    'Moderate',
+    'Hard',
+    'Very hard',
+  ];
+
+  Map<String, List<int>> mappedItems = {
+    'Light': [20, 39],
+    'Moderate': [40, 59],
+    'Hard': [60, 84],
+    'Very hard': [85, 100],
+  };
+
+  String? selectedValue = null;
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Resting Heart Rate Data', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+        title: Row(
+          children: [
+            const Icon(Icons.favorite),
+            const SizedBox(width: 10),
+            Text('${DateFormat('EEE, d MMM').format(widget.startDate)} - ${DateFormat('EEE, d MMM').format(widget.endDate)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();},
           ),
+        backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
         ),
       
-      body: SafeArea(
-        child: ChangeNotifierProvider(
-      create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
-      builder: (context, child) => Padding(
-        padding:
-            const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
-        child: Consumer<HomeProvider>(builder: (context, provider, child) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5),
-              Text('${DateFormat('EEE, d MMM').format(startDate)} - ${DateFormat('EEE, d MMM').format(endDate)}'),
-              const SizedBox(height: 5),
-              
-              
-              Text("${provider.heartRateData[0]}")
-              
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  const SizedBox(height: 5),
+                  SizedBox(
+                    height: 100,
+                    child: CustomPlot(data: widget.provider.heartRateData),
+                    //child: BarChartSample7(),
+                  ),
+                  const SizedBox(height: 20),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Card(
+                      color: Color.fromARGB(255, 247, 245, 248),
+                      elevation: 5,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _isAvgRhrCardExpanded = ! _isAvgRhrCardExpanded;
+                          });
+                        },
+                        child:  Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.monitor_heart),
+                                trailing: SizedBox(
+                                  width: 10,
+                                  child: ((widget.provider.rhrAvg() > 80.0) | (widget.provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                ),
+                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                  const CircularProgressIndicator.adaptive() : 
+                                  Text("Average resting heart rate: ${widget.provider.rhrAvg()} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                subtitle: !_isAvgRhrCardExpanded
+                                    ? const Text('Tap to learn more', style: TextStyle(fontSize: 12.0))
+                                    : null,
+                              ),
+                              if (_isAvgRhrCardExpanded)
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Your resting heart rate should be between 55 and 80 bpm. A resting heart rate between 81 and 90 doubles the risk of premature death. If greater than 90, the risk is three times higher. ", style: TextStyle(fontSize: 14.0)),
+                                      // fonte https://heart.bmj.com/content/99/12/882.full?sid=90e3623c-1250-4b94-928c-0a8f95c5b36b
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                      ),
+                    ),
+                  ),
+                  // gestisci caso in cui <55, dovrebbe mostrare un alert dialog dicendo tipo "maybe you're an athlete... If not, contact your doctor!"
+                  // se l'utente schiaccia su I'm an athlete, questo viene ricordato (sp) e non gli viene più mostrato questo alert
 
-            ],
-          );
-        }),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Card(
+                      color: Color.fromARGB(255, 247, 245, 248),
+                      elevation: 5,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _isRhrCalculatorExpanded = ! _isRhrCalculatorExpanded;
+                          });
+                        },
+                        child:  Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.directions_run),
+                                trailing: SizedBox(
+                                  width: 10,
+                                  child: widget.provider.rhrAvg() > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                ),
+                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                  const CircularProgressIndicator.adaptive() : 
+                                  Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                subtitle: !_isRhrCalculatorExpanded
+                                    ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 12.0))
+                                    : null,
+                              ),
+                              if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge)) ...[
+                                AlertDialog(title: const Text('Alert'),
+                                  content: const SingleChildScrollView(
+                                    child: ListBody(
+                                      children: <Widget>[
+                                        Text('To be more precise, we need your age. Would you like to go to Profile page and add it?'),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Yes'),
+                                      onPressed: () {
+                                        widget.provider.showAlertForAge = false;
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) => PersonalInfo())
+                                        );
+                                      },
+                                    ),
+                                    TextButton(
+                                      onPressed: (){
+                                        setState(() {
+                                          widget.provider.showAlertForAge = false;
+                                        });
+                                      }, 
+                                      child: const Text('No'))
+                                  ],
+                                ),
+                                ] else if(_isRhrCalculatorExpanded)...[
+                                Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Exercise is the best way to lower your resting heart rate. Here we guide you in setting a target heart rate to be maintained while exercising. Keep in mind that high-intensity aerobic training is the best way, but if you don't exercise regularly, you should check with your doctor before you set a target heart rate. We recommend you to gradually increase the intensity. ", style: TextStyle(fontSize: 14.0),),
+                                      //Text("If you have heart diseases or feel pain, always contact your doctor before starting a training program!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
+                                      SizedBox(height: 10,),
+                                      Text("Choose an intensity level: ", style: TextStyle(fontSize: 14.0)),
+                                      SizedBox(height: 10,),
+                                      DropdownButtonHideUnderline(
+                                        child: DropdownButton2<String>(
+                                          isExpanded: true,
+                                          hint: const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.list,
+                                                size: 16,
+                                                color: Color.fromRGBO(250, 248, 230, 1),
+                                              ),
+                                              SizedBox(
+                                                width: 4,
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  'Select Item',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.yellow,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          items: items
+                                              .map((String item) => DropdownMenuItem<String>(
+                                                    value: item,
+                                                    child: Text(
+                                                      item,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedValue,
+                                          onChanged: (String? value) {
+                                            setState(() {
+                                              selectedValue = value;
+                                            });
+                                          },
+                                          buttonStyleData: ButtonStyleData(
+                                            height: 40,
+                                            width: 160,
+                                            padding: const EdgeInsets.only(left: 14, right: 14),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              border: Border.all(
+                                                color: Colors.black26,
+                                              ),
+                                              color: Colors.redAccent,
+                                            ),
+                                            elevation: 2,
+                                          ),
+                                          iconStyleData: const IconStyleData(
+                                            icon: Icon(
+                                              Icons.arrow_forward_ios_outlined,
+                                            ),
+                                            iconSize: 14,
+                                            iconEnabledColor: Colors.yellow,
+                                            iconDisabledColor: Colors.grey,
+                                          ),
+                                          dropdownStyleData: DropdownStyleData(
+                                            maxHeight: 200,
+                                            width: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(14),
+                                              color: Colors.redAccent,
+                                            ),
+                                            offset: const Offset(-20, 0),
+                                            scrollbarTheme: ScrollbarThemeData(
+                                              radius: const Radius.circular(40),
+                                              thickness: MaterialStateProperty.all<double>(6),
+                                              thumbVisibility: MaterialStateProperty.all<bool>(true),
+                                            ),
+                                          ),
+                                          menuItemStyleData: const MenuItemStyleData(
+                                            height: 40,
+                                            padding: EdgeInsets.only(left: 14, right: 14),
+                                          ),
+                                        ),
+                                      ),
+                                      if(selectedValue!=null) ...[
+                                        SizedBox(height: 10,),
+                                        Text("Considering your age, your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
+                                        SizedBox(height: 8,),
+                                        Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![0]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![1]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)}]")
+                                      ]
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ],
+                          ),
+                      ),
+                    ),
+                  ),
+                  
+
+
+
+                  /*
+                  const SizedBox(height: 5),
+                  RichText(
+                    text: TextSpan(
+                      children:[
+                        TextSpan(
+                          text: "To better understand these data, ",
+                          style: TextStyle(color: Colors.black)
+                        ),
+                        TextSpan(
+                          text: "press here",
+                          style: TextStyle(color: Colors.blue),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {Navigator.of(context).push(MaterialPageRoute(builder: (_) => InfoRHR()));},
+                        ),
+                        TextSpan(
+                          text: ".",
+                          style: TextStyle(color: Colors.black)
+                        ),
+                      ]
+                    ),
+                  ),*/
+                ],
+              ),
+          ),
+        ),
       ),
-    ))
     );
   }
 

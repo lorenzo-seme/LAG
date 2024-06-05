@@ -63,29 +63,30 @@ class CustomPlot extends StatelessWidget {
     }
   }
 
-  List<Map<String, dynamic>> _parseData(List<AllData> data) {
-    return data.map((e) {
-      String type;
-      double points;
-      if (e is SleepData) {
-        type = 'sleep';
-        points = e.duration;
-      } else if (e is ExerciseData) {
-        type = 'exercise';
-        points = e.duration;
-      } else if (e is HeartRateData) {
-        type = 'heart_rate';
-        points = e.value;
-      } else {
-        // Handle other types of data if needed
-        type = 'unknown';
-        points = 0;
-      }
-      return {
-        'date': DateFormat('EEEE').format(e.day),
-        'points': points,
-        'type': type,
-      };
-    }).toList();
-  }
+List<Map<String, dynamic>> _parseData(List<AllData> data) {
+  return data.map((e) {
+    String type;
+    double points;
+    if (e is SleepData) {
+      type = 'sleep';
+      points = (e.duration == null) ? 0 : e.duration!;
+    } else if (e is ExerciseData) {
+      type = 'exercise';
+      points = e.duration;
+    } else if (e is HeartRateData) {
+      type = 'heart_rate';
+      points = e.value;
+    } else {
+      // Handle other types of data if needed
+      type = 'unknown';
+      points = 0;
+    }
+    return {
+      'date': DateFormat('EEEE').format(e.day),
+      'points': points,
+      'type': type,
+    };
+  }).toList();
+}
+} 
 

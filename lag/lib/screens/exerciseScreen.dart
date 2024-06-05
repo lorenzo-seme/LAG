@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
 import 'package:lag/utils/custom_plot.dart';
 
@@ -33,32 +34,34 @@ class ExerciseScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+      child: Padding(
           padding: const EdgeInsets.only(
               left: 12.0, right: 12.0, top: 10, bottom: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5),
-              Text(
-                  '${DateFormat('EEE, d MMM').format(startDate)} - ${DateFormat('EEE, d MMM').format(endDate)}'),
-              const SizedBox(height: 10),
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: provider.exerciseData.isEmpty
-                    ? const Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CustomPlot(data: provider.exerciseData),
-                      ),
-              )
-            ],
+          child: Consumer<HomeProvider>(
+            builder: (context, provider, child) {
+              return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5),
+                    Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
+                    const SizedBox(height: 10),
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: provider.exerciseData.isEmpty
+                          ? const Center(
+                              child: CircularProgressIndicator.adaptive(),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomPlot(data: provider.exerciseData),
+                            ),
+                    ) 
+                  ]);
+            },
           ),
         ),
       ),
-    );
+    ),);
   }
 }
