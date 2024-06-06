@@ -40,15 +40,12 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
-    final name = sp.getString('name');
+    nick = sp.getString('name') ?? 'User';
     final dob = sp.getString('dob');
     if (dob != null){
       age = ((DateTime.now().difference(DateTime.parse(dob))).inDays / 365).round();
       ageInserted = true;
     }
-    if (name != null)
-      nick = name;
-
     // Fetch data 
     //getDataOfDay(showDate);
     getDataOfWeek(start, end);
