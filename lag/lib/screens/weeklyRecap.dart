@@ -37,260 +37,261 @@ class WeeklyRecap extends StatelessWidget {
                     const SizedBox(height: 20),
                     const Text('Weekly Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
 
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: InkWell(onTap: () async {
-                          provider.dateSubtractor(provider.start);
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: InkWell(onTap: () async {
+                      provider.dateSubtractor(provider.start);
+                      await provider.getDataOfWeek(provider.start, provider.end);
+                      },
+                      child: const Icon(Icons.navigate_before),
+                    ),
+                  ),
+                  (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
+                  Text(DateFormat('EEE, d MMM').format(provider.start)):
+                  Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
+                      const Icon(Icons.stop) :
+                      InkWell(
+                        onTap: () async {
+                          provider.dateAdder(provider.start);
                           await provider.getDataOfWeek(provider.start, provider.end);
-                          },
-                          child: const Icon(Icons.navigate_before),
-                        ),
+                        },
+                        child: const Icon(Icons.navigate_next),
+                      ), 
+                  ),
+                ]),
+                const Text("Cumulative Score",style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 5),
+                const Text("Descriptive index of the quality of your week",
+                    style: TextStyle(fontSize: 12,color: Colors.black45),
+                    ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (provider.score.toInt()).toString(),
+                        style: const TextStyle(fontSize: 16),
                       ),
-                      (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
-                      Text(DateFormat('EEE, d MMM').format(provider.start)):
-                      Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
-                          const Icon(Icons.stop) :
-                          InkWell(
-                            onTap: () async {
-                              provider.dateAdder(provider.start);
-                              await provider.getDataOfWeek(provider.start, provider.end);
-                            },
-                            child: const Icon(Icons.navigate_next),
-                          ), 
+                      Text(provider.score / 100 < 0.33
+                            ? "Low"
+                            : provider.score / 100 > 0.33 &&
+                                    provider.score / 100 < 0.66
+                                ? "Medium"
+                                : "High",
+                        style:const TextStyle(fontSize: 12, color: Colors.black45),
                       ),
-                    ]),
-                    const Text("Cumulative Score",style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 5),
-                    const Text("Descriptive index of the quality of your week",
-                        style: TextStyle(fontSize: 12,color: Colors.black45),
+                      Container(
+                        margin: const EdgeInsets.only(top: 20, bottom: 10),
+                        height: 15,
+                        child: ClipRRect(
+                          borderRadius:const BorderRadius.all(Radius.circular(10)),
+                          child: LinearProgressIndicator(
+                            value: provider.score / 100,
+                            backgroundColor: Colors.grey.withOpacity(0.5),
+                          ),
                         ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            (provider.score.toInt()).toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text(provider.score / 100 < 0.33
-                                ? "Low"
-                                : provider.score / 100 > 0.33 &&
-                                        provider.score / 100 < 0.66
-                                    ? "Medium"
-                                    : "High",
-                            style:const TextStyle(fontSize: 12, color: Colors.black45),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 20, bottom: 10),
-                            height: 15,
-                            child: ClipRRect(
-                              borderRadius:const BorderRadius.all(Radius.circular(10)),
-                              child: LinearProgressIndicator(
-                                value: provider.score / 100,
-                                backgroundColor: Colors.grey.withOpacity(0.5),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text("Explore Daily Trends in each parameter",
+                  style: TextStyle(fontSize: 16),
+                ), 
+                const SizedBox(height: 5),
+                const Text("See how much you’ve been striving throughout the week",
+                    style: TextStyle(fontSize: 12,color: Colors.black45),
+                    ),
+                const SizedBox(height: 10),
+                const Text('Sleep Data'),
+                (provider.sleepData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  : Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: const Icon(Icons.bedtime),
+                      trailing: Container(
+                        child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
+                      ),
+                      title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
+                      subtitle: const Text('about quality of your sleep this week',
+                                          style: TextStyle(fontSize: 11),),
+                      onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
+                    ),
+                  ),
+                  const SizedBox(height: 10,),
+                  Text('Exercise Data'),
+                  (provider.exerciseData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  :
+                  Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: Icon(Icons.directions_run),
+                      trailing: Container(
+                        child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                      title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
+                      subtitle: Text('Total minutes of exercise performed this week'),
+                                //When a ListTile is tapped, the user is redirected to the ExercisePage
+                      onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
-                            ),
-                          )
-                        ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text("Explore Daily Trends in each parameter",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 5),
-                    const Text("See how much you’ve been striving throughout the week",
-                        style: TextStyle(fontSize: 12,color: Colors.black45),
-                        ),
-                    const SizedBox(height: 10),
-                    const Text('Sleep Data'),
-                    (provider.sleepData.isEmpty) 
-                      ? const CircularProgressIndicator.adaptive() 
-                      : Card(
-                        elevation: 5,
-                        child: ListTile(
-                          leading: const Icon(Icons.bedtime),
-                          trailing: Container(
-                            child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
-                          ),
-                          title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
-                          subtitle: const Text('about quality of your sleep this week',
-                                              style: TextStyle(fontSize: 11),),
-                          onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
-                        ),
-                      ),
-                      const SizedBox(height: 10,),
-                      Text('Exercise Data'),
-                      (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
-                        Card(
-                                  elevation: 5,
-                                  child: ListTile(
-                                    leading: Icon(Icons.directions_run),
-                                    trailing: Container(child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                                    title:
-                                        Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                                    subtitle: Text('Total minutes of exercise performed this week'),
-                                    //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                const SizedBox(height: 20), 
+                const Text(
+                  "Learn Something More",
+                  style: TextStyle(fontSize: 18),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                SizedBox(
+                  height: 250,
+                  child: ListView(
+                    physics: const ClampingScrollPhysics(),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      SizedBox(
+                            width: 300,
+                            height: 200,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) => InfoSleep())),
+                                  child: Hero(transitionOnUserGestures: true,
+                                    tag: 'sleep',
+                                    child: Container(
+                                      width: 300,
+                                      height: 200,
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(15.0),
+                                            bottomLeft: Radius.circular(15.0),
+                                            bottomRight: Radius.circular(15.0),
+                                            topRight: Radius.circular(15.0)),
+                                        image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                              'assets/sleep.jpg'),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                          ),
-                    const SizedBox(height: 20), 
-                    const Text(
-                      "Learn Something More",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    SizedBox(
-                      height: 250,
-                      child: ListView(
-                        physics: const ClampingScrollPhysics(),
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          SizedBox(
-                                width: 300,
-                                height: 200,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) => InfoSleep())),
-                                      child: Hero(transitionOnUserGestures: true,
-                                        tag: 'sleep',
-                                        child: Container(
-                                          width: 300,
-                                          height: 200,
-                                          decoration: const BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(15.0),
-                                                bottomLeft: Radius.circular(15.0),
-                                                bottomRight: Radius.circular(15.0),
-                                                topRight: Radius.circular(15.0)),
-                                            image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: AssetImage(
-                                                  'assets/sleep.jpg'),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        "How does sleep affect my health?",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SizedBox(
-                                width: 300,
-                                height: 200,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) => InfoExercise())),
-                                      child: Hero(
-                                        tag: 'exercise',
-                                        child: Container(
-                                        width: 300,
-                                        height: 200,
-                                        decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(15.0),
-                                              bottomLeft: Radius.circular(15.0),
-                                              bottomRight: Radius.circular(15.0),
-                                              topRight: Radius.circular(15.0)),
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: AssetImage(
-                                                'assets/exercise.jpg'),
-                                          ),
-                                        ),
-                                      ),),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        "How does exercise affect my health?",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SizedBox(
-                                width: 300,
-                                height: 200,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) => InfoRHR())),
-                                      child: Hero(
-                                        tag: 'rhr',
-                                        child: Container(
-                                        width: 300,
-                                        height: 200,
-                                        decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(15.0),
-                                              bottomLeft: Radius.circular(15.0),
-                                              bottomRight: Radius.circular(15.0),
-                                              topRight: Radius.circular(15.0)),
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: AssetImage(
-                                                'assets/rhr.png'),
-                                          ),
-                                        ),
-                                      ),),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        "Why RHR reflects my health status?",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                        ],
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "How does sleep affect my health?",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
+                      const SizedBox(
+                        width: 8,
                       ),
-                    )
-                  ],
-                );
-              }),
-            ),
+                      SizedBox(
+                            width: 300,
+                            height: 200,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) => InfoExercise())),
+                                  child: Hero(
+                                    tag: 'exercise',
+                                    child: Container(
+                                    width: 300,
+                                    height: 200,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15.0),
+                                          bottomLeft: Radius.circular(15.0),
+                                          bottomRight: Radius.circular(15.0),
+                                          topRight: Radius.circular(15.0)),
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: AssetImage(
+                                            'assets/exercise.jpg'),
+                                      ),
+                                    ),
+                                  ),),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "How does exercise affect my health?",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      SizedBox(
+                            width: 300,
+                            height: 200,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) => InfoRHR())),
+                                  child: Hero(
+                                    tag: 'rhr',
+                                    child: Container(
+                                    width: 300,
+                                    height: 200,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15.0),
+                                          bottomLeft: Radius.circular(15.0),
+                                          bottomRight: Radius.circular(15.0),
+                                          topRight: Radius.circular(15.0)),
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: AssetImage(
+                                            'assets/rhr.png'),
+                                      ),
+                                    ),
+                                  ),),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    "Why RHR reflects my health status?",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            )
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            );
+          }),
         ),
-      ),
-    );
+      )
+      );
   }
   
   // Method for navigation weeklyRecap -> sleepScreen
@@ -305,7 +306,7 @@ class WeeklyRecap extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
   }
-}
+} 
 
 
 String calculateAverageSleepScore(List<double> scores) {
