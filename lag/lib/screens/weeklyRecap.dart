@@ -100,7 +100,7 @@ class WeeklyRecap extends StatelessWidget {
                 const SizedBox(height: 20),
                 const Text("Explore Daily Trends in each parameter",
                   style: TextStyle(fontSize: 16),
-                ),
+                ), 
                 const SizedBox(height: 5),
                 const Text("See how much you’ve been striving throughout the week",
                     style: TextStyle(fontSize: 12,color: Colors.black45),
@@ -124,17 +124,19 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
-                  (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
-                    Card(
-                              elevation: 5,
-                              child: ListTile(
-                                leading: Icon(Icons.directions_run),
-                                trailing: Container(child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                                title:
-                                    Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                                subtitle: Text('Total minutes of exercise performed this week'),
+                  (provider.exerciseData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  :
+                  Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: Icon(Icons.directions_run),
+                      trailing: Container(
+                        child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                      title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
+                      subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                      onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
                       ),
                 const SizedBox(height: 20), 
@@ -302,7 +304,7 @@ class WeeklyRecap extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
   }
-}
+} 
 
 
 String calculateAverageSleepScore(List<double> scores) {

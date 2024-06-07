@@ -19,7 +19,7 @@ class HomeProvider extends ChangeNotifier {
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
-
+ 
   double score = 0;
 
   String nick = 'User';

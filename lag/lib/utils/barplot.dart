@@ -9,7 +9,7 @@ class BarChartSample7 extends StatefulWidget {
   final List<double> ageFlag;
   final List<double> minToFall;
   final List<PieChart?> pieCharts;
-  final List<String?> legend;
+  final List<String?> legend; 
 
   @override
   State<BarChartSample7> createState() => _BarChartSample7State();
