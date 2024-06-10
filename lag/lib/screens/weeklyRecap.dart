@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+//import 'package:lag/algorithms/sleepScore.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -8,27 +9,33 @@ import 'package:lag/screens/infoExercise.dart';
 import 'package:lag/screens/infoSleep.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
+//import 'dart:async';
 
 
+// CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
+
+  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
+
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: Padding(
-          padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
-          child: Consumer<HomeProvider>(builder: (context, provider, child) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
-                //hello(provider), // COSI FUNZIONA MA STO OMETTENDO UN AWAIT
-                const SizedBox(height: 20),
-                const Text('7-days Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+          child: /*ChangeNotifierProvider(
+            create: (context) => HomeProvider(),
+            builder: (context, child) => */Padding(
+              padding:
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
+              child: Consumer<HomeProvider>(builder: (context, provider, child) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 20),
+                    const Text('Weekly Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
 
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Padding(
@@ -95,7 +102,7 @@ class WeeklyRecap extends StatelessWidget {
                 const SizedBox(height: 20),
                 const Text("Explore Daily Trends in each parameter",
                   style: TextStyle(fontSize: 16),
-                ),
+                ), 
                 const SizedBox(height: 5),
                 const Text("See how much you’ve been striving throughout the week",
                     style: TextStyle(fontSize: 12,color: Colors.black45),
@@ -119,17 +126,19 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
-                  (provider.exerciseData.isEmpty) ? const CircularProgressIndicator.adaptive() :
-                    Card(
-                              elevation: 5,
-                              child: ListTile(
-                                leading: Icon(Icons.directions_run),
-                                trailing: Container(child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                                title:
-                                    Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                                subtitle: Text('Total minutes of exercise performed this week'),
+                  (provider.exerciseData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  :
+                  Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: Icon(Icons.directions_run),
+                      trailing: Container(
+                        child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                      title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
+                      subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                      onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
                       ),
                 const SizedBox(height: 20), 
@@ -282,7 +291,8 @@ class WeeklyRecap extends StatelessWidget {
           }),
         ),
       )
-      );
+      
+    );
   }
   
   // Method for navigation weeklyRecap -> sleepScreen
@@ -297,14 +307,7 @@ class WeeklyRecap extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
   }
-  
-  /*
-  Text hello(HomeProvider provider) {
-    provider.updateSP(); 
-    return Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16));
-  }
-  */
-}
+} 
 
 
 String calculateAverageSleepScore(List<double> scores) {

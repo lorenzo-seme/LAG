@@ -1,7 +1,7 @@
-
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
+//import 'package:lag/models/allData.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -12,11 +12,13 @@ import 'package:lag/algorithms/sleep_score.dart';
 
 
 class HomeProvider extends ChangeNotifier { 
+  //List<HR> heartRates = [];
+  //List<int> heartRates = []; // MOMENTANEO
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
-
+ 
   double score = 0;
 
   String nick = 'User';
@@ -36,7 +38,25 @@ class HomeProvider extends ChangeNotifier {
   // HomeProvider() {getDataOfDay(showDate);}
   HomeProvider() {_init();}
 
-  /*
+  Future<void> _init() async {
+    final sp = await SharedPreferences.getInstance();
+    final name = sp.getString('name');
+    final userAge = sp.getString('userAge');
+    if (userAge != null){
+      // age = ((DateTime.now().difference(DateTime.parse(dob))).inDays / 365).round();
+      age = int.parse(sp.getString('userAge')!);
+      ageInserted = true;
+    }
+    if (name != null){
+      nick = name;
+    }
+    notifyListeners(); // ???
+    // Fetch data 
+    //getDataOfDay(showDate);
+    getDataOfWeek(start, end);
+  }
+
+    /*
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
     final name = sp.getString('name');
@@ -54,23 +74,6 @@ class HomeProvider extends ChangeNotifier {
     getDataOfWeek(start, end);
   }
   */
-
-  Future<void> _init() async {
-    final sp = await SharedPreferences.getInstance();
-    final name = sp.getString('name');
-    final userAge = sp.getString('userAge');
-    if (userAge != null){
-      age = int.parse(sp.getString('userAge')!);
-      ageInserted = true;
-    }
-    if (name != null){
-      nick = name;
-    }
-    notifyListeners();
-    // Fetch data 
-    //getDataOfDay(showDate);
-    getDataOfWeek(start, end);
-  }
 
   /*
   void updateName(String newName) {
@@ -102,6 +105,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
   */
+  
+
+  
 
 
 /*
@@ -348,6 +354,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }//dateAdder 
 
+  
+  
 }
+
 
 

@@ -139,7 +139,7 @@ Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
             if (_isSleepHoursCardExpanded)
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: _sleepHoursAdvice(widget.provider.ageInserted, widget.provider.age),
+                child: _sleepHoursAdvice(widget.provider.ageInserted, widget.provider.showAlertForAge, widget.provider.age),
               ),
           ],
         ),
@@ -279,8 +279,8 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
     );
   }
   
-  Widget _sleepHoursAdvice(bool ageInserted, int age) {
-    if (!ageInserted) {
+  Widget _sleepHoursAdvice(bool ageInserted, bool showAlertForAge, int age) {
+    if (!ageInserted && showAlertForAge) {
       /*return AlertDialog(
         content: const Text("Estimates were made assuming that your age is 25. \n Add your birth year in the Personal Information section for a customized advice!",
                 style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
@@ -300,14 +300,31 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
         children: [
           const Text("Estimates were made assuming that your age is 25. \nAdd your birth year in the Personal Information section for a customized advice!",
             style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
-          TextButton(
-            child: const Text('To Personal Info',
-              style: TextStyle(fontSize: 11.0)),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => PersonalInfo())
-              );
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                child: const Text('To Personal Info',
+                  style: TextStyle(fontSize: 11.0)),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => PersonalInfo())
+                  );
+                  setState(() {
+                    widget.provider.showAlertForAge = false;
+                  });
+                },
+              ),
+              TextButton(
+                child: const Text('Close',
+                  style: TextStyle(fontSize: 11.0)),
+                onPressed: () {
+                  setState(() {
+                    widget.provider.showAlertForAge = false;
+                  });
+                },
+              )
+            ],
           )
         ],
       );
