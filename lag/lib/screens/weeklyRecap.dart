@@ -282,8 +282,7 @@ class WeeklyRecap extends StatelessWidget {
           }),
         ),
       )
-      )
-    );
+      );
   }
   
   // Method for navigation weeklyRecap -> sleepScreen
