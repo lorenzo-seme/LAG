@@ -5,7 +5,9 @@ import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lag/screens/personal_info.dart';
+import 'package:lag/screens/weeklyRecap.dart';
 import 'package:lag/utils/barplot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SleepScreen extends StatefulWidget {
   final DateTime startDate;
@@ -51,6 +53,7 @@ class _SleepScreenState extends State<SleepScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
+            //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const WeeklyRecap()));
           },
         ),
         backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
@@ -298,7 +301,7 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
       );*/
       return Column(
         children: [
-          const Text("Estimates were made assuming that your age is 25. \nAdd your birth year in the Personal Information section for a customized advice!",
+          const Text("Estimates were made assuming that your age is 25. \nAdd your personal information for a customized advice!",
             style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -306,17 +309,25 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
               TextButton(
                 child: const Text('To Personal Info',
                   style: TextStyle(fontSize: 11.0)),
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => PersonalInfo())
                   );
+                  final sp = await SharedPreferences.getInstance();
+                  final name = sp.getString('name');
+                  final userAge = sp.getString('userAge');
                   setState(() {
                     widget.provider.showAlertForAge = false;
+                    if (userAge != null && name != null) {
+                      widget.provider.nick = name;
+                      widget.provider.age = int.parse(userAge);
+                    }
                   });
                 },
               ),
+
               TextButton(
-                child: const Text('Close',
+                child: const Text('Do not ask again',
                   style: TextStyle(fontSize: 11.0)),
                 onPressed: () {
                   setState(() {

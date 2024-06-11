@@ -24,7 +24,8 @@ class HomeProvider extends ChangeNotifier {
   String nick = 'User';
   int age = 25;
   bool ageInserted = false;
-  bool showAlertForAge = true;
+  bool showAlertForAge = false;
+
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
   DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
@@ -40,12 +41,15 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
-    final name = sp.getString('name');
-    final userAge = sp.getString('userAge');
+    String? name = sp.getString('name');
+    String? userAge = sp.getString('userAge');
     if (userAge != null){
       // age = ((DateTime.now().difference(DateTime.parse(dob))).inDays / 365).round();
       age = int.parse(sp.getString('userAge')!);
       ageInserted = true;
+      showAlertForAge = false;
+    } else {
+      showAlertForAge = true;
     }
     if (name != null){
       nick = name;
