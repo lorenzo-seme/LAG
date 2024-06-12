@@ -1,12 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-//import 'package:lag/models/allData.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/utils/impact.dart';
-//import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lag/algorithms/sleep_score.dart';
 
@@ -53,10 +51,11 @@ class HomeProvider extends ChangeNotifier {
     }
     if (name != null){
       nick = name;
+    } else {
+      nick = 'User';
     }
-    notifyListeners(); // ???
+
     // Fetch data 
-    //getDataOfDay(showDate);
     getDataOfWeek(start, end);
   }
 
@@ -94,6 +93,7 @@ class HomeProvider extends ChangeNotifier {
     //getDataOfDay(showDate);
     getDataOfWeek(start, end);
   }
+  */
 
   Future<void> updateSP() async{
     final sp = await SharedPreferences.getInstance();
@@ -102,13 +102,19 @@ class HomeProvider extends ChangeNotifier {
     if (userAge != null){
       age = int.parse(sp.getString('userAge')!);
       ageInserted = true;
+    } else {
+      age = 25;
+      ageInserted = false;
+      showAlertForAge = true;
     }
     if (name != null){
       nick = name;
+    } else {
+      nick = 'User';
     }
     notifyListeners();
   }
-  */
+  
   
 
   

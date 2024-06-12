@@ -5,7 +5,7 @@ import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lag/screens/personal_info.dart';
-import 'package:lag/screens/weeklyRecap.dart';
+//import 'package:lag/screens/weeklyRecap.dart';
 import 'package:lag/utils/barplot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
