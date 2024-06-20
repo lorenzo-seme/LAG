@@ -41,8 +41,25 @@ class WeeklyRecap extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(onTap: () async {
-                      provider.dateSubtractor(provider.start);
-                      await provider.getDataOfWeek(provider.start, provider.end);
+                        if(provider.isReady){
+                          await provider.dateSubtractor(provider.start);
+                          await provider.getDataOfWeek(provider.start, provider.end);
+                          //ScaffoldMessenger.of(context).clearSnackBars();
+                        }
+                        else{
+                          ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(8),
+                                      duration: Duration(seconds: 1),
+                                      content: Text(
+                                          "Still loading... Keep calm!"),
+                                    ),
+                                  );
+                        }
                       },
                       child: const Icon(Icons.navigate_before),
                     ),
@@ -56,8 +73,25 @@ class WeeklyRecap extends StatelessWidget {
                       const Icon(Icons.stop) :
                       InkWell(
                         onTap: () async {
-                          provider.dateAdder(provider.start);
-                          await provider.getDataOfWeek(provider.start, provider.end);
+                          if(provider.isReady){
+                              await provider.dateAdder(provider.start);
+                              await provider.getDataOfWeek(provider.start, provider.end);
+                              //ScaffoldMessenger.of(context).clearSnackBars();
+                          }
+                          else{
+                            ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(8),
+                                      duration: Duration(seconds: 1),
+                                      content: Text(
+                                          "Still loading... Keep calm!"),
+                                    ),
+                                  );
+                          }
                         },
                         child: const Icon(Icons.navigate_next),
                       ), 

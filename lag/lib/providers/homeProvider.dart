@@ -23,6 +23,7 @@ class HomeProvider extends ChangeNotifier {
   int age = 25;
   bool ageInserted = false;
   bool showAlertForAge = false;
+  bool isReady = true;
 
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
@@ -178,7 +179,8 @@ class HomeProvider extends ChangeNotifier {
   Future<void> getDataOfWeek(DateTime start, DateTime end) async {
     //DateTime start = showDate;
     //DateTime end = start.add(const Duration(days: 6));
-    
+    isReady = false;
+    //notifyListeners()
     DateFormat dateFormat = DateFormat('E, d MMM');
     String formattedStart = dateFormat.format(start);
     String formattedEnd = dateFormat.format(end);
@@ -194,6 +196,8 @@ class HomeProvider extends ChangeNotifier {
 
     //await fetchSleepData(monday.toString(), sunday.toString());
     await fetchAllData(start.toString(), end.toString());
+
+    isReady = true;
     
     _loading(); 
 
@@ -348,13 +352,13 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // methods to update start and end: dateSubtractor & dateAdder
-  void dateSubtractor(DateTime start) {
+  Future<void> dateSubtractor(DateTime start) async{
     this.start = start.subtract(const Duration(days: 7));
     end = this.start.add(const Duration(days: 6));
     notifyListeners();
   }//dateSubtractor
 
-  void dateAdder(DateTime start) {
+  Future<void> dateAdder(DateTime start) async{
     this.start = start.add(const Duration(days: 7));
     if (this.start.year == monday.year && this.start.month == monday.month && this.start.day == monday.day) {
       end = showDate;
