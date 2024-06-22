@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/utils/barplotEx.dart';
 //import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
@@ -752,6 +753,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     },
                   ),
                 ),
+                Center(
+                      child: ElevatedButton(
+                        child: Text('Temporary button, to RHR screen'),
+                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => RhrScreen(startDate: widget.provider.start, endDate: widget.provider.end, provider: widget.provider))),
+                      ),
+                    ),
               ],
             ),
           ),

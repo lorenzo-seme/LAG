@@ -30,24 +30,43 @@ class WeeklyRecap extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: Padding(
-          padding:
-              const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
-          child: Consumer<HomeProvider>(builder: (context, provider, child) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 20),
-                const Text('7-days Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+          child: /*ChangeNotifierProvider(
+            create: (context) => HomeProvider(),
+            builder: (context, child) => */Padding(
+              padding:
+                  const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
+              child: Consumer<HomeProvider>(builder: (context, provider, child) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 20),
+                    const Text('Weekly Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
 
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(onTap: () async {
-                      provider.dateSubtractor(provider.start);
-                      await provider.getDataOfWeek(provider.start, provider.end);
+                        if(provider.isReady){
+                          await provider.dateSubtractor(provider.start);
+                          await provider.getDataOfWeek(provider.start, provider.end);
+                          //ScaffoldMessenger.of(context).clearSnackBars();
+                        }
+                        else{
+                          ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(8),
+                                      duration: Duration(seconds: 1),
+                                      content: Text(
+                                          "Still loading... Keep calm!"),
+                                    ),
+                                  );
+                        }
                       },
                       child: const Icon(Icons.navigate_before),
                     ),
@@ -61,8 +80,25 @@ class WeeklyRecap extends StatelessWidget {
                       const Icon(Icons.stop) :
                       InkWell(
                         onTap: () async {
-                          provider.dateAdder(provider.start);
-                          await provider.getDataOfWeek(provider.start, provider.end);
+                          if(provider.isReady){
+                              await provider.dateAdder(provider.start);
+                              await provider.getDataOfWeek(provider.start, provider.end);
+                              //ScaffoldMessenger.of(context).clearSnackBars();
+                          }
+                          else{
+                            ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(8),
+                                      duration: Duration(seconds: 1),
+                                      content: Text(
+                                          "Still loading... Keep calm!"),
+                                    ),
+                                  );
+                          }
                         },
                         child: const Icon(Icons.navigate_next),
                       ), 
@@ -300,7 +336,8 @@ class WeeklyRecap extends StatelessWidget {
           }),
         ),
       )
-      );
+    //)
+    );
   }
   
   // Method for navigation weeklyRecap -> sleepScreen

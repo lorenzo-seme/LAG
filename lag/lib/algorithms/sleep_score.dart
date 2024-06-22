@@ -1,14 +1,16 @@
 import 'dart:math';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lag/models/sleepdata.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
-Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
+Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int age, bool ageInserted) async {
   List<double> scores = [];
   List<double> sleepHoursScores = [];
   List<double> minutesToFallAsleepScores = [];
   List<double> combinedPhaseScores = [];
-  List<double> ageFlag = [];
+  //List<double> ageFlag = [];
 
+  /*
   SharedPreferences sp = await SharedPreferences.getInstance();
   // int userAge = (sp.getString('userAge')) == null ? 25 : int.parse(sp.getString('userAge')!); // Default at 25 if not specified
   int userAge = -1; // initialized
@@ -19,8 +21,8 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
     userAge = int.parse(sp.getString('userAge')!);
     ageFlag.add(double.parse(sp.getString('userAge')!));
   }
-  // MESSAGGIO NEL CASO L'UTENTE NON ABBIA IMPOSTATO LA DATA DI NASCITA, SCORE SUBOTTIMO
-  String ageGroup = determineAgeGroup(userAge);
+  */
+  String ageGroup = determineAgeGroup(age);
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data
     double sleepHoursScore = -1;
@@ -71,7 +73,7 @@ Future<Map<String, List<double>>> getSleepScore(List sleeplist) async {
     "scores" : scores,
     "minutesToFallAsleepScores" : minutesToFallAsleepScores,
     "combinedPhaseScores" : combinedPhaseScores,
-    "ageFlag" : ageFlag,
+    //"ageFlag" : ageFlag,
   };
   return output;
 }

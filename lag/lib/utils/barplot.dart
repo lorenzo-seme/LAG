@@ -3,33 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:lag/algorithms/sleep_score.dart';
 
 class BarChartSample7 extends StatefulWidget {
-  const BarChartSample7({super.key, required this.yValues, required this.ageFlag, required this.minToFall, required this.pieCharts, required this.legend});
+  const BarChartSample7({super.key, required this.yValues, required this.age, required this.minToFall, required this.pieCharts, required this.legend});
   
-  final List<double> yValues;
-  final List<double> ageFlag;
-  final List<double> minToFall;
-  final List<PieChart?> pieCharts;
-  final List<String?> legend; 
+  final List<double> yValues; // hours slept per night
+  final int age; 
+  final List<double> minToFall; // minutes to fall asleep per night
+  final List<PieChart?> pieCharts; // pieCharts with sleep phases distribution per night
+  final List<String?> legend; // percentages of sleep phases
 
   @override
   State<BarChartSample7> createState() => _BarChartSample7State();
 }
 
 class _BarChartSample7State extends State<BarChartSample7> {
-  final List<String> weekDays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+  final List<String> weekDays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]; // to be used in the bottom titles
 
-  BarChartGroupData generateBarGroup(
-    int x,
-    Color color,
-    double value,
-  ) {
+  BarChartGroupData generateBarGroup(int x, Color color, double value) {
     return BarChartGroupData(
-      x: x,
+      x: x, // indexes of the bars (from 0 to 6)
       barRods: [
         BarChartRodData(
-          toY: value,
+          toY: value, // hours slept
           color: color,
-          width: 10,
+          width: 10, 
         )
       ],
     );
@@ -37,16 +33,18 @@ class _BarChartSample7State extends State<BarChartSample7> {
 
   @override
   Widget build(BuildContext context) {
-    double maxDataValue = widget.yValues.isNotEmpty ? widget.yValues.reduce((a, b) => a > b ? a : b) : 0;
+    // compute the max of hours slept to set the max amplitude of the plot
+    double maxDataValue = widget.yValues.isNotEmpty ? widget.yValues.reduce((a, b) => a > b ? a : b) : 0; 
     double maxY = maxDataValue != 0 ? maxDataValue * 1.2 + 1 : 10;
-    String ageGroup = determineAgeGroup(widget.ageFlag[0].toInt());
+    // determine age group to highlight healthy range
+    String ageGroup = determineAgeGroup(widget.age);
     Map<String, List<double>> sleepScoreTable = {
-      // legend: minIdeal, maxIdeal, minAcceptable, maxAcceptable
-      "School-age": [9, 11, 7, 12],
-      "Teen": [8, 10, 7, 11],
-      "Young Adult": [7, 9, 6, 11],
-      "Adult" : [7, 9, 6, 10],
-      "Older Adult" :[7, 8, 5, 9]
+      // legend: minIdeal, maxIdeal
+      "School-age": [9, 11],
+      "Teen": [8, 10],
+      "Young Adult": [7, 9],
+      "Adult" : [7, 9],
+      "Older Adult" :[7, 8]
     };
 
     return Padding(
@@ -66,13 +64,14 @@ class _BarChartSample7State extends State<BarChartSample7> {
             ),
             titlesData: FlTitlesData(
               show: true,
+              
+              // as lefttitles: hours
               leftTitles: AxisTitles(
                 drawBelowEverything: true,
-                
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 20,
-                  interval: 1,
+                  interval: 1, 
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
@@ -82,6 +81,8 @@ class _BarChartSample7State extends State<BarChartSample7> {
                   },
                 ),
               ),
+
+              // as bottom titles: days
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -97,14 +98,18 @@ class _BarChartSample7State extends State<BarChartSample7> {
                   },
                 ),
               ),
+
+              // right and top titles: null
               rightTitles: const AxisTitles(),
               topTitles: const AxisTitles(),
             ),
+
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
               horizontalInterval: 1,
               getDrawingHorizontalLine: (value) {
+                // to distinguish healthy range
                 if (value == (sleepScoreTable[ageGroup]!)[0] || value == (sleepScoreTable[ageGroup]!)[1]) {
                   return FlLine(
                     color: Colors.black.withOpacity(0.4),
@@ -118,52 +123,18 @@ class _BarChartSample7State extends State<BarChartSample7> {
                 }
               },
             ),
+
             barGroups: widget.yValues.asMap().entries.map((e) {
               final index = e.key;
               final data = e.value;
-              return generateBarGroup(
-                index,
-                const Color.fromARGB(202, 97, 20, 169),
-                data
-              );
+              return generateBarGroup(index, const Color.fromARGB(202, 97, 20, 169), data); // generate bar plot
             }).toList(),
-            maxY: (maxY.toInt()).toDouble(),
+            maxY: (maxY.toInt()).toDouble(), // set the max heigh of the plot
             
-            /*
+            // set what happens when bar are touched
             barTouchData: BarTouchData(
               enabled: true,
-              handleBuiltInTouches: true,
-              touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (group) => Colors.transparent,
-                tooltipMargin: 0,
-                getTooltipItem: (
-                  BarChartGroupData group,
-                  int groupIndex,
-                  BarChartRodData rod,
-                  int rodIndex,
-                ) {
-                  int hours = rod.toY.toInt();
-                  int minutes = ((rod.toY - hours) * 60).toInt();
-                  return BarTooltipItem(
-                    '$hours hours and \n$minutes minutes',
-                    const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 10,
-                      shadows: [
-                        Shadow(
-                          color: Color.fromARGB(255, 227, 211, 244),
-                          blurRadius: 20,
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),*/
-            barTouchData: BarTouchData(
-              enabled: true,
-              handleBuiltInTouches: false, // Disable built-in tooltip
+              handleBuiltInTouches: false, 
               touchCallback: (FlTouchEvent event, barTouchResponse) {
                 if (event.isInterestedForInteractions &&
                     barTouchResponse != null &&

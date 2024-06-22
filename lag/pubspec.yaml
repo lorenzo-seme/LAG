@@ -37,7 +37,6 @@ dependencies:
   graphic: ^2.2.1
   fl_chart: ^0.68.0
   dropdown_button2: ^2.3.9
-  #survey_kit: ^0.2.0
   percent_indicator: ^4.0.1 
 
   # The following adds the Cupertino Icons font to your application.

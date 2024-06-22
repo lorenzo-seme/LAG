@@ -1,13 +1,10 @@
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-//import 'package:lag/models/allData.dart'; 
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/utils/impact.dart';
-//import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lag/algorithms/sleep_score.dart';
 
@@ -25,7 +22,9 @@ class HomeProvider extends ChangeNotifier {
   String nick = 'User';
   int age = 25;
   bool ageInserted = false;
-  bool showAlertForAge = true;
+  bool showAlertForAge = false;
+  bool isReady = true;
+
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
   DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
@@ -41,19 +40,85 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
+    String? name = sp.getString('name');
+    String? userAge = sp.getString('userAge');
+    if (userAge != null){
+      // age = ((DateTime.now().difference(DateTime.parse(dob))).inDays / 365).round();
+      age = int.parse(sp.getString('userAge')!);
+      ageInserted = true;
+      showAlertForAge = false;
+    } else {
+      showAlertForAge = true;
+    }
+    if (name != null){
+      nick = name;
+    } else {
+      nick = 'User';
+    }
+
+    // Fetch data 
+    getDataOfWeek(start, end);
+  }
+
+    /*
+  Future<void> _init() async {
+    final sp = await SharedPreferences.getInstance();
     final name = sp.getString('name');
     final dob = sp.getString('dob');
     if (dob != null){
       age = ((DateTime.now().difference(DateTime.parse(dob))).inDays / 365).round();
       ageInserted = true;
     }
-    if (name != null)
+    if (name != null){
       nick = name;
-
+    }
+    //notifyListeners();
     // Fetch data 
     //getDataOfDay(showDate);
     getDataOfWeek(start, end);
   }
+  */
+
+  /*
+  void updateName(String newName) {
+    nick = newName;
+    notifyListeners();
+  }
+  */
+
+  /*
+  Future<void> _init() async {
+    await updateSP();
+    //notifyListeners();
+    // Fetch data 
+    //getDataOfDay(showDate);
+    getDataOfWeek(start, end);
+  }
+  */
+
+  Future<void> updateSP() async{
+    final sp = await SharedPreferences.getInstance();
+    final name = sp.getString('name');
+    final userAge = sp.getString('userAge');
+    if (userAge != null){
+      age = int.parse(sp.getString('userAge')!);
+      ageInserted = true;
+    } else {
+      age = 25;
+      ageInserted = false;
+      showAlertForAge = true;
+    }
+    if (name != null){
+      nick = name;
+    } else {
+      nick = 'User';
+    }
+    notifyListeners();
+  }
+  
+  
+
+  
 
 
 /*
@@ -144,7 +209,8 @@ class HomeProvider extends ChangeNotifier {
   Future<void> getDataOfWeek(DateTime start, DateTime end) async {
     //DateTime start = showDate;
     //DateTime end = start.add(const Duration(days: 6));
-    
+    isReady = false;
+    //notifyListeners()
     DateFormat dateFormat = DateFormat('E, d MMM');
     String formattedStart = dateFormat.format(start);
     String formattedEnd = dateFormat.format(end);
@@ -160,6 +226,8 @@ class HomeProvider extends ChangeNotifier {
 
     //await fetchSleepData(monday.toString(), sunday.toString());
     await fetchAllData(start.toString(), end.toString());
+
+    isReady = true;
     
     _loading(); 
 
@@ -208,7 +276,7 @@ class HomeProvider extends ChangeNotifier {
             }
             //print(sleepData.last);
         } 
-        calculateSleepScore(startDay, endDay);
+        calculateSleepScore(sleepData);
       }
       notifyListeners();
     }//if
@@ -308,19 +376,19 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calculateSleepScore(String startDay, String endDay) async{
-    sleepScores = await getSleepScore(sleepData);
+  void calculateSleepScore(List<SleepData> sleepData) async{
+    sleepScores = await getSleepScore(sleepData, this.age, this.ageInserted);
     notifyListeners();
   }
 
   // methods to update start and end: dateSubtractor & dateAdder
-  void dateSubtractor(DateTime start) {
+  Future<void> dateSubtractor(DateTime start) async{
     this.start = start.subtract(const Duration(days: 7));
     end = this.start.add(const Duration(days: 6));
     notifyListeners();
   }//dateSubtractor
 
-  void dateAdder(DateTime start) {
+  Future<void> dateAdder(DateTime start) async{
     this.start = start.add(const Duration(days: 7));
     if (this.start.year == monday.year && this.start.month == monday.month && this.start.day == monday.day) {
       end = showDate;
@@ -333,5 +401,6 @@ class HomeProvider extends ChangeNotifier {
   
   
 }
+
 
 

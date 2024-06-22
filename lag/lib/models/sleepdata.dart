@@ -6,7 +6,7 @@ import 'package:lag/models/allData.dart';
 
 // model to store data from server in a dedicated object type
 class SleepData extends AllData{
-  //final DateTime day; 
+  //final DateTime day;
   final duration;
   final minutesAsleep;
   final efficiency;

@@ -4,13 +4,16 @@ import 'package:lag/algorithms/sleep_score.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:lag/screens/personal_info.dart';
+//import 'package:lag/screens/weeklyRecap.dart';
 import 'package:lag/utils/barplot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SleepScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final HomeProvider provider;
-
+  
   const SleepScreen({super.key, required this.startDate, required this.endDate, required this.provider});
 
   @override
@@ -50,10 +53,11 @@ class _SleepScreenState extends State<SleepScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
+            //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const WeeklyRecap()));
           },
         ),
         backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
-      ), 
+      ),
       body: noDataAvailable
         ? _buildNoDataMessage()
         : SingleChildScrollView(
@@ -75,7 +79,7 @@ class _SleepScreenState extends State<SleepScreen> {
                   SizedBox(
                     height: 230,
                     width: 330,
-                    child: _buildBarPlot(widget.provider.sleepData, widget.provider.sleepScores["ageFlag"]!),
+                    child: _buildBarPlot(widget.provider.sleepData),
                   ),
                   const SizedBox(height: 10),
                   const Text("Explore each quantity on average", style: TextStyle(fontSize: 12.0)),
@@ -138,16 +142,7 @@ Widget _buildSleepHoursDataCard(List<SleepData> sleepData) {
             if (_isSleepHoursCardExpanded)
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sleepHoursAdvice(widget.provider.sleepScores["ageFlag"]!),
-                    const Text(
-                      "- National Sleep Foundation",
-                      style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0),
-                    ),
-                  ],
-                ),
+                child: _sleepHoursAdvice(widget.provider.ageInserted, widget.provider.showAlertForAge, widget.provider.age),
               ),
           ],
         ),
@@ -287,33 +282,90 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
     );
   }
   
-  Text _sleepHoursAdvice(List<double> list) {
-    if (list[0] == -1) {
-      return const Text("Estimates were made assuming that your age is 25. \n Add your birth year in the Personal Information section for a customized advice!",
-        style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),);
+  Widget _sleepHoursAdvice(bool ageInserted, bool showAlertForAge, int age) {
+    if (!ageInserted && showAlertForAge) {
+      /*return AlertDialog(
+        content: const Text("Estimates were made assuming that your age is 25. \n Add your birth year in the Personal Information section for a customized advice!",
+                style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('To Personal Info',
+              style: TextStyle(fontSize: 11.0)),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => PersonalInfo())
+              );
+            },
+          )
+        ],
+      );*/
+      return Column(
+        children: [
+          const Text("Estimates were made assuming that your age is 25. \nAdd your personal information for a customized advice!",
+            style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                child: const Text('To Personal Info',
+                  style: TextStyle(fontSize: 11.0)),
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => PersonalInfo())
+                  );
+                  final sp = await SharedPreferences.getInstance();
+                  final name = sp.getString('name');
+                  final userAge = sp.getString('userAge');
+                  setState(() {
+                    widget.provider.showAlertForAge = false;
+                    if (userAge != null && name != null) {
+                      widget.provider.nick = name;
+                      widget.provider.age = int.parse(userAge);
+                    }
+                  });
+                },
+              ),
+
+              TextButton(
+                child: const Text('Do not ask again',
+                  style: TextStyle(fontSize: 11.0)),
+                onPressed: () {
+                  setState(() {
+                    widget.provider.showAlertForAge = false;
+                  });
+                },
+              )
+            ],
+          )
+        ],
+      );
     } else {
-      String ageGroup = determineAgeGroup(list[0].toInt());
+      String ageGroup = determineAgeGroup(age);
+      String message = "";
       if (ageGroup == "School-age") {
-        return const Text("If you are in the School-age range (between 6 and 13 years old), it is recommended to sleep between 9 and 11 hours, with less than 7 and more than 12 hours being discouraged",
-          style: TextStyle(fontSize: 11.0),);
+        message = "If you are in the School-age range (between 6 and 13 years old), it is recommended to sleep between 9 and 11 hours, with less than 7 and more than 12 hours being discouraged";
       } else if (ageGroup == "Teen") {
-        return const Text("If you are in the Teen-age range (between 14 and 17 years old), it is recommended to sleep between 8 and 10 hours, with less than 7 and more than 11 hours being discouraged",
-          style: TextStyle(fontSize: 11.0),);
+        message = "If you are in the Teen-age range (between 14 and 17 years old), it is recommended to sleep between 8 and 10 hours, with less than 7 and more than 11 hours being discouraged";
       } else if (ageGroup == "Young Adult") {
-        return const Text("If you are in the Young-Adult-age range (between 18 and 25 years old), it is recommended to sleep between 7 and 9 hours, with less than 6 and more than 11 hours being discouraged",
-          style: TextStyle(fontSize: 11.0));
+        message = "If you are in the Young-Adult-age range (between 18 and 25 years old), it is recommended to sleep between 7 and 9 hours, with less than 6 and more than 11 hours being discouraged";
       } else if (ageGroup == "Adult") {
-        return const Text("If you are in the Adult-age range (between 26 and 65 years old), it is recommended to sleep between 7 and 9 hours, with less than 6 and more than 10 hours being discouraged",
-          style: TextStyle(fontSize: 11.0),);
+        message = "If you are in the Adult-age range (between 26 and 65 years old), it is recommended to sleep between 7 and 9 hours, with less than 6 and more than 10 hours being discouraged";
       } else if (ageGroup == "Older Adult") {
-        return const Text("If you are in the Older-Adult-age range (more than 65 years old), it is recommended to sleep between 7 and 8 hours, with less than 5 and more than 9 hours being discouraged",
-          style: TextStyle(fontSize: 11.0),);
-      } else {return const Text("");}
+        message = "If you are in the Older-Adult-age range (more than 65 years old), it is recommended to sleep between 7 and 8 hours, with less than 5 and more than 9 hours being discouraged";
+      } 
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(message, style: TextStyle(fontSize: 11.0)),
+          const Text("- National Sleep Foundation",
+            style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0))
+        ]
+      );
     }
   }
   
   
-  _buildBarPlot(List<SleepData> sleepData, List<double> ageFlag) {
+  _buildBarPlot(List<SleepData> sleepData) {
     List<double> hoursList = [];
     List<double> minToFallList = [];
     List<PieChart?> pieList = [];
@@ -337,7 +389,7 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
       pieList.add(null);
       legend.add(null);
     }
-    return BarChartSample7(yValues: hoursList, ageFlag: ageFlag, minToFall: minToFallList, pieCharts: pieList, legend: legend);    
+    return BarChartSample7(yValues: hoursList, age: widget.provider.age, minToFall: minToFallList, pieCharts: pieList, legend: legend);    
   }
 
 }

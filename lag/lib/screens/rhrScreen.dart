@@ -165,10 +165,12 @@ class _RhrScreenState extends State<RhrScreen>{
                                     TextButton(
                                       child: const Text('Yes'),
                                       onPressed: () {
-                                        widget.provider.showAlertForAge = false;
                                         Navigator.of(context).push(
                                           MaterialPageRoute(builder: (context) => PersonalInfo())
                                         );
+                                        setState(() {
+                                            widget.provider.showAlertForAge = false;
+                                        });
                                       },
                                     ),
                                     TextButton(
@@ -280,7 +282,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                       ),
                                       if(selectedValue!=null) ...[
                                         SizedBox(height: 10,),
-                                        Text("Considering your age, your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
+                                        Text("Considering your age (${widget.provider.age}), your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
                                         SizedBox(height: 8,),
                                         Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![0]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![1]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)}]")
                                       ]
@@ -328,4 +330,3 @@ class _RhrScreenState extends State<RhrScreen>{
   }
 
 }
-

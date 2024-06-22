@@ -1,7 +1,11 @@
 // PREVEDI L'OPZIONE CHE L'UTENTE INSERISCA SOLO ALCUNI DEI DATI PERSONALI ?
 
 import 'package:flutter/material.dart';
+import 'package:lag/providers/homeProvider.dart';
+//import 'package:lag/providers/homeProvider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+//import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalInfo extends StatefulWidget {
@@ -165,38 +169,63 @@ class _PersonalInfoState extends State<PersonalInfo> {
               const SizedBox(
                 height: 20,
               ),
-              Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final sp = await SharedPreferences.getInstance();
+                        await sp.setString('bs', bs.toString());
+                        await sp.setString('dob', dateController.text.toString());
+                        await sp.setString('name', nameController.text.toString());
+                        // Calculate userAge from date of birth
+                        DateTime birthDate = DateTime.parse(dateController.text.toString());
+                        DateTime now = DateTime.now();
+                        int userAge = now.year - birthDate.year;
+                          if (now.month < birthDate.month ||
+                            (now.month == birthDate.month && now.day < birthDate.day)) {
+                          userAge--;
+                          }
+                        await sp.setString('userAge', userAge.toString());
+                        await Provider.of<HomeProvider>(context, listen: false).updateSP();
+
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            const EdgeInsets.symmetric(
+                                horizontal: 55, vertical: 12)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color(0xFF384242))),
+                    child: const Text('Save'),
+                  ),
+                  SizedBox(width: 15,),
+                  ElevatedButton(
+                    onPressed: () async {
                       final sp = await SharedPreferences.getInstance();
-                      await sp.setString('bs', bs.toString());
-                      await sp.setString('dob', dateController.text.toString());
-                      await sp.setString('name', nameController.text.toString());
-                      // Calculate userAge from date of birth
-                      DateTime birthDate = DateTime.parse(dateController.text.toString());
-                      DateTime now = DateTime.now();
-                      int userAge = now.year - birthDate.year;
-                        if (now.month < birthDate.month ||
-                          (now.month == birthDate.month && now.day < birthDate.day)) {
-                        userAge--;
-                        }
-                      await sp.setString('userAge', userAge.toString());
+                      await sp.remove('bs');
+                      await sp.remove('dob');
+                      await sp.remove('name');
+                      await sp.remove('userAge');
+                      await Provider.of<HomeProvider>(context, listen: false).updateSP();
                       Navigator.of(context).pop();
-                    }
-                  },
-                  style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          const EdgeInsets.symmetric(
-                              horizontal: 80, vertical: 12)),
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          const Color(0xFF384242))),
-                  child: const Text('Save'),
-                ),
-              ),
+
+                    },
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 12)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Color.fromRGBO(255, 255, 255, 1)),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Color.fromARGB(255, 228, 106, 106))),
+                    child: const Text('Forget my info'),
+                  ),
+              ],)
             ],
           ),
         ),
