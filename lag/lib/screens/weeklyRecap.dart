@@ -16,6 +16,13 @@ import 'package:provider/provider.dart';
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
 
+  String getCurrentWeekIdentifier(DateTime dateToday) {
+    DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
+    int daysDifference = dateToday.difference(firstDayOfYear).inDays;
+    int weekNumber = (daysDifference / 7).ceil() + 1;
+    return "$weekNumber";
+}
+
   //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
 
 
@@ -124,9 +131,9 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
-                  (provider.exerciseData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  :
+                  //(provider.exerciseData.isEmpty) 
+                  //? const CircularProgressIndicator.adaptive() 
+                  //:
                   Card(
                     elevation: 5,
                     child: ListTile(
@@ -134,9 +141,13 @@ class WeeklyRecap extends StatelessWidget {
                       trailing: Container(
                         child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
                       title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                      subtitle: Text('Total minutes of exercise performed this week'),
+                      subtitle: Text('Exercise: ${provider.exerciseDistance()} kilometers'),
+                      //subtitle: Text('Total minutes of exercise performed this week'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
-                      onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                      onTap: () {
+                        print(getCurrentWeekIdentifier(provider.start));
+                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start));
+                      } ,
                               ),
                       ),
                 const SizedBox(height: 20), 
@@ -300,9 +311,9 @@ class WeeklyRecap extends StatelessWidget {
   }
   
   // Method for navigation weeklyRecap -> exerciseScreen
-  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
   }
 } 
 

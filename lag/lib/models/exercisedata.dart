@@ -1,6 +1,6 @@
 import 'package:lag/models/allData.dart';
 import 'package:intl/intl.dart';
-import 'dart:math' as math;
+import 'dart:math' as math; 
 
 // model to store data from server in a dedicated object type
 
@@ -39,20 +39,6 @@ class ExerciseData extends AllData {
         distance: _obtainTotalDistance(json),
         activities: _obtainActivities(json));
   }
-  
-/*
-ExerciseData _createExerciseData(String date, Map<String, dynamic> json) {
-  final activities =_obtainActivities(json);
-  return ExerciseData(
-    day: DateFormat('yyyy-MM-dd').parse(date),
-    avgHR: json["data"][0]["averageHeartRate"],
-    duration: _obtainTotalDuration(json),
-    distance: _obtainTotalDistance(json),
-    activities: activities,
-  );
-}
-*/
-
 
 
   static double _obtainTotalDuration(Map<String, dynamic> json) {

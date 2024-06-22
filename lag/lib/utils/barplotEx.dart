@@ -47,19 +47,51 @@ class _BarChartSample7State extends State<BarChartSample7> {
 
   @override
   Widget build(BuildContext context) {
-    List<double> yValuesInHours =
-        widget.yValues.map((minutes) => minutes / 60).toList();
-    double maxDataValue = yValuesInHours.isNotEmpty
-        ? yValuesInHours.reduce((a, b) => a > b ? a : b)
-        : 0;
-    double maxY = maxDataValue != 0 ? maxDataValue * 1.2 + 1 : 10;
+    List<double> yValues = widget.yValues;
+    List<double> yValuesInHours;
+    double maxY;
+    
+    /*
+    if (widget.yValues .isEmpty) {
+      yValues = [0, 0, 0, 0, 0, 0, 0];
+      yValuesInHours = [0, 0, 0, 0, 0, 0, 0, 0];
+      maxY = 1;
+    } else {*/
+      yValuesInHours =
+          yValues.map((minutes) => minutes / 60).toList();
+      double maxDataValue = yValuesInHours.isNotEmpty
+          ? yValuesInHours.reduce((a, b) => a > b ? a : b)
+          : 0;
+      maxY = maxDataValue != 0 ? maxDataValue * 1.2 + 1 : 10;
+      //}
 
+    if (widget.yValues.isEmpty || widget.yValues.every((value) => value == 0)) {
+      return Padding(
+      padding: const EdgeInsets.all(15),
+      child: AspectRatio(
+        aspectRatio: 1.4,
+        child: BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: 1.0, // Imposta il valore massimo sull'asse Y
+        titlesData: FlTitlesData(show: false),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(7, (index) {
+          return BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 0)]);
+         }), // Barra con altezza zero
+          // Aggiungi altre barre con altezza zero qui
+      ),
+      ),
+        ),
+      );
+    } else {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: AspectRatio(
         aspectRatio: 1.4,
         child: BarChart(
           BarChartData(
+            groupsSpace: 2,
             alignment: BarChartAlignment.spaceBetween,
             borderData: FlBorderData(
               show: true,
@@ -188,5 +220,6 @@ class _BarChartSample7State extends State<BarChartSample7> {
         ),
       ),
     );
+  }
   }
 }
