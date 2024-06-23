@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
-import 'package:lag/screens/rhrScreen.dart';
+//import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/utils/barplotEx.dart';
 //import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
@@ -237,13 +237,32 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     },
                   ),
                 ),
+                /*
                 Center(
                       child: ElevatedButton(
                         child: Text('Temporary button, to RHR screen'),
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => RhrScreen(startDate: widget.provider.start, endDate: widget.provider.end, provider: widget.provider))),
-                      ),
+                        onPressed: () async {
+                          ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      behavior: SnackBarBehavior.floating,
+                                      margin: EdgeInsets.all(8),
+                                      duration: Duration(seconds: 10),
+                                      content: Text(
+                                          "Be patient.. We're loading your data!"),
+                                    ),
+                                  );
+                          await widget.provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(widget.provider.start));
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => RhrScreen(startDate: widget.provider.start, endDate: widget.provider.end, provider: widget.provider)
+                            ));
+                          
+                        }
+                      ,
                     ),
+                ),*/
               ],
             ),
           ),

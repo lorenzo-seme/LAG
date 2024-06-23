@@ -5,12 +5,12 @@ import 'package:lag/models/allData.dart';
 // Heart rate at rest data
 class HeartRateData extends AllData{
   //final DateTime day;
-  final double value;
+  final value;
  
-  HeartRateData({required DateTime day, required this.value}): super(day: day);
+  HeartRateData({required super.day, required this.value});
 
   HeartRateData.empty(String day, Map<String, dynamic> json)
-      : value = 0,
+      : value = null,
         super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
 
   HeartRateData.fromJson(String day, Map<String, dynamic> json)

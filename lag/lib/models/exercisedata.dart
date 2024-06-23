@@ -12,12 +12,11 @@ class ExerciseData extends AllData {
       activities; // {activityName: [duration, distance]}
 
   ExerciseData(
-      {required DateTime day,
+      {required super.day,
       required this.avgHR,
       required this.duration,
       required this.distance,
-      required this.activities})
-      : super(day: day);
+      required this.activities});
 
   ExerciseData.empty(String day, Map<String, dynamic> json)
       : avgHR = 0,

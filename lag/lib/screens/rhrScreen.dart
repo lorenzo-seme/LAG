@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/personal_info.dart';
+import 'package:lag/utils/barplotHR.dart';
 //import 'package:lag/utils/barplot.dart';
-import 'package:lag/utils/custom_plot.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 
@@ -41,6 +42,8 @@ class _RhrScreenState extends State<RhrScreen>{
 
   @override
   Widget build(BuildContext context) {
+    //String dataCheckMessage = checkData(widget.provider.heartRateData);
+    //bool noDataAvailable = dataCheckMessage == "No data available";
 
     return Scaffold(
       appBar: AppBar(
@@ -71,10 +74,12 @@ class _RhrScreenState extends State<RhrScreen>{
                   const SizedBox(height: 5),
                   Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 5),
-                  SizedBox(
-                    height: 100,
-                    child: CustomPlot(data: widget.provider.heartRateData),
-                    //child: BarChartSample7(),
+                  (widget.provider.monthlyHeartRateData.isEmpty) 
+                  ? CircularProgressIndicator()
+                  : SizedBox(
+                    height: 230,
+                    width: 330,
+                    child: BarChartSample7(yValues: widget.provider.monthlyHeartRateData, date: widget.provider.start),
                   ),
                   const SizedBox(height: 20),
                   AnimatedContainer(
@@ -96,11 +101,11 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.monitor_heart),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: ((widget.provider.rhrAvg() > 80.0) | (widget.provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: ((widget.provider.monthlyHeartRateData[5] > 80.0) | (widget.provider.monthlyHeartRateData[5] < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
                                 title: (widget.provider.heartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Average resting heart rate: ${widget.provider.rhrAvg()} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Text("Average resting heart rate: ${widget.provider.monthlyHeartRateData[5]} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isAvgRhrCardExpanded
                                     ? const Text('Tap to learn more', style: TextStyle(fontSize: 12.0))
                                     : null,
@@ -328,5 +333,25 @@ class _RhrScreenState extends State<RhrScreen>{
       ),
     );
   }
-
+  String checkData(List<HeartRateData> heartRateData) {
+    List<String> noDataDays = [];
+    bool noDataFlag = true;
+    for (HeartRateData data in heartRateData) {
+      if (data.value == null) {
+        String formattedDay = DateFormat('EEEE', 'en_US').format(data.day);
+        noDataDays.add(formattedDay);
+      } else {
+        noDataFlag = false;
+      }
+    }
+    if (noDataDays.isEmpty) {
+      return "All days have data";
+    } else if (noDataFlag) {
+      return "No data available";
+    } else if (noDataDays.length == 1) {
+      return "${noDataDays[0]}: No data available";
+    } else {
+      return "${noDataDays.join(' ,')}: No data available";
+    }
+  }
 }

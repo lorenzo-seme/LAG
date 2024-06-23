@@ -14,8 +14,10 @@ class HomeProvider extends ChangeNotifier {
   //List<int> heartRates = []; // MOMENTANEO
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
+  List<double> monthlyHeartRateData = [];
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
+  List<String> months = [];
  
   double score = 0;
 
@@ -137,6 +139,19 @@ class HomeProvider extends ChangeNotifier {
   }
 
   */
+
+  List<String> getPreviousSixMonths(DateTime date) {
+    List<String> months = [];
+    DateFormat monthFormat = DateFormat.MMMM();
+
+    for (int i = 5; i >= 0; i--) {
+      DateTime previousMonth = DateTime(date.year, date.month - i, date.day);
+      String monthName = monthFormat.format(previousMonth);
+      months.add(monthName);
+    }
+
+    return months;
+  }
   
   double rhrAvg() {
     if(heartRateData.isEmpty){return 0.0;}
@@ -251,6 +266,61 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }//if
   }//fetchSleepData
+
+  Future<void> fetchMonthlyHeartRateData(String date) async {
+    monthlyHeartRateData = [];
+    date = date.substring(0,10);
+    List<String> months = [];
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime date_obj = dateFormat.parse(date);
+    DateFormat monthFormat = DateFormat("yyyy-MM");
+
+    for (int i = 5; i >= 0; i--) {
+      DateTime previousMonth = DateTime(date_obj.year, date_obj.month - i, date_obj.day);
+      String monthNumber = monthFormat.format(previousMonth);
+      months.add(monthNumber);
+    }
+
+
+    for(int i=0; i<6; i++){
+        int startingDay = -6;
+        int endingDay = 0;
+        double sum = 0;
+        int counter = 0;
+      for(int j=0; j<4; j++){
+        startingDay = startingDay + 7;
+        endingDay = endingDay + 7;
+        String start = months[i] + "-" + startingDay.toString().padLeft(2, '0');
+        String end = months [i] + "-" + endingDay.toString().padLeft(2, '0');
+        final data = await Impact.fetchHeartRateData(start, end);
+        if (data != null) {
+          if (!data['data'].isEmpty){
+            if (data["data"] is List) {
+              for(int i=0; i<data['data'].length; i++)
+              {
+                if(!data['data'][i]['data'].isEmpty)
+                {
+                  sum = sum + data['data'][i]['data']['value'];
+                  counter = counter + 1;
+                }
+              }
+            } else {
+              if(!data['data']['data'].isEmpty)  
+              {
+                sum = sum + data['data']['data']['value'];
+                counter = counter + 1;
+              }
+            }
+          }
+        }//if
+      }
+      (sum == 0)
+              ? monthlyHeartRateData.add(0.0)
+              : monthlyHeartRateData.add(double.parse((sum/counter).toStringAsFixed(1)));
+    }//for
+    notifyListeners();
+    //print(monthlyHeartRateData[0]);
+  }
 
   Future<void> fetchHeartRateData(String startDay, String endDay) async {
     startDay = startDay.substring(0,10);

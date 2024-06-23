@@ -7,6 +7,7 @@ import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
 import 'package:lag/screens/infoExercise.dart';
 import 'package:lag/screens/infoSleep.dart';
+import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
 //import 'dart:async';
@@ -134,7 +135,7 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text("Explore Daily Trends in each parameter",
+                const Text("Explore Weekly Trends for sleep and exercise",
                   style: TextStyle(fontSize: 16),
                 ), 
                 const SizedBox(height: 5),
@@ -175,6 +176,45 @@ class WeeklyRecap extends StatelessWidget {
                       onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
                               ),
                       ),
+                const SizedBox(height: 20),
+                const Text("Explore Monthly Trends for resting heart rate",
+                  style: TextStyle(fontSize: 16),
+                ), 
+                const SizedBox(height: 10), 
+                (provider.monthlyHeartRateData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  :
+                  Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: Icon(Icons.monitor_heart),
+                      trailing: SizedBox(
+                        width: 10,
+                        child: ((provider.monthlyHeartRateData[5] > 80.0) | (provider.monthlyHeartRateData[5] < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                        ), 
+                      title: Text('Resting heart rate : ${provider.monthlyHeartRateData[5]} bpm'),
+                      subtitle: Text('Average of current month'),
+                                //When a ListTile is tapped, the user is redirected to the ExercisePage
+                      onTap: () async {
+                          ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.blue,
+                                behavior: SnackBarBehavior.floating,
+                                margin: EdgeInsets.all(8),
+                                duration: Duration(seconds: 10),
+                                content: Text(
+                                    "Be patient.. We're loading your data!"),
+                              ),
+                            );
+                          await provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.start));
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => RhrScreen(startDate: provider.start, endDate: provider.end, provider: provider)
+                            ));
+                        }
+                      ),
+                    ),
                 const SizedBox(height: 20), 
                 const Text(
                   "Learn Something More",
