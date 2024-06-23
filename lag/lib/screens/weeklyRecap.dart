@@ -44,7 +44,7 @@ class WeeklyRecap extends StatelessWidget {
                     child: InkWell(onTap: () async {
                         if(provider.isReady){
                           await provider.dateSubtractor(provider.start);
-                          await provider.getDataOfWeek(provider.start, provider.end);
+                          await provider.getDataOfWeek(provider.start, provider.end, false);
                           //ScaffoldMessenger.of(context).clearSnackBars();
                         }
                         else{
@@ -76,7 +76,7 @@ class WeeklyRecap extends StatelessWidget {
                         onTap: () async {
                           if(provider.isReady){
                               await provider.dateAdder(provider.start);
-                              await provider.getDataOfWeek(provider.start, provider.end);
+                              await provider.getDataOfWeek(provider.start, provider.end, false);
                               //ScaffoldMessenger.of(context).clearSnackBars();
                           }
                           else{
@@ -181,7 +181,7 @@ class WeeklyRecap extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ), 
                 const SizedBox(height: 10), 
-                (provider.monthlyHeartRateData.isEmpty) 
+                (provider.heartRateData.isEmpty) 
                   ? const CircularProgressIndicator.adaptive() 
                   :
                   Card(
@@ -190,9 +190,9 @@ class WeeklyRecap extends StatelessWidget {
                       leading: Icon(Icons.monitor_heart),
                       trailing: SizedBox(
                         width: 10,
-                        child: ((provider.monthlyHeartRateData[5] > 80.0) | (provider.monthlyHeartRateData[5] < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                        child: ((provider.rhrAvg() > 80.0) | (provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                         ), 
-                      title: Text('Resting heart rate : ${provider.monthlyHeartRateData[5]} bpm'),
+                      title: Text('Resting heart rate : ${provider.rhrAvg()} bpm'),
                       subtitle: Text('Average of current month'),
                                 //When a ListTile is tapped, the user is redirected to the ExercisePage
                       onTap: () async {
