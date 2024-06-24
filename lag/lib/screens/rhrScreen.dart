@@ -10,11 +10,9 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class RhrScreen extends StatefulWidget {
-  final DateTime startDate;
-  final DateTime endDate;
   final HomeProvider provider;
 
-  const RhrScreen({super.key, required this.startDate, required this.endDate, required this.provider});
+  const RhrScreen({super.key, required this.provider});
 
   @override
   _RhrScreenState createState() => _RhrScreenState();
@@ -47,11 +45,11 @@ class _RhrScreenState extends State<RhrScreen>{
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.favorite),
-            const SizedBox(width: 10),
-            Text('${DateFormat('EEE, d MMM').format(widget.startDate)} - ${DateFormat('EEE, d MMM').format(widget.endDate)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            //Icon(Icons.favorite),
+            SizedBox(width: 10),
+            Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
           ],
         ),
         leading: IconButton(
@@ -72,14 +70,14 @@ class _RhrScreenState extends State<RhrScreen>{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 5),
-                  Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  Text('About last 6 months', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 5),
                   (widget.provider.monthlyHeartRateData.isEmpty) 
                   ? CircularProgressIndicator()
                   : SizedBox(
                     height: 230,
                     width: 330,
-                    child: BarChartSample7(yValues: widget.provider.monthlyHeartRateData, date: widget.provider.start),
+                    child: BarChartSample7(yValues: widget.provider.monthlyHeartRateData, date: widget.provider.yesterday),
                   ),
                   const SizedBox(height: 20),
                   AnimatedContainer(
@@ -105,9 +103,9 @@ class _RhrScreenState extends State<RhrScreen>{
                                 ),
                                 title: (widget.provider.heartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Average resting heart rate: ${widget.provider.monthlyHeartRateData[5]} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Text("Average of this month: ${widget.provider.monthlyHeartRateData[5]} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isAvgRhrCardExpanded
-                                    ? const Text('Tap to learn more', style: TextStyle(fontSize: 12.0))
+                                    ? const Text('Tap to learn more', style: TextStyle(fontSize: 15.0))
                                     : null,
                               ),
                               if (_isAvgRhrCardExpanded)
@@ -154,7 +152,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                   const CircularProgressIndicator.adaptive() : 
                                   Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isRhrCalculatorExpanded
-                                    ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 12.0))
+                                    ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 15.0))
                                     : null,
                               ),
                               if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge)) ...[

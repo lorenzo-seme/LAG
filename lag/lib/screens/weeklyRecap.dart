@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 //import 'package:lag/algorithms/sleepScore.dart';
@@ -36,331 +37,393 @@ class WeeklyRecap extends StatelessWidget {
                   children: [
                     Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
                     const SizedBox(height: 20),
-                    const Text('Weekly Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
-
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(onTap: () async {
-                        if(provider.isReady){
-                          await provider.dateSubtractor(provider.start);
-                          await provider.getDataOfWeek(provider.start, provider.end, false);
-                          //ScaffoldMessenger.of(context).clearSnackBars();
-                        }
-                        else{
-                          ScaffoldMessenger.of(context)
-                                  ..clearSnackBars()
-                                  ..showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: Colors.blue,
-                                      behavior: SnackBarBehavior.floating,
-                                      margin: EdgeInsets.all(8),
-                                      duration: Duration(seconds: 1),
-                                      content: Text(
-                                          "Still loading... Keep calm!"),
-                                    ),
-                                  );
-                        }
-                      },
-                      child: const Icon(Icons.navigate_before),
-                    ),
-                  ),
-                  (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day) ?
-                  Text(DateFormat('EEE, d MMM').format(provider.start)):
-                  Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
-                      const Icon(Icons.stop) :
-                      InkWell(
-                        onTap: () async {
-                          if(provider.isReady){
-                              await provider.dateAdder(provider.start);
-                              await provider.getDataOfWeek(provider.start, provider.end, false);
-                              //ScaffoldMessenger.of(context).clearSnackBars();
-                          }
-                          else{
-                            ScaffoldMessenger.of(context)
-                                  ..clearSnackBars()
-                                  ..showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: Colors.blue,
-                                      behavior: SnackBarBehavior.floating,
-                                      margin: EdgeInsets.all(8),
-                                      duration: Duration(seconds: 1),
-                                      content: Text(
-                                          "Still loading... Keep calm!"),
-                                    ),
-                                  );
-                          }
-                        },
-                        child: const Icon(Icons.navigate_next),
-                      ), 
-                  ),
-                ]),
-                const Text("Cumulative Score",style: TextStyle(fontSize: 16)),
-                const SizedBox(height: 5),
-                const Text("Descriptive index of the quality of your week",
-                    style: TextStyle(fontSize: 12,color: Colors.black45),
-                    ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        (provider.score.toInt()).toString(),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      Text(provider.score / 100 < 0.33
-                            ? "Low"
-                            : provider.score / 100 > 0.33 &&
-                                    provider.score / 100 < 0.66
-                                ? "Medium"
-                                : "High",
-                        style:const TextStyle(fontSize: 12, color: Colors.black45),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 20, bottom: 10),
-                        height: 15,
-                        child: ClipRRect(
-                          borderRadius:const BorderRadius.all(Radius.circular(10)),
-                          child: LinearProgressIndicator(
-                            value: provider.score / 100,
-                            backgroundColor: Colors.grey.withOpacity(0.5),
+                    const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+                    
+                    Container(
+                      height: 460,
+                      width: 370,
+                      padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
+                      margin: const EdgeInsets.only(top: 10, bottom: 10),
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 248, 226, 226),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                      child: Column(children: [
+                        const Text("Weekly Trends for sleep and exercise",
+                          style: TextStyle(fontSize: 19),
+                        ), 
+                        const SizedBox(height: 10),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 250, 196, 196),
+                            borderRadius: BorderRadius.all(Radius.circular(10))
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: InkWell(onTap: () async {
+                                    if(provider.isReady){
+                                      await provider.dateSubtractor(provider.start);
+                                      await provider.getDataOfWeek(provider.start, provider.end, false);
+                                      //ScaffoldMessenger.of(context).clearSnackBars();
+                                    }
+                                    else{
+                                      ScaffoldMessenger.of(context)
+                                              ..clearSnackBars()
+                                              ..showSnackBar(
+                                                const SnackBar(
+                                                  backgroundColor: Colors.blue,
+                                                  behavior: SnackBarBehavior.floating,
+                                                  margin: EdgeInsets.all(8),
+                                                  duration: Duration(seconds: 1),
+                                                  content: Text(
+                                                      "Still loading... Keep calm!"),
+                                                ),
+                                              );
+                                    }
+                                  },
+                                  child: const Icon(Icons.navigate_before),
+                                ),
+                              ),
+                              (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day)
+                              ? Text(DateFormat('EEE, d MMM').format(provider.start))
+                              : Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
+                                  const Icon(Icons.stop) :
+                                  InkWell(
+                                    onTap: () async {
+                                      if(provider.isReady){
+                                          await provider.dateAdder(provider.start);
+                                          await provider.getDataOfWeek(provider.start, provider.end, false);
+                                          //ScaffoldMessenger.of(context).clearSnackBars();
+                                      }
+                                      else{
+                                        ScaffoldMessenger.of(context)
+                                              ..clearSnackBars()
+                                              ..showSnackBar(
+                                                const SnackBar(
+                                                  backgroundColor: Colors.blue,
+                                                  behavior: SnackBarBehavior.floating,
+                                                  margin: EdgeInsets.all(8),
+                                                  duration: Duration(seconds: 1),
+                                                  content: Text(
+                                                      "Still loading... Keep calm!"),
+                                                ),
+                                              );
+                                      }
+                                    },
+                                    child: const Icon(Icons.navigate_next),
+                                  ), 
+                              ),
+                            ]
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text("Explore Weekly Trends for sleep and exercise",
-                  style: TextStyle(fontSize: 16),
-                ), 
-                const SizedBox(height: 5),
-                const Text("See how much you’ve been striving throughout the week",
-                    style: TextStyle(fontSize: 12,color: Colors.black45),
-                    ),
-                const SizedBox(height: 10),
-                const Text('Sleep Data'),
-                (provider.sleepData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  : Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: const Icon(Icons.bedtime),
-                      trailing: Container(
-                        child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
-                      ),
-                      title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
-                      subtitle: const Text('about quality of your sleep this week',
-                                          style: TextStyle(fontSize: 11),),
-                      onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
-                    ),
-                  ),
-                  const SizedBox(height: 10,),
-                  Text('Exercise Data'),
-                  (provider.exerciseData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  :
-                  Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: Icon(Icons.directions_run),
-                      trailing: Container(
-                        child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                      title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                      subtitle: Text('Total minutes of exercise performed this week'),
-                                //When a ListTile is tapped, the user is redirected to the ExercisePage
-                      onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                        
+
+                        //const SizedBox(height: 5),
+                        /*
+                        const Text("See how much you’ve been striving throughout the week",
+                            style: TextStyle(fontSize: 12,color: Colors.black45),
+                            ),*/
+                        const SizedBox(height: 10),
+                        //const Text('Sleep Data'),
+                        Container(
+                          width: 350, 
+                          height: 80,
+                          child: (provider.sleepData.isEmpty) 
+                            ? const Card(
+                                elevation: 5,
+                                child: ListTile(
+                                  leading: Icon(Icons.bedtime),
+                                  trailing: CircularProgressIndicator.adaptive(),
+                                  title: Text('Loading...'), 
+                                  subtitle: Text('    '),
+                                ),
+                              )
+                            : Card(
+                                elevation: 5,
+                                child: ListTile(
+                                  leading: const Icon(Icons.bedtime),
+                                  trailing: Container(
+                                    child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
+                                  ),
+                                  title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
+                                  subtitle: const Text('about quality of your sleep this week',
+                                                      style: TextStyle(fontSize: 11),),
+                                  onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
+                                ),
+                            ),
+                          ),
+                          const SizedBox(height: 10,),
+                          //Text('Exercise Data'),
+                          Container(
+                            width: 350, 
+                            height: 90,
+                            child: (provider.exerciseData.isEmpty) 
+                              ? const Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.directions_run),
+                                    trailing: CircularProgressIndicator.adaptive(),
+                                    title: Text('Loading...'), 
+                                    subtitle: Text('    '),
+                                  ),
+                              )
+                              : Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.directions_run),
+                                    trailing: Container(
+                                      child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                                    title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
+                                    subtitle: Text('Total minutes of exercise performed this week'),
+                                              //When a ListTile is tapped, the user is redirected to the ExercisePage
+                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                                            ),
                               ),
-                      ),
-                const SizedBox(height: 20),
-                const Text("Explore Monthly Trends for resting heart rate",
-                  style: TextStyle(fontSize: 16),
-                ), 
-                const SizedBox(height: 10), 
-                (provider.heartRateData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  :
-                  Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: Icon(Icons.monitor_heart),
-                      trailing: SizedBox(
-                        width: 10,
-                        child: ((provider.rhrAvg() > 80.0) | (provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
-                        ), 
-                      title: Text('Resting heart rate : ${provider.rhrAvg()} bpm'),
-                      subtitle: Text('Average of current month'),
-                                //When a ListTile is tapped, the user is redirected to the ExercisePage
-                      onTap: () async {
-                          ScaffoldMessenger.of(context)
-                            .showSnackBar(
-                              const SnackBar(
-                                backgroundColor: Colors.blue,
-                                behavior: SnackBarBehavior.floating,
-                                margin: EdgeInsets.all(8),
-                                duration: Duration(seconds: 10),
-                                content: Text(
-                                    "Be patient.. We're loading your data!"),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
+                          const SizedBox(height: 5),
+                          const Text("Descriptive index of the quality of your week",
+                              style: TextStyle(fontSize: 12,color: Colors.black45),
                               ),
-                            );
-                          await provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.start));
-                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => RhrScreen(startDate: provider.start, endDate: provider.end, provider: provider)
-                            ));
-                        }
-                      ),
-                    ),
-                const SizedBox(height: 20), 
-                const Text(
-                  "Learn Something More",
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SizedBox(
-                  height: 250,
-                  child: ListView(
-                    physics: const ClampingScrollPhysics(),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      SizedBox(
-                            width: 300,
-                            height: 200,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) => InfoSleep())),
-                                  child: Hero(transitionOnUserGestures: true,
-                                    tag: 'sleep',
-                                    child: Container(
-                                      width: 300,
-                                      height: 200,
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(15.0),
-                                            bottomLeft: Radius.circular(15.0),
-                                            bottomRight: Radius.circular(15.0),
-                                            topRight: Radius.circular(15.0)),
-                                        image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: AssetImage(
-                                              'assets/sleep.jpg'),
+                                Text(
+                                  (provider.score.toInt()).toString(),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                Text(provider.score / 100 < 0.33
+                                      ? "Low"
+                                      : provider.score / 100 > 0.33 &&
+                                              provider.score / 100 < 0.66
+                                          ? "Medium"
+                                          : "High",
+                                  style:const TextStyle(fontSize: 12, color: Colors.black45),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(top: 20, bottom: 10),
+                                  height: 15,
+                                  child: ClipRRect(
+                                    borderRadius:const BorderRadius.all(Radius.circular(10)),
+                                    child: LinearProgressIndicator(
+                                      color: Color.fromARGB(255, 255, 115, 115),
+                                      value: provider.score / 100,
+                                      backgroundColor: Colors.grey.withOpacity(0.5),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ),
+                    const SizedBox(height: 15),
+                    Container(
+                      height: 150,
+                      width: 370,
+                      padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
+                      margin: const EdgeInsets.only(top: 10, bottom: 10),
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 248, 226, 226),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                      child: Column(children: [
+                        const Text("Explore Monthly Trends for resting heart rate",
+                          style: TextStyle(fontSize: 16),
+                        ), 
+                        const SizedBox(height: 10), 
+                        (provider.heartRateData.isEmpty) 
+                          ? const CircularProgressIndicator.adaptive() 
+                          :
+                          Card(
+                            elevation: 5,
+                            child: ListTile(
+                              leading: Icon(Icons.monitor_heart),
+                              trailing: SizedBox(
+                                width: 10,
+                                child: ((provider.rhrAvg() > 80.0) | (provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                ), 
+                              title: Text('Resting heart rate : ${provider.rhrAvg()} bpm'),
+                              subtitle: Text('Average of current month'),
+                                        //When a ListTile is tapped, the user is redirected to the ExercisePage
+                              onTap: () async {
+                                  ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Colors.blue,
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.all(8),
+                                        duration: Duration(seconds: 10),
+                                        content: Text(
+                                            "Be patient.. We're loading your data!"),
+                                      ),
+                                    );
+                                  await provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.yesterday));
+                                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => RhrScreen(provider: provider)
+                                    ));
+                                }
+                              ),
+                            ),
+                      ],),
+                    ),
+                    const SizedBox(height: 20), 
+                    const Text(
+                      "Learn Something More",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    SizedBox(
+                      height: 250,
+                      child: ListView(
+                        physics: const ClampingScrollPhysics(),
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          SizedBox(
+                                width: 300,
+                                height: 200,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (_) => InfoSleep())),
+                                      child: Hero(transitionOnUserGestures: true,
+                                        tag: 'sleep',
+                                        child: Container(
+                                          width: 300,
+                                          height: 200,
+                                          decoration: const BoxDecoration(
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(15.0),
+                                                bottomLeft: Radius.circular(15.0),
+                                                bottomRight: Radius.circular(15.0),
+                                                topRight: Radius.circular(15.0)),
+                                            image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: AssetImage(
+                                                  'assets/sleep.jpg'),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    "How does sleep affect my health?",
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            )
-                        ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      SizedBox(
-                            width: 300,
-                            height: 200,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) => InfoExercise())),
-                                  child: Hero(
-                                    tag: 'exercise',
-                                    child: Container(
-                                    width: 300,
-                                    height: 200,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(15.0),
-                                          bottomLeft: Radius.circular(15.0),
-                                          bottomRight: Radius.circular(15.0),
-                                          topRight: Radius.circular(15.0)),
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: AssetImage(
-                                            'assets/exercise.jpg'),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        "How does sleep affect my health?",
+                                        style: TextStyle(fontSize: 14),
                                       ),
                                     ),
-                                  ),),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    "How does exercise affect my health?",
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            )
-                        ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      SizedBox(
-                            width: 300,
-                            height: 200,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) => InfoRHR())),
-                                  child: Hero(
-                                    tag: 'rhr',
-                                    child: Container(
-                                    width: 300,
-                                    height: 200,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(15.0),
-                                          bottomLeft: Radius.circular(15.0),
-                                          bottomRight: Radius.circular(15.0),
-                                          topRight: Radius.circular(15.0)),
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: AssetImage(
-                                            'assets/rhr.png'),
+                                  ],
+                                )
+                            ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          SizedBox(
+                                width: 300,
+                                height: 200,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (_) => InfoExercise())),
+                                      child: Hero(
+                                        tag: 'exercise',
+                                        child: Container(
+                                        width: 300,
+                                        height: 200,
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(15.0),
+                                              bottomLeft: Radius.circular(15.0),
+                                              bottomRight: Radius.circular(15.0),
+                                              topRight: Radius.circular(15.0)),
+                                          image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: AssetImage(
+                                                'assets/exercise.jpg'),
+                                          ),
+                                        ),
+                                      ),),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        "How does exercise affect my health?",
+                                        style: TextStyle(fontSize: 14),
                                       ),
                                     ),
-                                  ),),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    "Why RHR reflects my health status?",
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ],
-                            )
-                        ),
-                    ],
-                  ),
-                )
-              ],
+                                  ],
+                                )
+                            ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          SizedBox(
+                                width: 300,
+                                height: 200,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (_) => InfoRHR())),
+                                      child: Hero(
+                                        tag: 'rhr',
+                                        child: Container(
+                                        width: 300,
+                                        height: 200,
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(15.0),
+                                              bottomLeft: Radius.circular(15.0),
+                                              bottomRight: Radius.circular(15.0),
+                                              topRight: Radius.circular(15.0)),
+                                          image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: AssetImage(
+                                                'assets/rhr.png'),
+                                          ),
+                                        ),
+                                      ),),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        "Why RHR reflects my health status?",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                            ),
+                        ],
+                      ),
+                    )
+                  ],
             );
           }),
         ),

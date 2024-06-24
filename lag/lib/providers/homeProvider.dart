@@ -29,6 +29,7 @@ class HomeProvider extends ChangeNotifier {
 
   
   DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
+  DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
   DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
   //DateTime start = DateTime.now().subtract(const Duration(days: 7));
   DateTime end = DateTime.now().subtract(const Duration(days: 1));
@@ -210,7 +211,7 @@ class HomeProvider extends ChangeNotifier {
       sleepData = [];
       heartRateData = [];
       exerciseData = [];
-      await fetchAllData(start.toString(), end.toString(), showDate.toString());
+      await fetchAllData(start.toString(), end.toString(), yesterday.toString());
     } else {
       sleepData = [];
       exerciseData = [];
