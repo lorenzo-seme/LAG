@@ -127,8 +127,8 @@ class _BarChartSample7State extends State<BarChartSample7> {
               return generateBarGroup(
                   index, const Color.fromARGB(202, 97, 20, 169), data);
             }).toList(),
-            maxY: (widget.yValues).reduce(max),
-            //minY: (widget.yValues).reduce(min),
+            maxY: double.parse((widget.yValues).reduce(max).toStringAsFixed(0)) + 2,
+            minY: double.parse(((widget.yValues).where((element) => element != 0.0).toList().reduce(min).toStringAsFixed(0))) - 2,
             //maxY: (maxY.toInt()).toDouble(),
             /*
             barTouchData: BarTouchData(
