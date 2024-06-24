@@ -20,7 +20,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
 
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day);
   int? bs;
 
   @override
@@ -34,8 +34,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(1970, 1),
-        lastDate: DateTime(2024, 12));
+        firstDate: DateTime(1920, 1),
+        lastDate: (DateTime.now().month == 2 && DateTime.now().day == 29) 
+                  ? DateTime(DateTime.now().year - 6, 2, 28) // menage leap year
+                  : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day));
     if (picked != null && picked != selectedDate) {
       dateController.text = picked.toString();
     }

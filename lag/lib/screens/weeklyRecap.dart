@@ -8,6 +8,7 @@ import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
 import 'package:lag/screens/infoExercise.dart';
 import 'package:lag/screens/infoSleep.dart';
+import 'package:lag/screens/moodScreen.dart';
 import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,7 @@ class WeeklyRecap extends StatelessWidget {
                     const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
                     
                     Container(
-                      height: 460,
+                      //height: 600,
                       width: 370,
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
@@ -49,6 +50,24 @@ class WeeklyRecap extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                       child: Column(children: [
+
+                        (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
+                        ? Card(
+                          elevation: 5,
+                          child: ListTile(
+                            leading: const Icon(Icons.wb_cloudy),
+                            /*
+                            trailing: Container(
+                              child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
+                            ),
+                            */
+                            title: Text("Today mood"), 
+                            //subtitle: const Text('about quality of your sleep this week', style: TextStyle(fontSize: 11),),
+                            onTap: () => _toMoodPage(context, provider.start, provider.end, provider),
+                          ),
+                          )
+                        : const SizedBox(height: 10),
+
                         const Text("Weekly Trends for sleep and exercise",
                           style: TextStyle(fontSize: 19),
                         ), 
@@ -133,7 +152,7 @@ class WeeklyRecap extends StatelessWidget {
                         //const Text('Sleep Data'),
                         Container(
                           width: 350, 
-                          height: 80,
+                          //height: 80,
                           child: (provider.sleepData.isEmpty) 
                             ? const Card(
                                 elevation: 5,
@@ -162,7 +181,7 @@ class WeeklyRecap extends StatelessWidget {
                           //Text('Exercise Data'),
                           Container(
                             width: 350, 
-                            height: 90,
+                            //height: 90,
                             child: (provider.exerciseData.isEmpty) 
                               ? const Card(
                                   elevation: 5,
@@ -187,6 +206,7 @@ class WeeklyRecap extends StatelessWidget {
                               ),
                           ),
                           const SizedBox(height: 10),
+
                           const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
                           const SizedBox(height: 5),
                           const Text("Descriptive index of the quality of your week",
@@ -229,7 +249,7 @@ class WeeklyRecap extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Container(
-                      height: 150,
+                      //height: 150,
                       width: 370,
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
@@ -443,6 +463,11 @@ class WeeklyRecap extends StatelessWidget {
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
+  }
+  
+  void _toMoodPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => MoodScreen(startDate: start, endDate: end, provider: provider)));
   }
 } 
 
