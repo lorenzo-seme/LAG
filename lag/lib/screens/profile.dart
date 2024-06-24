@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:lag/screens/settings.dart';
+import 'package:provider/provider.dart';
 // import 'package:lag/screens/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -129,6 +131,7 @@ class Profile extends StatelessWidget {
     // opt 2: clear whole shared prefs
     await sp.clear();
     //Then pop the HomePage
+    await Provider.of<HomeProvider>(context, listen: false).updateSP();
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: ((context) => const Login())));
   }
