@@ -27,6 +27,7 @@ class ExerciseData extends AllData {
           "Corsa": [0, 0],
           "Bici": [0, 0],
           "Camminata": [0, 0],
+          //"Extra":[0,0]
         },
         super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
 
@@ -78,29 +79,6 @@ class ExerciseData extends AllData {
       "Camminata": [0, 0]
     };
 
-    /*
-    if (json["data"] is List) {
-    for (var item in json["data"]) {
-      if (item.containsKey("data")) {
-        for (var subItem in item["data"]) {
-          if (subItem.containsKey("activityName")) {
-            String activityName = subItem["activityName"];
-            if (allActivities.containsKey(activityName)) {
-              if (subItem.containsKey("duration")) {
-                allActivities[activityName]?[0] += subItem["duration"];
-              }
-              if (subItem.containsKey("distance")) {
-                allActivities[activityName]?[1] += subItem["distance"];
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  */
-
-    
     if (json["data"] is List) {
       for (var act in ["Corsa", "Bici", "Camminata"]) {
         for (var item in json["data"]) {
@@ -112,11 +90,19 @@ class ExerciseData extends AllData {
               if (item.containsKey("distance")) {
                 allActivities[act]?[1] += item["distance"];
               }
+            } else if (item["activityName"] != 'Corsa' && item["activityName"] != 'Bici' && item["activityName"] != 'Camminata') {
+              if (item.containsKey("duration")) {
+                allActivities[item["activityName"]]?[0] += item["duration"];
+              }
+              if (item.containsKey("distance")) {
+                allActivities[item["activityName"]]?[1] += item["distance"];
+              }
             }
           }
         }
       }
     }
+    print(allActivities);
     return allActivities;
   }
 

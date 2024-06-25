@@ -35,7 +35,7 @@ class Impact{
     //Just return if the status code is OK
     return response.statusCode == 200;
   } //_isImpactUp
-
+ 
 
 
   //This method allows to obtain the JWT token pair from IMPACT and store it in SharedPreferences

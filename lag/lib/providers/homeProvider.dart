@@ -175,6 +175,7 @@ class HomeProvider extends ChangeNotifier {
     return double.parse((total).toStringAsFixed(1));
   }
 
+  
   double exerciseDistance(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -183,7 +184,9 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total).toStringAsFixed(1));
   }
+  
 
+  
   Map<String, double> exerciseDistance2(){
     Map<String, double> total = {
       'Corsa' : 0,
@@ -197,12 +200,44 @@ class HomeProvider extends ChangeNotifier {
     for (String act in names) {
       double tt = 0;
       for(int i=0;i<exerciseData.length;i++){
-        tt = tt + exerciseData[i].activities[act]![1];
+        if (exerciseData[i].activities.containsKey(act)) {
+          tt = tt + exerciseData[i].activities[act]![1];
+        }
+        
         }
       total[act] = tt;
     }
     return total;
   }
+
+/*
+  Map<String, double> exerciseDistance2() {
+  Map<String, double> total = {
+    'Corsa': 0,
+    'Bici': 0,
+    'Camminata': 0,
+  };
+  
+  if (exerciseData.isEmpty) {
+    return total;
+  }
+  
+  for (var data in exerciseData) {
+    for (var entry in data.activities.entries) {
+      String act = entry.key;
+      double distance = entry.value[1];
+      
+      if (total.containsKey(act)) {
+        total[act] = total[act]! + distance;
+      } else {
+        total[act] = distance;
+      }
+    }
+  }
+
+  return total;
+}*/
+
 
 
   // method to get the data of the chosen week

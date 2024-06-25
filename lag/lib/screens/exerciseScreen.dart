@@ -1,8 +1,10 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
@@ -33,7 +35,8 @@ class ExerciseScreen extends StatefulWidget {
 }
 
 class _ExerciseScreenState extends State<ExerciseScreen> {
-  bool _buttonClickedToday = false;
+  bool _buttonClickedToday = false; // survey 
+  bool _sameDay = false;  // goal
   double _threshold = 0;
   double _currentScore = 0;
   double _percentage = 0;
@@ -46,10 +49,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   void initState() {
     super.initState();
     _loadPercentage();
-    _checkButtonStatus();
-    _Goal();
+   _checkButtonStatus();
   }
 
+  
   Future<void> _checkButtonStatus() async {
     final sp = await SharedPreferences.getInstance();
     final lastClickedDate = sp.getString('lastClickedDate');
@@ -62,6 +65,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         setState(
           () {
             _buttonClickedToday = true;
+            /*
             showDialog(
               context: context,
               builder: (context) {
@@ -74,12 +78,59 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                       SizedBox(height: 10),
                     ]);
               },
-            );
+            );*/
           },
         );
       }
     }
   }
+
+  
+
+  Future<void> _checkGoalStatus() async {
+    final sp = await SharedPreferences.getInstance();
+    final lastUpdateDate = sp.getString('lastUpdateDate');
+
+    if (lastUpdateDate != null) {
+      final lastClicked = DateTime.parse(lastUpdateDate);
+      final now = DateTime.now();
+
+      if (_isSameDay(lastClicked, now)) {
+        setState(
+          () {
+            _sameDay = true;
+          },
+        );
+      }
+    }
+  }
+
+  double _dailyUpdate() {
+    double wRun = 0.5;
+    double wBike = 0.4;
+    double wWalk = 0.1;
+    Map<String, double> distances = widget.provider.exerciseDistance2();
+    double runDistance = distances['Corsa'] ?? 0;
+    double bikeDistance = distances['Bici'] ?? 0;
+    double walkDistance = distances['Camminata'] ?? 0;
+    Map<String, double> thresholds = {
+      'Lazy': 50.5,
+      'Medium': 110,
+      'Hard': 150.5
+    };
+    double score = wRun * runDistance + wBike * bikeDistance + wWalk * walkDistance;
+    print(score);
+    print(_threshold);
+    print(_level);
+    double p = score/thresholds[_level]!;
+    if (p >= 1) {
+      _reachedGoal();
+      return 1;
+    } else {
+      return score / thresholds[_level]!;
+    }
+  }
+
 
   Future<void> _onButtonClick() async {
     final now = DateTime.now();
@@ -92,6 +143,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     });
   }
 
+  
+
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -101,24 +154,28 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   _loadPercentage() async {
     //String currentWeekKey = 'percentage_${_getCurrentWeekIdentifier()}';
     final sp = await SharedPreferences.getInstance();
-    try {
-      double savedPercentage = sp.getDouble(widget.week) ?? 0.0;
-      setState(() {
-        _percentage = savedPercentage;
-      });
-    } catch (e) {
-      print('Error loading percentage: $e');
-    }
-  }
-
-  _Goal() async {
-    final sp = await SharedPreferences.getInstance();
     String level = sp.getString('level_${widget.week}') ?? '';
     bool goal = sp.getBool('goal_${widget.week}') ?? false;
     setState(() {
       _level = level;
       _goalDisable = goal;
     });
+
+    try {
+      double savedPercentage = sp.getDouble(widget.week) ?? 0.0;
+      _checkGoalStatus();
+      if (_sameDay) {
+        setState(() {
+          _percentage = savedPercentage;
+        });
+      } else {
+        setState(() {
+        _percentage = _dailyUpdate();
+      });
+      }
+    } catch (e) {
+      print('Error loading percentage: $e');
+    }
   }
 
   String _getCurrentWeekIdentifier() {
@@ -152,7 +209,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           wRun * runDistance + wBike * bikeDistance + wWalk * walkDistance;
       if (_currentScore / _threshold >= 1) {
         _reachGoal = true;
-        //_upDateGoal(); // -------------> questo da rimuovere se voglio chiedere di andare avanti
       } else {
         _percentage = _currentScore / _threshold;
       }
@@ -237,11 +293,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     
     final sp = await SharedPreferences.getInstance();
     int fullLaps = 1;
-    String currLevel = _level; // lazy
-    double currScore = _currentScore;  // 61.979
-    double newthreshold = currScore;  // 61.979
+    String currLevel = _level; 
+    double currScore = _currentScore;  
+    double newthreshold = currScore;  
     bool continueCycle = true;
-    double difference = currScore % thresholds[currLevel]!; //(61.979 % 50.5 = 11.4790)
+    double difference = currScore % thresholds[currLevel]!; 
     print("difference $difference");
 
     while (continueCycle) {
@@ -294,23 +350,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     });
   }
 
-  /*
-  _reachedGoal() {
-   showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Text('Congratulations! You have reached your goal!!'),
-      );
-    },
-  );
-}
-*/
-
 
   @override
   Widget build(BuildContext context) {
-    //String dataCheckMessage = checkData(widget.provider.exerciseData);
 
     return Scaffold(
       appBar: AppBar(
@@ -651,8 +693,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     ),
                     onTap: () {
                       if (_buttonClickedToday == false) {
-                        _onButtonClick();
-                        showGeneralDialog(
+                         showGeneralDialog(
                           // si apre il pop-up
                           barrierDismissible: true,
                           barrierLabel: "",
@@ -679,7 +720,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                               MainAxisAlignment.center,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            CardDialog(),
+                                            CardDialog(_buttonClickedToday), // CARD HERE
                                             const SizedBox(height: 20),
                                             OutlinedButton(
                                               child: Icon(Icons.close_rounded,
@@ -704,7 +745,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                 ));
                           },
                         );
+                        _onButtonClick();
                       } else {
+                        //print(_buttonClickedToday);
+                        showDialog(
+                          // si apre il pop-up
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CardDialog(_buttonClickedToday);
+                        /*
                         showDialog(
                           // si apre il pop-up
                           context: context,
@@ -746,26 +795,30 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                   ),
                                 ),
                               ],
-                            );
+                            );*/
                           },
                         );
                       }
                     },
                   ),
                 ),
-                Center(
-                      child: ElevatedButton(
-                        child: Text('Temporary button, to RHR screen'),
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                SizedBox(height: 15,),
+                Card(
+                  elevation: 5,
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    tileColor: const Color.fromARGB(255, 227, 211, 244),
+                    title: Text('Temporary button, to RHR screen'),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => RhrScreen(startDate: widget.provider.start, endDate: widget.provider.end, provider: widget.provider))),
                       ),
-                    ),
-              ],
-            ),
+                )
+                ])
+          )
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
