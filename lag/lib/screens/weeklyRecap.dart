@@ -208,7 +208,7 @@ class WeeklyRecap extends StatelessWidget {
                                     title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
                                     subtitle: Text('Total minutes of exercise performed this week'),
                                               //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider),
+                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start)),
                                             ),
                               ),
                           ),

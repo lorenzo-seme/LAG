@@ -8,7 +8,7 @@ import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
-//import 'package:lag/screens/rhrScreen.dart';
+import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/utils/barplotEx.dart';
 //import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
@@ -802,7 +802,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     },
                   ),
                 ),
-                SizedBox(height: 15,),
+                SizedBox(height: 15,)
+                /*
                 Card(
                   elevation: 5,
                   child: ListTile(
@@ -813,7 +814,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => RhrScreen(startDate: widget.provider.start, endDate: widget.provider.end, provider: widget.provider))),
                       ),
-                )
+                )*/
                 ])
           )
           ),
