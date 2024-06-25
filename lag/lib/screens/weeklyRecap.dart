@@ -19,6 +19,13 @@ import 'package:provider/provider.dart';
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
 
+  String getCurrentWeekIdentifier(DateTime dateToday) {
+    DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
+    int daysDifference = dateToday.difference(firstDayOfYear).inDays;
+    int weekNumber = (daysDifference / 7).ceil() + 1;
+    return "$weekNumber";
+}
+
   //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
 
 
@@ -460,9 +467,9 @@ class WeeklyRecap extends StatelessWidget {
   }
   
   // Method for navigation weeklyRecap -> exerciseScreen
-  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider)));
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
   }
   
   void _toMoodPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {

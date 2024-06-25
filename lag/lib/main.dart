@@ -3,10 +3,10 @@ import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/splash.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() {  
   runApp(const MyApp()); 
-}
-
+}       
+  
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
           create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
           builder: (context, child) => MaterialApp(
+            debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
 

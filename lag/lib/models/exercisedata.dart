@@ -1,6 +1,6 @@
 import 'package:lag/models/allData.dart';
 import 'package:intl/intl.dart';
-import 'dart:math' as math;
+import 'dart:math' as math; 
 
 // model to store data from server in a dedicated object type
 
@@ -26,6 +26,7 @@ class ExerciseData extends AllData {
           "Corsa": [0, 0],
           "Bici": [0, 0],
           "Camminata": [0, 0],
+          //"Extra":[0,0]
         },
         super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
 
@@ -38,20 +39,6 @@ class ExerciseData extends AllData {
         distance: _obtainTotalDistance(json),
         activities: _obtainActivities(json));
   }
-  
-/*
-ExerciseData _createExerciseData(String date, Map<String, dynamic> json) {
-  final activities =_obtainActivities(json);
-  return ExerciseData(
-    day: DateFormat('yyyy-MM-dd').parse(date),
-    avgHR: json["data"][0]["averageHeartRate"],
-    duration: _obtainTotalDuration(json),
-    distance: _obtainTotalDistance(json),
-    activities: activities,
-  );
-}
-*/
-
 
 
   static double _obtainTotalDuration(Map<String, dynamic> json) {
@@ -91,29 +78,6 @@ ExerciseData _createExerciseData(String date, Map<String, dynamic> json) {
       "Camminata": [0, 0]
     };
 
-    /*
-    if (json["data"] is List) {
-    for (var item in json["data"]) {
-      if (item.containsKey("data")) {
-        for (var subItem in item["data"]) {
-          if (subItem.containsKey("activityName")) {
-            String activityName = subItem["activityName"];
-            if (allActivities.containsKey(activityName)) {
-              if (subItem.containsKey("duration")) {
-                allActivities[activityName]?[0] += subItem["duration"];
-              }
-              if (subItem.containsKey("distance")) {
-                allActivities[activityName]?[1] += subItem["distance"];
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  */
-
-    
     if (json["data"] is List) {
       for (var act in ["Corsa", "Bici", "Camminata"]) {
         for (var item in json["data"]) {
@@ -125,11 +89,19 @@ ExerciseData _createExerciseData(String date, Map<String, dynamic> json) {
               if (item.containsKey("distance")) {
                 allActivities[act]?[1] += item["distance"];
               }
+            } else if (item["activityName"] != 'Corsa' && item["activityName"] != 'Bici' && item["activityName"] != 'Camminata') {
+              if (item.containsKey("duration")) {
+                allActivities[item["activityName"]]?[0] += item["duration"];
+              }
+              if (item.containsKey("distance")) {
+                allActivities[item["activityName"]]?[1] += item["distance"];
+              }
             }
           }
         }
       }
     }
+    print(allActivities);
     return allActivities;
   }
 
