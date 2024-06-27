@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 //import 'package:flutter/foundation.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 //import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/models/exercisedata2.dart';
+import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/utils/barplotEx.dart';
