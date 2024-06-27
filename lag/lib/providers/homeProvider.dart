@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/models/exercisedata.dart';
+import 'package:lag/models/exercisedata2.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
 import 'package:lag/utils/impact.dart';
@@ -202,7 +202,7 @@ class HomeProvider extends ChangeNotifier {
   }
   
 
-  
+  /*
   Map<String, double> exerciseDistance2(){
     Map<String, double> total = {
       'Corsa' : 0,
@@ -225,36 +225,26 @@ class HomeProvider extends ChangeNotifier {
     }
     return total;
   }
+  */
 
-/*
-  Map<String, double> exerciseDistance2() {
-  Map<String, double> total = {
-    'Corsa': 0,
-    'Bici': 0,
-    'Camminata': 0,
-  };
-  
-  if (exerciseData.isEmpty) {
-    return total;
-  }
-  
-  for (var data in exerciseData) {
-    for (var entry in data.activities.entries) {
-      String act = entry.key;
-      double distance = entry.value[1];
-      
-      if (total.containsKey(act)) {
-        total[act] = total[act]! + distance;
+  Map<String, double> exerciseDistance2(){ // exerciseData is a list, for each day
+    Map<String, double> total = {};
+
+    if(exerciseData.isEmpty){
+      return total = {'Null' : 0};
       } else {
-        total[act] = distance;
+        for(int i=0; i<exerciseData.length; i++){
+        if (exerciseData[i].actNames.length >= 1) {
+          List actName_day = exerciseData[i].actNames;
+          for (String act in actName_day) {
+              total[act] = exerciseData[i].activities[act]![1];
+            }
+        }
+        }
       }
-    }
+      print('exerciseDistance2 : $total');
+      return total;
   }
-
-  return total;
-}*/
-
-
 
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime start, DateTime end, bool init) async {
@@ -294,6 +284,7 @@ class HomeProvider extends ChangeNotifier {
     print('Got data for week from $start to $end');//: ${heartRates.length}');
     notifyListeners();
     print('\n $dateRange \n');
+
   }
 
   //Method to fetch sleep data from the server

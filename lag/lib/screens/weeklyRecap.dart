@@ -470,6 +470,41 @@ class WeeklyRecap extends StatelessWidget {
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
   
   void _toMoodPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
