@@ -69,7 +69,7 @@ class WeeklyRecap extends StatelessWidget {
                             ),
                             */
                             title: Text("Today mood"), 
-                            //subtitle: const Text('about quality of your sleep this week', style: TextStyle(fontSize: 11),),
+                            subtitle: const Text('how are you feeling?', style: TextStyle(fontSize: 11),),
                             onTap: () => _toMoodPage(context, provider.start, provider.end, provider),
                           ),
                           )
