@@ -1,4 +1,3 @@
-
 import 'package:intl/intl.dart';
 import 'package:lag/models/allData.dart';
 
@@ -11,11 +10,15 @@ class HeartRateData extends AllData{
 
   HeartRateData.empty(String day, Map<String, dynamic> json)
       : value = null,
-        super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
+        super(day: DateFormat('yyyy-MM').parse(json["date"]));
 
   HeartRateData.fromJson(String day, Map<String, dynamic> json)
       : value = double.parse(json["data"]["value"].toStringAsFixed(1)),
-        super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));
+        super(day: DateFormat('yyyy-MM').parse(json["date"]));
+
+  HeartRateData.givenValue(String day, double value)
+      : value = value,
+        super(day: DateFormat('yyyy-MM').parse(day));
 
   @override
   String toString() {

@@ -15,7 +15,8 @@ class HomeProvider extends ChangeNotifier {
   //List<int> heartRates = []; // MOMENTANEO
   List<SleepData> sleepData = [];
   List<HeartRateData> heartRateData = [];
-  List<double> monthlyHeartRateData = [];
+  List<HeartRateData> monthlyHeartRateData = [];
+  double lastMonthHR = 0;
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
   List<String> months = [];
@@ -244,21 +245,21 @@ class HomeProvider extends ChangeNotifier {
 
     return months;
   }
-  
+  /*
   double rhrAvg() {
-    if(heartRateData.isEmpty){return 0.0;}
+    if(monthlyHeartRateData.isEmpty){return 0.0;}
     double total = 0;
     int counter = 0;
-    for(int i=0;i<heartRateData.length;i++){
-      if(heartRateData[i].value!=0){
+    for(int i=0;i<monthlyHeartRateData.length;i++){
+      if(monthlyHeartRateData[i].value!=0){
         counter = counter + 1;
-        total = total + heartRateData[i].value;
+        total = total + monthlyHeartRateData[i].value;
       }
     }
     print('${heartRateData[0]}');
     return double.parse((total / counter).toStringAsFixed(1));
   }
-  
+  */
   double sleepAvg() {
     if(sleepData.isEmpty){return 0.0;}
     double total = 0;
@@ -429,40 +430,77 @@ class HomeProvider extends ChangeNotifier {
     }//if
   }//fetchSleepData
 
-  Future<void> fetchMonthlyHeartRateData(String date) async {
+  Future<void> fetchMonthlyHeartRateData(String date, bool lastOnly) async {
     monthlyHeartRateData = [];
     date = date.substring(0,10);
+    //print(date);
     List<String> months = [];
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     DateTime date_obj = dateFormat.parse(date);
     DateFormat monthFormat = DateFormat("yyyy-MM");
-
-    for (int i = 5; i >= 0; i--) {
-      DateTime previousMonth = DateTime(date_obj.year, date_obj.month - i, date_obj.day);
-      String monthNumber = monthFormat.format(previousMonth);
+    int num;
+    if(!lastOnly)
+    {
+      num = 6;
+      for (int i = 5; i >= 0; i--) {
+        DateTime previousMonth = DateTime(date_obj.year, date_obj.month - i, date_obj.day);
+        String monthNumber = monthFormat.format(previousMonth);
+        months.add(monthNumber);
+      }
+    } else {
+      num = 1;
+      String monthNumber = monthFormat.format(DateTime(date_obj.year, date_obj.month, date_obj.day));
       months.add(monthNumber);
     }
 
 
-    for(int i=0; i<6; i++){
+    for(int i=0; i<num; i++){
         int startingDay = -6;
         int endingDay = 0;
         double sum = 0;
         int counter = 0;
-      for(int j=0; j<4; j++){
+      for(int j=0; j<5; j++){
+        String start, end;
         startingDay = startingDay + 7;
-        endingDay = endingDay + 7;
-        String start = months[i] + "-" + startingDay.toString().padLeft(2, '0');
-        String end = months [i] + "-" + endingDay.toString().padLeft(2, '0');
+        start = months[i] + "-" + startingDay.toString().padLeft(2, '0');
+        if(i==num-1 && ((dateFormat.parse(start)).isAfter(date_obj))) //gestisce caso data di inizio futura
+        {
+          break;
+        }
+        if(j!=4)
+        {
+          endingDay = endingDay + 7;
+          end = months [i] + "-" + endingDay.toString().padLeft(2, '0');
+        } else {
+          DateTime firstDayOfFollowingMonth;
+          int month = int.parse(months[i].split('-')[1]);
+          int year = int.parse(months[i].split('-')[0]);
+          if (month == 12) {
+            firstDayOfFollowingMonth = DateTime(year + 1, 1, 1);
+          } else {
+            firstDayOfFollowingMonth = DateTime(year, month + 1, 1);
+          }
+          DateTime lastDayOfCurrMonth = firstDayOfFollowingMonth.subtract(Duration(days: 1));
+          endingDay = lastDayOfCurrMonth.day;
+          end = months[i] + "-" + endingDay.toString().padLeft(2, '0');
+          if(endingDay<startingDay) //gestisce caso febbraio con 28gg
+          {
+            break;
+          }
+        }
+        if(i==num-1 && ((dateFormat.parse(end)).isAfter(date_obj)))  //gestisce caso data di fine futura
+        {
+          end = date_obj.toString().substring(0,10);
+        }
         final data = await Impact.fetchHeartRateData(start, end);
         if (data != null) {
           if (!data['data'].isEmpty){
             if (data["data"] is List) {
-              for(int i=0; i<data['data'].length; i++)
+              for(int k=0; k<data['data'].length; k++)
               {
-                if(!data['data'][i]['data'].isEmpty)
+                if(!data['data'][k]['data'].isEmpty)
                 {
-                  sum = sum + data['data'][i]['data']['value'];
+                  sum = sum + data['data'][k]['data']['value'];
                   counter = counter + 1;
                 }
               }
@@ -474,26 +512,64 @@ class HomeProvider extends ChangeNotifier {
               }
             }
           }
-        }//if
+        }
       }
       (sum == 0)
-              ? monthlyHeartRateData.add(0.0)
-              : monthlyHeartRateData.add(double.parse((sum/counter).toStringAsFixed(1)));
+              ? monthlyHeartRateData.add(HeartRateData.givenValue(months[i], 0.0))
+              : monthlyHeartRateData.add(HeartRateData.givenValue(months[i], double.parse((sum/counter).toStringAsFixed(1))));
     }//for
+
+    lastMonthHR = monthlyHeartRateData.last.value;
+
     notifyListeners();
     //print(monthlyHeartRateData[0]);
   }
-
+/*
   Future<void> fetchHeartRateData(String date) async {
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    DateTime date_obj = dateFormat.parse(date);
+    DateFormat monthFormat = DateFormat("yyyy-MM");
     date = date.substring(0,10);
     int startingDay = -6;
     int endingDay = 0;
     heartRateData = [];
-    for(int j=0; j<4; j++){
+    DateTime month_obj = DateTime(date_obj.year, date_obj.month, date_obj.day);
+    String monthNumber = monthFormat.format(month_obj);
+
+    for(int j=0; j<5; j++){
+        String start, end;
         startingDay = startingDay + 7;
-        endingDay = endingDay + 7;
-        String start = date.substring(0,8) + startingDay.toString().padLeft(2, '0');
-        String end = date.substring(0,8) + endingDay.toString().padLeft(2, '0');
+        start = date.substring(0,8) + startingDay.toString().padLeft(2, '0');
+        if((dateFormat.parse(start)).isAfter(date_obj)) //gestisce caso data di inizio futura
+        {
+          break;
+        }
+        if(j!=4)
+        {
+          endingDay = endingDay + 7;
+          end = monthNumber + "-" + endingDay.toString().padLeft(2, '0');
+        } else {
+          DateTime firstDayOfFollowingMonth;
+          int month = int.parse(monthNumber.split('-')[1]);
+          int year = int.parse(monthNumber.split('-')[0]);
+          if (month == 12) {
+            firstDayOfFollowingMonth = DateTime(year + 1, 1, 1);
+          } else {
+            firstDayOfFollowingMonth = DateTime(year, month + 1, 1);
+          }
+          DateTime lastDayOfCurrMonth = firstDayOfFollowingMonth.subtract(Duration(days: 1));
+          endingDay = lastDayOfCurrMonth.day;
+          end = monthNumber + "-" + endingDay.toString().padLeft(2, '0');
+          if(endingDay<startingDay) //gestisce caso febbraio con 28gg
+          {
+            break;
+          }
+        }
+        if((dateFormat.parse(end)).isAfter(date_obj))  //gestisce caso data di fine futura
+        {
+          end = date_obj.toString().substring(0,10);
+        }
+        end = date.substring(0,8) + endingDay.toString().padLeft(2, '0');
         final data = await Impact.fetchHeartRateData(start, end);
         //if OK parse the response adding all the elements to the list, otherwise do nothing
         if (data != null) {
@@ -528,6 +604,7 @@ class HomeProvider extends ChangeNotifier {
     print('Got ${heartRateData.length}');
     notifyListeners();
   }//fetchHeartRateData
+*/
 
   Future<void> fetchExerciseData(String startDay, String endDay) async {
     startDay = startDay.substring(0,10);
@@ -571,9 +648,8 @@ class HomeProvider extends ChangeNotifier {
 
   Future<void> fetchAllData(String startDay, String endDay, String date) async {
     await fetchExerciseData(startDay,endDay);
-    await fetchHeartRateData(date);
     await fetchSleepData(startDay,endDay);
-
+    await fetchMonthlyHeartRateData(date, true);
   }//fetchAllData
 
   Future<void> fetchExerciseSleep(String startDay, String endDay) async {

@@ -6,10 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
-import 'package:lag/screens/infoExercise.dart';
-import 'package:lag/screens/infoSleep.dart';
+import 'package:lag/screens/infoScore.dart';
 import 'package:lag/screens/moodScreen.dart';
-import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
 //import 'dart:async';
@@ -254,61 +252,10 @@ class WeeklyRecap extends StatelessWidget {
                         ],
                       )
                     ),
-                    const SizedBox(height: 15),
-                    Container(
-                      //height: 150,
-                      width: 370,
-                      padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
-                      margin: const EdgeInsets.only(top: 10, bottom: 10),
-                      decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 248, 226, 226),
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                      child: Column(children: [
-                        const Text("Explore Monthly Trends for resting heart rate",
-                          style: TextStyle(fontSize: 16),
-                        ), 
-                        const SizedBox(height: 10), 
-                        (provider.heartRateData.isEmpty) 
-                          ? const CircularProgressIndicator.adaptive() 
-                          :
-                          Card(
-                            elevation: 5,
-                            child: ListTile(
-                              leading: Icon(Icons.monitor_heart),
-                              trailing: SizedBox(
-                                width: 10,
-                                child: ((provider.rhrAvg() > 80.0) | (provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
-                                ), 
-                              title: Text('Resting heart rate : ${provider.rhrAvg()} bpm'),
-                              subtitle: Text('Average of current month'),
-                                        //When a ListTile is tapped, the user is redirected to the ExercisePage
-                              onTap: () async {
-                                  ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: Colors.blue,
-                                        behavior: SnackBarBehavior.floating,
-                                        margin: EdgeInsets.all(8),
-                                        duration: Duration(seconds: 10),
-                                        content: Text(
-                                            "Be patient.. We're loading your data!"),
-                                      ),
-                                    );
-                                  await provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.yesterday));
-                                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => RhrScreen(provider: provider)
-                                    ));
-                                }
-                              ),
-                            ),
-                      ],),
-                    ),
                     const SizedBox(height: 20), 
                     const Text(
                       "Learn Something More",
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 22),
                     ),
                     const SizedBox(
                       height: 15,
@@ -328,55 +275,18 @@ class WeeklyRecap extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     InkWell(
-                                      onTap: () => Navigator.of(context).push(
+                                      onTap: () {
+                                        if(provider.monthlyHeartRateData.length==1)
+                                        {
+                                          //faccio partire il fetch in background
+                                          provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.yesterday), false);
+                                        }
+                                        Navigator.of(context).push(
                                           MaterialPageRoute(
-                                              builder: (_) => InfoSleep())),
-                                      child: Hero(transitionOnUserGestures: true,
-                                        tag: 'sleep',
-                                        child: Container(
-                                          width: 300,
-                                          height: 200,
-                                          decoration: const BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(15.0),
-                                                bottomLeft: Radius.circular(15.0),
-                                                bottomRight: Radius.circular(15.0),
-                                                topRight: Radius.circular(15.0)),
-                                            image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: AssetImage(
-                                                  'assets/sleep.jpg'),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        "How does sleep affect my health?",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          SizedBox(
-                                width: 300,
-                                height: 200,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) => InfoExercise())),
+                                              builder: (_) => InfoRHR(provider: provider,)));
+                                      },
                                       child: Hero(
-                                        tag: 'exercise',
+                                        tag: 'rhr',
                                         child: Container(
                                         width: 300,
                                         height: 200,
@@ -397,8 +307,8 @@ class WeeklyRecap extends StatelessWidget {
                                     const Padding(
                                       padding: EdgeInsets.only(top: 8.0),
                                       child: Text(
-                                        "How does exercise affect my health?",
-                                        style: TextStyle(fontSize: 14),
+                                        "Prevention is the key!",
+                                        style: TextStyle(fontSize: 18),
                                       ),
                                     ),
                                   ],
@@ -417,9 +327,9 @@ class WeeklyRecap extends StatelessWidget {
                                     InkWell(
                                       onTap: () => Navigator.of(context).push(
                                           MaterialPageRoute(
-                                              builder: (_) => InfoRHR())),
+                                              builder: (_) => InfoScore())),
                                       child: Hero(
-                                        tag: 'rhr',
+                                        tag: 'score',
                                         child: Container(
                                         width: 300,
                                         height: 200,
@@ -432,7 +342,7 @@ class WeeklyRecap extends StatelessWidget {
                                           image: DecorationImage(
                                             fit: BoxFit.cover,
                                             image: AssetImage(
-                                                'assets/rhr.png'),
+                                                'assets/sleep.jpg'),
                                           ),
                                         ),
                                       ),),
@@ -440,8 +350,8 @@ class WeeklyRecap extends StatelessWidget {
                                     const Padding(
                                       padding: EdgeInsets.only(top: 8.0),
                                       child: Text(
-                                        "Why RHR reflects my health status?",
-                                        style: TextStyle(fontSize: 14),
+                                        "How do we calculate your score?",
+                                        style: TextStyle(fontSize: 18),
                                       ),
                                     ),
                                   ],
