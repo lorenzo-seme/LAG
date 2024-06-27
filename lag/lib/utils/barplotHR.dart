@@ -1,20 +1,20 @@
 import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/models/heartratedata.dart';
 //import 'package:lag/algorithms/sleep_score.dart';
 
 class BarChartSample7 extends StatefulWidget {
   const BarChartSample7(
       {super.key,
-      required this.yValues,
+      required this.data,
       //required this.pieCharts,
       //required this.legend,
       required this.date});
 
   final DateTime date;
-  final List<double> yValues;
+  final List<HeartRateData> data;
   //final List<PieChart?> pieCharts;
   //final List<String?> legend;
 
@@ -56,6 +56,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
     return months;
   }
   final List<String> months = getPreviousSixMonths(widget.date);
+  List<double> yValues = widget.data.map<double>((data) => data.value).toList();
 
     return Padding(
       padding: const EdgeInsets.all(15),
@@ -121,14 +122,14 @@ class _BarChartSample7State extends State<BarChartSample7> {
                 strokeWidth: 0.5,
               ),
             ),
-            barGroups: widget.yValues.asMap().entries.map((e) {
+            barGroups: yValues.asMap().entries.map((e) {
               final index = e.key;
               final data = e.value;
               return generateBarGroup(
                   index, const Color.fromARGB(202, 97, 20, 169), data);
             }).toList(),
-            maxY: double.parse((widget.yValues).reduce(max).toStringAsFixed(0)) + 2,
-            minY: double.parse(((widget.yValues).where((element) => element != 0.0).toList().reduce(min).toStringAsFixed(0))) - 2,
+            maxY: double.parse((yValues).reduce(max).toStringAsFixed(0)) + 2,
+            minY: double.parse(((yValues).where((element) => element != 0.0).toList().reduce(min).toStringAsFixed(0))) - 2,
             //maxY: (maxY.toInt()).toDouble(),
             /*
             barTouchData: BarTouchData(
