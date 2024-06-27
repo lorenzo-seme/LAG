@@ -167,9 +167,9 @@ class WeeklyRecap extends StatelessWidget {
                   ),
                   const SizedBox(height: 10,),
                   Text('Exercise Data'),
-                  //(provider.exerciseData.isEmpty) 
-                  //? const CircularProgressIndicator.adaptive() 
-                  //:
+                  (provider.exerciseData.isEmpty) 
+                  ? const CircularProgressIndicator.adaptive() 
+                  :
                   Card(
                     elevation: 5,
                     child: ListTile(
@@ -351,6 +351,41 @@ class WeeklyRecap extends StatelessWidget {
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 } 
 

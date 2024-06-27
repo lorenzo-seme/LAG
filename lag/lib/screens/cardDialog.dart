@@ -212,7 +212,12 @@ class _CardDialogState extends State<CardDialog> {
                 ),
                 const SizedBox(height: 15),
                 (_getResults()['wo'] == 'Yes')
-                    ? OutlinedButton(
+                    ? TextButton(
+                                  child: Text('Close'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ) /*OutlinedButton(
                         child: Icon(Icons.close_rounded,
                             color: Color.fromARGB(255, 227, 211, 244)),
                         onPressed: () {
@@ -223,7 +228,7 @@ class _CardDialogState extends State<CardDialog> {
                           shape: const CircleBorder(),
                           backgroundColor: Color.fromARGB(255, 183, 123, 248),
                         ),
-                      )
+                      )*/
                     : _showAlternative()
               ],
             ),
