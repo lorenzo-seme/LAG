@@ -96,7 +96,7 @@ class Profile extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Align(
+            /*Align(
               alignment: Alignment.center,
               child: ElevatedButton(
                 onPressed: () async {
@@ -112,10 +112,61 @@ class Profile extends StatelessWidget {
                         const Color(0xFF384242))),
                 child: const Text('Log Out'),
               ),
-            ),
+            ),*/
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: () async {
+                  _showLogoutConfirmation(context); 
+                },
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.symmetric(horizontal: 80, vertical: 12)),
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF384242)),
+                ),
+                child: const Text('Log Out'),
+              ),
+            )
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to log out?',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center),
+          content: const Text('Remember that logging out will result in the loss of your diary!',
+            style: const TextStyle(fontSize: 13),
+            textAlign: TextAlign.center),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: 
+                [TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Chiude il pop-up
+                  },
+                  child: const Text('Back'),
+                ),
+                const SizedBox(width: 70),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Chiude il pop-up
+                    _toLogin(context); // Invoca il logout
+                  },
+                  child: const Text('Log Out'),
+                )],
+            )
+          ],
+        );
+      },
     );
   }
 

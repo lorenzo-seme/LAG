@@ -44,19 +44,7 @@ class WeeklyRecap extends StatelessWidget {
                     Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
                     const SizedBox(height: 20),
                     const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
-                    
-                    Container(
-                      //height: 600,
-                      width: 370,
-                      padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
-                      margin: const EdgeInsets.only(top: 10, bottom: 10),
-                      decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 248, 226, 226),
-                        borderRadius: BorderRadius.all(Radius.circular(10))
-                        ),
-                      child: Column(children: [
-
-                        (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
+                    (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
                           elevation: 5,
                           child: ListTile(
@@ -68,11 +56,21 @@ class WeeklyRecap extends StatelessWidget {
                             */
                             title: Text("Today mood"), 
                             subtitle: const Text('how are you feeling?', style: TextStyle(fontSize: 11),),
-                            onTap: () => _toMoodPage(context, provider.start, provider.end, provider),
+                            onTap: () => _toMoodPage(context, provider),
                           ),
                           )
                         : const SizedBox(height: 10),
-
+                    
+                    Container(
+                      //height: 600,
+                      width: 370,
+                      padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
+                      margin: const EdgeInsets.only(top: 10, bottom: 10),
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 248, 226, 226),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                        ),
+                      child: Column(children: [
                         const Text("Weekly Trends for sleep and exercise",
                           style: TextStyle(fontSize: 19),
                         ), 
@@ -382,9 +380,9 @@ class WeeklyRecap extends StatelessWidget {
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
   }
   
-  void _toMoodPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
+  void _toMoodPage(BuildContext context, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => MoodScreen(startDate: start, endDate: end, provider: provider)));
+      builder: (context) => MoodScreen(provider: provider)));
   }
 } 
 

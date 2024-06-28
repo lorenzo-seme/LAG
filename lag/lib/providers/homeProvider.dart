@@ -29,12 +29,7 @@ class HomeProvider extends ChangeNotifier {
   bool showAlertForAge = false;
   bool isReady = true;
   bool todayMoodTracked = false;
-  // int? moodScore;
-
-  void setTodayMoodTracked(bool value) {
-    todayMoodTracked = value;
-    notifyListeners();
-  }
+  bool firstThoughtsubmitted = false;
   
   /*
   void setMoodScore(int score) {
@@ -44,6 +39,7 @@ class HomeProvider extends ChangeNotifier {
   */
 
   Future<void> saveMoodScore(DateTime date, int score) async {
+    todayMoodTracked = true;
     final prefs = await SharedPreferences.getInstance();
     String key = 'mood_scores';
     Map<String, dynamic> moodScores = {};
@@ -56,11 +52,14 @@ class HomeProvider extends ChangeNotifier {
 
     // Add/Update the score for the given date
     String dateString = date.toIso8601String().split('T').first; // Use only the date part
+    await prefs.setString('lastMoodUpdate', dateString);
     moodScores[dateString] = score;
 
     // Save the updated dictionary back to shared preferences
     jsonString = json.encode(moodScores);
     await prefs.setString(key, jsonString);
+
+    notifyListeners();
   }
 
   Future<int?> getMoodScore(DateTime date) async {
@@ -75,6 +74,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future<void> saveMoodText(DateTime date, String text) async {
+    firstThoughtsubmitted = true;
     final prefs = await SharedPreferences.getInstance();
     String key = 'mood_texts';
     Map<String, dynamic> moodTexts = {};
@@ -87,10 +87,11 @@ class HomeProvider extends ChangeNotifier {
 
     // Aggiungi/Aggiorna il testo per la data data
     String dateString = date.toIso8601String().split('T').first; // Usa solo la parte della data
+    await prefs.setString('lastFirstThoughtUpdate', dateString);
     if (moodTexts.containsKey(dateString)) {
-      moodTexts[dateString] = '${moodTexts[dateString]}\n$text';
+      moodTexts[dateString] = "${moodTexts[dateString]}\n\n'$text'";
     } else {
-      moodTexts[dateString] = text;
+      moodTexts[dateString] = "'text'";
     }
 
     // Salva il dizionario aggiornato nelle shared preferences
@@ -149,6 +150,22 @@ class HomeProvider extends ChangeNotifier {
       nick = name;
     } else {
       nick = 'User';
+    }
+
+    DateTime now = DateTime.now();
+    String? lastMoodUpadte = sp.getString('lastMoodUpdate');
+    if (lastMoodUpadte != null) {
+      DateTime moodDate = DateTime.parse(lastMoodUpadte);
+      if (moodDate.year == now.year && moodDate.month == now.month && moodDate.day == now.day) {
+        todayMoodTracked = true;
+      }
+    }
+    String? lastFirstThoughtUpdate = sp.getString('lastFirstThoughtUpdate');
+    if (lastFirstThoughtUpdate != null) {
+      DateTime firstThoughtDate = DateTime.parse(lastFirstThoughtUpdate);
+      if (firstThoughtDate.year == now.year && firstThoughtDate.month == now.month && firstThoughtDate.day == now.day) {
+        firstThoughtsubmitted = true;
+      }
     }
 
     // Fetch data 
