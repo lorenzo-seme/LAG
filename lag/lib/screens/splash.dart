@@ -30,10 +30,11 @@ class Splash extends StatelessWidget {
       if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
         _toHomePage(context);
       } else {
-        final isChecked = sp.getString('saved_credentials');
+        final isChecked = sp.getBool('saved_credentials');
+        print(isChecked);
         if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
-          // print("re-authorized thanks to remember me option");
-          if (isChecked == "true") {
+          if (isChecked) {
+            // print("re-authorized thanks to remember me option");
             final username = sp.getString('username');
             final password = sp.getString('password');
             //final Impact impact = Impact();
