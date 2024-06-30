@@ -174,22 +174,22 @@ class _MoodScreenState extends State<MoodScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Icon(Icons.wb_cloudy),
+            const Icon(Icons.wb_cloudy, color: Color(0xFF4e50bf)), 
             const SizedBox(width: 10),
             Text(
               DateFormat('EEE, d MMM').format(DateTime.now()), 
               textAlign: TextAlign.center, 
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF4e50bf)), 
             ),
           ],
         ),        
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF4e50bf)), 
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
+        backgroundColor: Color.fromARGB(255, 247, 202, 202),
       ),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -197,8 +197,8 @@ class _MoodScreenState extends State<MoodScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
             child: Column(
               children: [
-                const Text("How do you feel today?", 
-                    style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
+                const Text("How are you feeling today?", 
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4e50bf))), 
                 const Text('Tracking your mood can provide valuable insights into your emotional well-being, helping you identify triggers',
                   style: const TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,),
@@ -261,8 +261,8 @@ class _MoodScreenState extends State<MoodScreen> {
                       Icon(
                         moodIcons[index],
                         color: _selectedMoodIndex == index 
-                          ? const Color.fromARGB(255, 150, 37, 243)
-                          : const Color.fromARGB(255, 203, 151, 246),
+                          ? const Color.fromARGB(255, 247, 202, 202)
+                          : const Color(0xFF4e50bf), 
                         size: _selectedMoodIndex == index 
                           ? 50
                           : 40,
@@ -299,20 +299,25 @@ class _MoodScreenState extends State<MoodScreen> {
             ),
             const SizedBox(height: 10),
             TextField(
-            maxLines: 3,
-            controller: _moodController,
-            decoration: InputDecoration(
-              hintText: !_saved 
-                ? 'Enter your thoughts here...'
-                : 'This box will stay open for you.\nFeel free to enter any other thought that comes to your mind!',
-              hintStyle: const TextStyle(fontSize: 12),
-              border: const OutlineInputBorder(),
+              maxLines: 3,
+              controller: _moodController,
+              decoration: InputDecoration(
+                hintText: !_saved 
+                  ? 'Enter your thoughts here...'
+                  : 'This box will stay open for you.\nFeel free to enter any other thought that comes to your mind!',
+                hintStyle: const TextStyle(fontSize: 12),
+                border: const OutlineInputBorder(),
+                fillColor: const Color(0xFFe3b74f), 
+              ),
             ),
-          ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _submitFeelings,
-            child: const Text("Save in my diary"),
+            child: const Text("Save in my diary",
+              style: TextStyle(color: const Color(0xFF4e50bf))),
+            style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 247, 202, 202), 
+                  ),
           ),
           const SizedBox(height: 10),
         ],
@@ -324,7 +329,7 @@ class _MoodScreenState extends State<MoodScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 219, 187, 244),
+        color: const Color(0xFFe3b74f), 
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -332,8 +337,7 @@ class _MoodScreenState extends State<MoodScreen> {
         children: [
           Text(
             _selectedMotivationalPhrase!,
-            style: const TextStyle(fontSize: 14),
-            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Color(0xFF4e50bf)), 
           ),
         ],
       ),
@@ -376,7 +380,7 @@ class _MoodScreenState extends State<MoodScreen> {
         child: Padding(
           padding: EdgeInsets.all(5.0),
           child: ListTile(
-            trailing: Icon(Icons.book),
+            trailing: Icon(Icons.book, color: const Color(0xFF4e50bf)),
             title: Text("My diary", style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
             subtitle: Text('Tap to read your old thoughts', style: TextStyle(fontSize: 11.0)),
           ),

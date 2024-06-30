@@ -45,7 +45,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data == null) {
-            return Center(child: Text('No mood texts available'));
+            return const Center(child: Text("You did not write anything on your diary yet.\nStart now sharing your thoughts!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontStyle: FontStyle.italic),));
           } else {
             Map<String, dynamic> moodTexts = snapshot.data!;
             return ListView.builder(

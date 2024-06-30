@@ -30,35 +30,24 @@ class HomeProvider extends ChangeNotifier {
   bool isReady = true;
   bool todayMoodTracked = false;
   bool firstThoughtsubmitted = false;
-  
-  /*
-  void setMoodScore(int score) {
-    moodScore = score;
-    notifyListeners();
-  }
-  */
 
   Future<void> saveMoodScore(DateTime date, int score) async {
     todayMoodTracked = true;
     final prefs = await SharedPreferences.getInstance();
     String key = 'mood_scores';
     Map<String, dynamic> moodScores = {};
-
     // Retrieve existing scores if any
     String? jsonString = prefs.getString(key);
     if (jsonString != null) {
       moodScores = json.decode(jsonString);
     }
-
     // Add/Update the score for the given date
     String dateString = date.toIso8601String().split('T').first; // Use only the date part
     await prefs.setString('lastMoodUpdate', dateString);
     moodScores[dateString] = score;
-
     // Save the updated dictionary back to shared preferences
     jsonString = json.encode(moodScores);
     await prefs.setString(key, jsonString);
-
     notifyListeners();
   }
 
@@ -67,7 +56,6 @@ class HomeProvider extends ChangeNotifier {
     String key = 'mood_scores';
     String? jsonString = prefs.getString(key);
     if (jsonString == null) return null;
-
     Map<String, dynamic> moodScores = json.decode(jsonString);
     String dateString = date.toIso8601String().split('T').first;
     return moodScores[dateString];
@@ -78,44 +66,29 @@ class HomeProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     String key = 'mood_texts';
     Map<String, dynamic> moodTexts = {};
-
-    // Recupera i testi esistenti, se presenti
+    // Retrieve existing data if any
     String? jsonString = prefs.getString(key);
     if (jsonString != null) {
       moodTexts = json.decode(jsonString);
     }
-
-    // Aggiungi/Aggiorna il testo per la data data
-    String dateString = date.toIso8601String().split('T').first; // Usa solo la parte della data
+    // Add/Update the data for the given date
+    String dateString = date.toIso8601String().split('T').first; 
     await prefs.setString('lastFirstThoughtUpdate', dateString);
     if (moodTexts.containsKey(dateString)) {
       moodTexts[dateString] = "${moodTexts[dateString]}\n\n'$text'";
     } else {
       moodTexts[dateString] = "'text'";
     }
-
-    // Salva il dizionario aggiornato nelle shared preferences
+    // Save the updated dictionary back to shared preferences
     jsonString = json.encode(moodTexts);
     await prefs.setString(key, jsonString);
   }
 
-
-  /*Future<String?> getMoodText(DateTime date) async {
-    final prefs = await SharedPreferences.getInstance();
-    String key = 'mood_texts';
-    String? jsonString = prefs.getString(key);
-    if (jsonString == null) return null;
-
-    Map<String, dynamic> moodTexts = json.decode(jsonString);
-    String dateString = date.toIso8601String().split('T').first;
-    return moodTexts[dateString];
-  }*/
   Future<Map<String, dynamic>?> getMoodText() async {
     final prefs = await SharedPreferences.getInstance();
     String key = 'mood_texts';
     String? jsonString = prefs.getString(key);
     if (jsonString == null) return null;
-
     Map<String, dynamic> moodTexts = json.decode(jsonString);
     return moodTexts;
   }

@@ -12,6 +12,7 @@ import 'package:lag/screens/sleepScreen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
+
 //import 'dart:async';
 
 
@@ -43,10 +44,11 @@ class WeeklyRecap extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 16)),
+                    Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 18)),
                     const SizedBox(height: 20),
                     //const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
                     Gamification(provider),
+                    const SizedBox(height: 15),
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
                           elevation: 5,
@@ -57,8 +59,8 @@ class WeeklyRecap extends StatelessWidget {
                               child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
                             ),
                             */
-                            title: Text("Today mood"), 
-                            subtitle: const Text('how are you feeling?', style: TextStyle(fontSize: 11),),
+                            title: Text("Today's mood"), 
+                            subtitle: const Text("Track today's feeling to provide sun to your little plant!", style: TextStyle(fontSize: 11),),
                             onTap: () => _toMoodPage(context, provider),
                           ),
                           )
@@ -393,123 +395,155 @@ class WeeklyRecap extends StatelessWidget {
   
   // OCCHIO CHE VORREBBE COSTRUIRE PRIMA CHE I DATI SIANO STATI FETCHATI !!!
   Widget Gamification(HomeProvider provider) {
-      final Map<int, String> fromIntToImg = {
-      1: 'reward_1.png',
-      2: 'reward_1.png',
-      3: 'reward_2.png',
-      4: 'reward_3.png',
-      5: 'reward_4.png',
-      6: 'reward_5.png',
-      7: 'reward_6.png',
-      8: 'reward_7.png',
-      9: 'reward_8.png',
-      10: 'reward_9.png',
-      11: 'reward_10.png',
-      12: 'reward_11.png',
-      13: 'reward_12.png',
-      14: 'reward_12.png'
-    };
+  /*final Map<int, String> fromIntToImg = {
+    1: 'reward_1.png',
+    2: 'reward_1.png',
+    3: 'reward_2.png',
+    4: 'reward_3.png',
+    5: 'reward_4.png',
+    6: 'reward_5.png',
+    7: 'reward_6.png',
+    8: 'reward_7.png',
+    9: 'reward_8.png',
+    10: 'reward_9.png',
+    11: 'reward_10.png',
+    12: 'reward_11.png',
+    13: 'reward_12.png',
+    14: 'reward_12.png'
+  };*/
 
-    return SizedBox(
-      //width: 370,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Row(
-          children: [
-            Column(
-              children: [
-                ((provider.sleepScores)["scores"]!=null)
-                ? CircularPercentIndicator(
-                  radius: 35,
-                  lineWidth: 8,
-                  center: Icon(
-                    MdiIcons.wateringCan,
-                    size: 35.0, // Dimensione dell'icona
-                    color: Colors.blue, // Colore dell'icona
-                  ), // QUI L'IMMAGINE DELL'INNAFFIATORE
-                  progressColor: Color.fromARGB(255, 131, 35, 233),
-                  animation: true,
-                  animationDuration: 1000,
-                  footer: Text('Sleep', style: TextStyle(fontSize: 10)),
-                  percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                    ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
-                    : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
-                  circularStrokeCap: CircularStrokeCap.round,
-                  //widgetIndicator: _reachedGoal(),
-                  )
-                : CircularProgressIndicator(),
-                const SizedBox(height: 200),
-                ((provider.sleepScores)["scores"]!=null)
-                ?  CircularPercentIndicator(
-                    radius: 35,
-                    lineWidth: 8,
-                    center: null, // QUI L'IMMAGINE DEL CONCIME
-                    progressColor: Color.fromARGB(255, 131, 35, 233),
-                    animation: true,
-                    animationDuration: 1000,
-                    footer: Text('Sleep', style: TextStyle(fontSize: 10)),
-                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                      ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
-                      : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
-                    circularStrokeCap: CircularStrokeCap.round,
-                    //widgetIndicator: _reachedGoal(),
-                  )
-                : CircularProgressIndicator(),
-              ],
-            ),
-            const SizedBox(width: 10),
-            // IMMAGINE
-            Column(
-              children:[
-                ((provider.sleepScores)["scores"]!=null)
-                ?  Container(
-                    width: 170,
-                    height: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          bottomLeft: Radius.circular(15.0),
-                          bottomRight: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0)),
-                      image: DecorationImage(
-                        fit: BoxFit.contain,
-                        image: AssetImage(
-                            'assets/rewards/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!)]}'),
+  final Map<int, String> fromIntToImg = {
+    1: 'rew1.jpeg',
+    2: 'rew1.jpeg',
+    3: 'rew2.jpeg',
+    4: 'rew2.jpeg',
+    5: 'rew3.jpeg',
+    6: 'rew4.jpeg',
+    7: 'rew5.jpeg',
+    8: 'rew6.jpeg',
+    9: 'rew7.jpeg',
+    10: 'rew8.jpeg',
+    11: 'rew9.jpeg',
+    12: 'rew9.jpeg',
+    13: 'rew10.jpeg',
+    14: 'rew10.jpeg'
+  };
+
+  return SizedBox(
+    child: Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // First Column (left)
+          Column(
+            children: [
+              ((provider.sleepScores)["scores"] != null)
+                  ? CircularPercentIndicator(
+                      radius: 35,
+                      lineWidth: 8,
+                      center: Icon(
+                        MdiIcons.wateringCan,
+                        size: 35.0, // Dimensione dell'icona
+                        color: Colors.blue, // Colore dell'icona
+                      ), // QUI L'IMMAGINE DELL'INNAFFIATORE
+                      progressColor: const Color(0xFF4e50bf),
+                      animation: true,
+                      animationDuration: 1000,
+                      footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                      percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                          ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)! / 100
+                          : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                      circularStrokeCap: CircularStrokeCap.round,
+                    )
+                  : CircularProgressIndicator(),
+              const SizedBox(height: 40),
+              ((provider.sleepScores)["scores"] != null)
+                  ? CircularPercentIndicator(
+                      radius: 35,
+                      lineWidth: 8,
+                      center:
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.contain,
+                              image: AssetImage('assets/shovel.png'),
+                            ),
+                          ),
+                        ),
+                      progressColor: const Color(0xFF4e50bf),
+                      animation: true,
+                      animationDuration: 1000,
+                      footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                      percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                          ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)! / 100
+                          : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                      circularStrokeCap: CircularStrokeCap.round,
+                    )
+                  : CircularProgressIndicator(),
+            ],
+          ),
+          
+          // Spacer to push second column to center
+          Spacer(),
+
+          // Second Column (center)
+          Column(
+            children: [
+              ((provider.sleepScores)["scores"] != null)
+                  ? Container(
+                      width: 160,
+                      height: 260,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            bottomLeft: Radius.circular(15.0),
+                            bottomRight: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0)),
+                        image: DecorationImage(
+                          fit: BoxFit.contain,
+                          image: AssetImage('assets/rewards2/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!)]}'),
+                        ),
                       ),
-                    ),
-                  )
-                : CircularProgressIndicator(),
-                (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day)
-                ?  Text("Still growing!")
-                : Text("Your plant for that week"), //cambia questa frase
-              ],
-            ),
-            const SizedBox(width: 10),
-            Column(
-              children: [
-                ((provider.sleepScores)["scores"]!=null)
-                ?  CircularPercentIndicator(
-                    radius: 35,
-                    lineWidth: 8,
-                    center: null, // QUI L'IMMAGINE DEL SOLE
-                    progressColor: Color.fromARGB(255, 131, 35, 233),
-                    animation: true,
-                    animationDuration: 1000,
-                    footer: Text('Sleep', style: TextStyle(fontSize: 10)),
-                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                      ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
-                      : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
-                    circularStrokeCap: CircularStrokeCap.round,
+                    )
+                  : CircularProgressIndicator(),
+              (provider.end.year == provider.showDate.year &&
+                      provider.end.month == provider.showDate.month &&
+                      provider.end.day == provider.showDate.day)
+                  ? Text("Still growing!")
+                  : Text("Your plant for that week"), // cambia questa frase
+            ],
+          ),
+          
+          // Spacer to push third column to the right
+          Spacer(),
+
+          // Third Column (right)
+          Column(
+            children: [
+              ((provider.sleepScores)["scores"] != null)
+                  ? CircularPercentIndicator(
+                      radius: 35,
+                      lineWidth: 8,
+                      center: const Icon(Icons.sunny, size: 35, color: Color.fromARGB(255, 229, 211, 48),),
+                      progressColor: const Color(0xFF4e50bf),
+                      animation: true,
+                      animationDuration: 1000,
+                      footer: Text('Mood', style: TextStyle(fontSize: 10)),
+                      percent: percentageSun(provider),
+                      circularStrokeCap: CircularStrokeCap.round,
                     //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
-                const SizedBox(height: 200),
+                const SizedBox(height: 40),
                 ((provider.sleepScores)["scores"]!=null)
                 ?  CircularPercentIndicator(
                     radius: 35,
                     lineWidth: 8,
                     center: null, // QUI L'IMMAGINE DELL'INNAFFIATORE
-                    progressColor: Color.fromARGB(255, 131, 35, 233),
+                    progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
                     footer: Text('Sleep', style: TextStyle(fontSize: 10)),
@@ -540,6 +574,16 @@ class WeeklyRecap extends StatelessWidget {
       }
     }
     return ind;
+  }
+  
+  double percentageSun(HomeProvider provider) {
+    if (provider.todayMoodTracked) {
+      return 0.5;
+    } else if (provider.firstThoughtsubmitted) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 
 }
