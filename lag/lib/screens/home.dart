@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lag/screens/profile.dart';
-import 'package:lag/screens/rewardScreen.dart';
 import 'package:lag/screens/weeklyRecap.dart';
 
 class Home extends StatefulWidget {
@@ -11,7 +10,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _selIdx = 1;
+  int _selIdx = 0;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -20,10 +19,11 @@ class _HomeState extends State<Home> {
   }
 
   List<BottomNavigationBarItem> navBarItems = [
+    /*
     const BottomNavigationBarItem(
       icon: Icon(Icons.workspace_premium),
       label: 'My rewards',
-    ),
+    ),*/
     const BottomNavigationBarItem(
       icon: Icon(Icons.home),
       label: 'Home',
@@ -39,10 +39,8 @@ class _HomeState extends State<Home> {
   }) {
     switch (index) {
       case 0:
-        return RewardScreen();
-      case 1:
         return WeeklyRecap();
-      case 2:
+      case 1:
         return Profile();
       default:
         return WeeklyRecap();
