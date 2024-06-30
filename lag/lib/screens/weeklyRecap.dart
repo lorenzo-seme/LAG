@@ -9,6 +9,7 @@ import 'package:lag/screens/exerciseScreen.dart';
 import 'package:lag/screens/infoScore.dart';
 import 'package:lag/screens/moodScreen.dart';
 import 'package:lag/screens/sleepScreen.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 //import 'dart:async';
 
@@ -24,7 +25,7 @@ class WeeklyRecap extends StatelessWidget {
     return "$weekNumber";
 }
 
-  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
+  //Future<double> sleepAvg = calculateAverageSleepScoreString(BuildContext context, Future<List<double>> sleepDataFuture); 
 
 
   @override
@@ -41,9 +42,10 @@ class WeeklyRecap extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello, ${provider.nick}",style: const TextStyle(fontSize: 16)),
+                    Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 16)),
                     const SizedBox(height: 20),
-                    const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+                    //const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+                    Gamification(provider),
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
                           elevation: 5,
@@ -173,7 +175,10 @@ class WeeklyRecap extends StatelessWidget {
                                   trailing: Container(
                                     child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
                                   ),
-                                  title: Text(calculateAverageSleepScore((provider.sleepScores)["scores"]!)), // funzione definita sotto
+                                  title: 
+                                    calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                                    ? Text("Sleep score: ${calculateAverageSleepScore((provider.sleepScores)["scores"]!)!.toStringAsFixed(1)}%")
+                                    : Text("No data available"), // funzione definita sotto
                                   subtitle: const Text('about quality of your sleep this week',
                                                       style: TextStyle(fontSize: 11),),
                                   onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
@@ -384,15 +389,107 @@ class WeeklyRecap extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => MoodScreen(provider: provider)));
   }
-} 
+  
+  // OCCHIO CHE VORREBBE COSTRUIRE PRIMA CHE I DATI SIANO STATI FETCHATI !!!
+  Widget Gamification(HomeProvider provider) {
+    return SizedBox(
+      //width: 370,
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          children: [
+            Column(
+              children: [
+                CircularPercentIndicator(
+                  radius: 35,
+                  lineWidth: 8,
+                  center: null, // QUI L'IMMAGINE DELL'INNAFFIATORE
+                  progressColor: Color.fromARGB(255, 131, 35, 233),
+                  animation: true,
+                  animationDuration: 1000,
+                  footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                  percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                    ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
+                    : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                  circularStrokeCap: CircularStrokeCap.round,
+                  //widgetIndicator: _reachedGoal(),
+                ),
+                const SizedBox(height: 15),
+                CircularPercentIndicator(
+                  radius: 35,
+                  lineWidth: 8,
+                  center: null, // QUI L'IMMAGINE DEL CONCIME
+                  progressColor: Color.fromARGB(255, 131, 35, 233),
+                  animation: true,
+                  animationDuration: 1000,
+                  footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                  percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                    ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
+                    : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                  circularStrokeCap: CircularStrokeCap.round,
+                  //widgetIndicator: _reachedGoal(),
+                ),
+              ],
+            ),
+            const SizedBox(width: 170),// qui l'immagine
+            Column(
+              children: [
+                CircularPercentIndicator(
+                  radius: 35,
+                  lineWidth: 8,
+                  center: null, // QUI L'IMMAGINE DEL SOLE
+                  progressColor: Color.fromARGB(255, 131, 35, 233),
+                  animation: true,
+                  animationDuration: 1000,
+                  footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                  percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                    ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
+                    : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                  circularStrokeCap: CircularStrokeCap.round,
+                  //widgetIndicator: _reachedGoal(),
+                ),
+                const SizedBox(height: 15),
+                CircularPercentIndicator(
+                  radius: 35,
+                  lineWidth: 8,
+                  center: null, // QUI L'IMMAGINE DELL'INNAFFIATORE
+                  progressColor: Color.fromARGB(255, 131, 35, 233),
+                  animation: true,
+                  animationDuration: 1000,
+                  footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                  percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                    ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
+                    : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                  circularStrokeCap: CircularStrokeCap.round,
+                  //widgetIndicator: _reachedGoal(),
+                ),
+              ],
+            ),
+          ],
+      ),
+    ),
+    );
+  }
+}
 
 
-String calculateAverageSleepScore(List<double> scores) {
+
+/*
+String calculateAverageSleepScoreString(List<double> scores) {
   List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
   if (validScores.isEmpty) {
     return "No data available"; // if no valid scores
   } else {
     double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
     return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
+  }
+}*/
+double? calculateAverageSleepScore(List<double> scores) {
+  List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
+  if (validScores.isEmpty) {
+    return null; // if no valid scores
+  } else {
+    double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
+    return averageScore;
   }
 }
