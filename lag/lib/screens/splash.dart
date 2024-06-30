@@ -55,12 +55,14 @@ class Splash extends StatelessWidget {
   Widget build(BuildContext context) {
     Future.delayed(
         const Duration(seconds: 3),
-        () => _checkLogin(context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (CAMBIA)
+        () => _checkLogin(context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (In realtà qui andrebbe già il fetch dei dati? quindi l'inizializzazione del Provider (trigger costruttore))
     return Scaffold(
         body: Center(
             child: Image.asset(
-      'assets/logo.png', // CAMBIA LOGO
-      scale: 4,
-    )));
+              'assets/logo_1.png', // CAMBIA LOGO
+              scale: 2,
+            )
+        )
+    );
   }
 }

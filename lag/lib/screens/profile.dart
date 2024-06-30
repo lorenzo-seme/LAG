@@ -25,20 +25,23 @@ class Profile extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
             ),
             const SizedBox(
-              height: 5,
+              height: 10,
             ),
-            const Text("Info about you and your preferences",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black45,
-                )),
+            Text("Info about you and your preferences",
+              style: TextStyle(
+                      fontSize: 14, 
+                      color: Colors.black.withOpacity(0.6),
+              ),
+            ),
             const SizedBox(
-              height: 20,
+              height: 15,
             ),
+            /*
             const Text(
               "Account",
               style: TextStyle(fontSize: 16),
             ),
+            */
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,18 +81,16 @@ class Profile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "About",
-                    style: TextStyle(fontSize: 16),
+                    "Our mission",
+                    style: TextStyle(fontSize: 18),
                   ),
                   Text(
-                    "Pollutrack aims to improve the consciousness of the user to the air pollutants issue. The user can track the amount of pollutants they has been exposed to during the day and learn useful information about them.",
+                    "LAG is an innovative app that calculates a score using your sleep, exercise and mental health data to help enhance your quality of life. We designed a fancy gamification feature that provides a pleasant visual way to track your weekly progress and keep your motivation up.",
                     style: TextStyle(
-                        fontSize: 14, color: Colors.black.withOpacity(0.4)),
+                        fontSize: 14, 
+                        color: Colors.black.withOpacity(0.6)
+                    ),
                   ),
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text("version 2.0.0"),
-                  )
                 ],
               ),
             ),
@@ -126,6 +127,19 @@ class Profile extends StatelessWidget {
                   backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF384242)),
                 ),
                 child: const Text('Log Out'),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Text(
+                "version 2.0.0",
+                style: TextStyle(
+                        fontSize: 14, 
+                        color: Colors.black.withOpacity(0.6)
+                    ),
               ),
             )
           ],
