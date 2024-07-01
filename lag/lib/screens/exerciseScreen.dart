@@ -1018,6 +1018,7 @@ _isCurrentWeek() async {
                             SizedBox(
                               height: 15,
                             ),
+                            /*
                             Card(
                               elevation: 5,
                               child: ListTile(
@@ -1033,7 +1034,7 @@ _isCurrentWeek() async {
                                             endDate: widget.provider.end,
                                             provider: widget.provider))),
                               ),
-                            )
+                            )*/
                           ]))),
             ),
     );
