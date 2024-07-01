@@ -110,7 +110,22 @@ class Profile extends StatelessWidget {
                         const Color(0xFF384242))),
                 child: const Text('Log Out'),
               ),
-            ),
+            ),*/
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: () async {
+                  _showLogoutConfirmation(context); 
+                },
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.symmetric(horizontal: 80, vertical: 12)),
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  backgroundColor: MaterialStateProperty.all<Color>(const Color(0xFF384242)),
+                ),
+                child: const Text('Log Out'),
+              ),
+            )
           ],
         ),
       ),
