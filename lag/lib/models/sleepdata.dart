@@ -13,8 +13,8 @@ class SleepData extends AllData{
   final minutesToFallAsleep;
   final levels;
 
-  SleepData({required DateTime day, required this.duration, required this.minutesAsleep, required this.efficiency,
-    required this.minutesToFallAsleep, required this.levels}) : super(day: day);
+  SleepData({required super.day, required this.duration, required this.minutesAsleep, required this.efficiency,
+    required this.minutesToFallAsleep, required this.levels});
 
   SleepData.empty(String day, Map<String, dynamic> json) :
       duration = null,

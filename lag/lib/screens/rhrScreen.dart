@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/personal_info.dart';
+import 'package:lag/utils/barplotHR.dart';
 //import 'package:lag/utils/barplot.dart';
-import 'package:lag/utils/custom_plot.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class RhrScreen extends StatefulWidget {
-  final DateTime startDate;
-  final DateTime endDate;
   final HomeProvider provider;
 
-  const RhrScreen({super.key, required this.startDate, required this.endDate, required this.provider});
+  const RhrScreen({super.key, required this.provider});
 
   @override
   _RhrScreenState createState() => _RhrScreenState();
@@ -43,14 +40,14 @@ class _RhrScreenState extends State<RhrScreen>{
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+      appBar: AppBar(/*
+        title: const Row(
           children: [
-            const Icon(Icons.favorite),
-            const SizedBox(width: 10),
-            Text('${DateFormat('EEE, d MMM').format(widget.startDate)} - ${DateFormat('EEE, d MMM').format(widget.endDate)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            //Icon(Icons.favorite),
+            SizedBox(width: 10),
+            Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
           ],
-        ),
+        ),*/
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -68,13 +65,15 @@ class _RhrScreenState extends State<RhrScreen>{
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text("Resting heart rate", style: TextStyle(fontSize: 24, color: Colors.black)),
+                  //Text('About last 6 months', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 5),
-                  Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    height: 100,
-                    child: CustomPlot(data: widget.provider.heartRateData),
-                    //child: BarChartSample7(),
+                  (widget.provider.monthlyHeartRateData.isEmpty) 
+                  ? CircularProgressIndicator()
+                  : SizedBox(
+                    height: 230,
+                    width: 330,
+                    child: BarChartSample7(data: widget.provider.monthlyHeartRateData, date: widget.provider.yesterday),
                   ),
                   const SizedBox(height: 20),
                   AnimatedContainer(
@@ -96,13 +95,13 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.monitor_heart),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: ((widget.provider.rhrAvg() > 80.0) | (widget.provider.rhrAvg() < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0) | (widget.provider.monthlyHeartRateData.last.value < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
-                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Average resting heart rate: ${widget.provider.rhrAvg()} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Text("Average of current month: ${widget.provider.monthlyHeartRateData.last.value} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isAvgRhrCardExpanded
-                                    ? const Text('Tap to learn more', style: TextStyle(fontSize: 12.0))
+                                    ? const Text('Tap to learn more', style: TextStyle(fontSize: 15.0))
                                     : null,
                               ),
                               if (_isAvgRhrCardExpanded)
@@ -143,13 +142,13 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.directions_run),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: widget.provider.rhrAvg() > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: widget.provider.monthlyHeartRateData.last.value > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
-                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
                                   Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isRhrCalculatorExpanded
-                                    ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 12.0))
+                                    ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 15.0))
                                     : null,
                               ),
                               if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge)) ...[
@@ -284,7 +283,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                         SizedBox(height: 10,),
                                         Text("Considering your age (${widget.provider.age}), your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
                                         SizedBox(height: 8,),
-                                        Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![0]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![1]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)}]")
+                                        Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![0]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![1]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)}]")
                                       ]
                                     ],
                                   ),
@@ -328,5 +327,4 @@ class _RhrScreenState extends State<RhrScreen>{
       ),
     );
   }
-
 }
