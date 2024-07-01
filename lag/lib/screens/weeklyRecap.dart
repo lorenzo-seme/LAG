@@ -186,32 +186,32 @@ class WeeklyRecap extends StatelessWidget {
                           ),
                           const SizedBox(height: 10,),
                           //Text('Exercise Data'),
-                          const SizedBox(height: 10,),
-                  (provider.exerciseData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  :
-                  Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: Icon(Icons.directions_run),
-                      trailing: Container(
-                        child: getIconScore(provider.calculateExerciseScore()),
-                        ),
-                      title: Text('Exercise score: ${provider.calculateExerciseScore()}%'),
-                      subtitle: const Text('about your exercise activity of this week',
-                                          style: TextStyle(fontSize: 11),),
-                      onTap: () {
-                        print(getCurrentWeekIdentifier(provider.start));
-                        bool current;
-                        if (getCurrentWeekIdentifier(provider.start) == getCurrentWeekIdentifier(DateTime.now())) {
-                          current = true;
-                        } else {
-                          current = false;
-                        }
-                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start), current);
-                      } ,
+                          Container(
+                            width: 350, 
+                            //height: 90,
+                            child: (provider.exerciseData.isEmpty) 
+                              ? const Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.directions_run),
+                                    trailing: CircularProgressIndicator.adaptive(),
+                                    title: Text('Loading...'), 
+                                    subtitle: Text('    '),
+                                  ),
+                              )
+                              : Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.directions_run),
+                                    trailing: Container(
+                                      child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
+                                    title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
+                                    subtitle: Text('Total minutes of exercise performed this week'),
+                                              //When a ListTile is tapped, the user is redirected to the ExercisePage
+                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start)),
+                                            ),
                               ),
-                      ),
+                          ),
                           const SizedBox(height: 10),
 
                           const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
@@ -381,7 +381,42 @@ class WeeklyRecap extends StatelessWidget {
   // Method for navigation weeklyRecap -> exerciseScreen
   void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week, bool current) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week, current : current)));
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
   
   void _toMoodPage(BuildContext context, HomeProvider provider) {
@@ -606,7 +641,7 @@ double? calculateAverageSleepScore(List<double> scores) {
   }
 }
 
-/*
+
 double calculateExerciseScore(HomeProvider provider, DateTime start, DateTime end, int age, bool ageInserted) {
   List<ExerciseData>? exerciseDataList = provider.exerciseData; // Ensure exerciseDataList is nullable
   Map<String, double>? weights;
@@ -693,7 +728,6 @@ double calculateExerciseScore(HomeProvider provider, DateTime start, DateTime en
   double final_score = double.parse(score.clamp(0, 100).toStringAsFixed(1));
   return final_score;
 }
-*/
 
 Widget getIconScore(double score) {
   if (score >= 75) {
