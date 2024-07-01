@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphic/graphic.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/allData.dart';
-import 'package:lag/models/exercisedata2.dart';
+import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
 
