@@ -169,35 +169,37 @@ class _BarChartSample7State extends State<BarChartSample7> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               content: SizedBox(
-                                height: 350,
+                                height: 380,
                                 width: 250,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      const Text('Today\'s workout time:',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Text('$hours hours and $minutes minutes'),
-                                      const SizedBox(height: 10),
-                                      const Text('Exercise phase distribution: ',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                      Column(
-                                        children: [
-                                          SizedBox(
-                                            height: 200,
-                                            width: 200,
-                                            child:
-                                                pie ?? const SizedBox(height: 1),
-                                          ),
-                                          const SizedBox(height: 1),
-                                          legend != null
-                                              ? Text(legend)
-                                              : const SizedBox(height: 1),
-                                        ],
-                                      ),
-                                    ],
+                                child: SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        const Text('Today\'s workout time:',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        Text('$hours hours and $minutes minutes'),
+                                        const SizedBox(height: 10),
+                                        const Text('Exercise phase distribution: ',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 200,
+                                              width: 200,
+                                              child:
+                                                  pie ?? const SizedBox(height: 1),
+                                            ),
+                                            const SizedBox(height: 1),
+                                            legend != null
+                                                ? Text(legend)
+                                                : const SizedBox(height: 1),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

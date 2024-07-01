@@ -8,11 +8,11 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/sliderWidget.dart';
 import 'package:lag/screens/rhrScreen.dart';
 import 'package:lag/utils/barplotEx.dart';
 //import 'package:lag/screens/rhrScreen.dart';
 //import 'package:lag/models/heartratedata.dart';
-//import 'package:lag/utils/custom_plot.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:lag/screens/cardDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +21,7 @@ class ExerciseScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final HomeProvider provider;
+  final bool current;
   final String week;
 
   const ExerciseScreen(
@@ -28,6 +29,7 @@ class ExerciseScreen extends StatefulWidget {
       required this.startDate,
       required this.endDate,
       required this.provider,
+      required this.current,
       required this.week});
 
   @override
@@ -42,14 +44,78 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   double _percentage = 0;
   String _level = '';
   bool _reachGoal = false;
+  bool _exToday = false;
   //int _fullLaps = 0;
   bool _goalDisable = false;
+  Map<String, double> _performances = {};
+  bool _currentWeek = true;
 
   @override
   void initState() {
     super.initState();
     _loadPercentage();
     _checkButtonStatus();
+    _exerciseToday();
+    _isCurrentWeek();
+  }
+
+  // GENEAL METHODS:
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  String _getCurrentWeekIdentifier() {
+    DateTime date = widget.startDate;
+    //print('now $date');
+    DateTime firstDayOfYear = DateTime(date.year, 1, 1);
+    //print('first of the year $firstDayOfYear');
+    int daysDifference = date.difference(firstDayOfYear).inDays;
+    //print('differenze $daysDifference');
+    int weekNumber = (daysDifference / 7).ceil() + 1;
+    return "$weekNumber";
+  }
+
+_isCurrentWeek() async {
+  final sp = await SharedPreferences.getInstance();
+  double currentWeek = double.parse(_getCurrentWeekIdentifier()); // settimana che sto visualizzando
+  double? week = sp.getDouble('CurrentWeek'); 
+  DateTime now = DateTime.now().subtract(Duration(days: 1));
+  DateTime firstDayOfYear = DateTime(now.year, 1, 1);
+  int daysDifference = now.difference(firstDayOfYear).inDays;
+  double weekNumber = (daysDifference / 7).floor() + 1;
+  //print("week $week, weeknumber $weekNumber, currentWeek $currentWeek");
+
+  if (week == null || currentWeek == weekNumber) {
+    setState(() {
+      _currentWeek = true;
+      //_goalDisable = true;
+    });
+  } else if (currentWeek == weekNumber) {
+    setState(() {
+      _currentWeek = true;
+    });
+  } else {
+    setState(() {
+      _currentWeek = false;
+      _goalDisable = true;
+    });
+  }
+  sp.setDouble('CurrentWeek', weekNumber);
+  //print("cw: ${_currentWeek}");
+  //return currentWeek == weekNumber;
+}
+
+  Future<void> _onButtonClick() async {
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('lastClickedDate', now.toIso8601String());
+
+    setState(() {
+      _buttonClickedToday = false;  // da cambiare a true
+    });
   }
 
   Future<void> _checkButtonStatus() async {
@@ -63,10 +129,64 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       if (_isSameDay(lastClicked, now)) {
         setState(
           () {
-            _buttonClickedToday = true;
+            _buttonClickedToday = false;  // da cambaire a true
           },
         );
       }
+    }
+  }
+
+  _exerciseToday() async {
+    final sp = await SharedPreferences.getInstance();
+    final day = DateTime.now().subtract(Duration(days: 1)).day;
+    final month = DateTime.now().subtract(Duration(days: 1)).month;
+    if (widget.provider.exerciseToday()) {
+      setState(() {
+        _exToday = true;
+      });
+  } else {
+    _exToday = false;
+  }
+  sp.setBool('exToday_${day}_${month}', _exToday);
+  print('exToday_${day}_${month} ${_exToday}');
+  }
+
+  // ----- GOAL INTERNAL METHODS:----------------------
+  _loadPercentage() async {
+    final sp = await SharedPreferences.getInstance();
+    String level = sp.getString('level_${widget.week}') ?? '';
+    bool goal = sp.getBool('goal_${widget.week}') ?? false;
+    List<String> names = getNames(widget.provider.exerciseData);
+    Map<String, double> performance = {};
+    print("widget.week : ${widget.week}");
+
+    setState(() { // setto ora perchè questi non cambiano nell'arco della settimana
+      _level = level;
+      _goalDisable = goal;
+    });
+
+    try {
+      double savedPercentage = sp.getDouble("percentage_${widget.week}") ?? 0.0;
+      for (var act in names) {
+        performance[act] = sp.getDouble("${act}_${widget.week}") ?? 0;
+      }
+      _checkGoalStatus();
+      if (_sameDay) {
+        setState(() {
+          _percentage =
+              savedPercentage; // every time that open the page but it is the same day, returns the same value of percentage
+          _performances = performance;
+        });
+      } else {
+        _dailyUpdate();
+        sp.setDouble("percentage_${widget.week}", _percentage);
+        for (var act in names) {
+          sp.setDouble("${act}_${widget.week}", _performances[act]!);
+        }
+        print(_performances);
+      }
+    } catch (e) {
+     print('Error loading percentage: $e');
     }
   }
 
@@ -88,89 +208,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
   }
 
-  double _dailyUpdate() {
-    double wRun = 0.5;
-    double wBike = 0.4;
-    double wWalk = 0.1;
-    Map<String, double> distances = widget.provider.exerciseDistance2();
-    double runDistance = distances['Corsa'] ?? 0;
-    double bikeDistance = distances['Bici'] ?? 0;
-    double walkDistance = distances['Camminata'] ?? 0;
-    Map<String, double> thresholds = {
-      'Lazy': 50.5,
-      'Medium': 110,
-      'Hard': 150.5
-    };
-    double score =
-        wRun * runDistance + wBike * bikeDistance + wWalk * walkDistance;
-    print(score);
-    print(_threshold);
-    print(_level);
-    double p = score / thresholds[_level]!;
-    if (p >= 1) {
-      _reachedGoal();
-      return 1;
-    } else {
-      return score / thresholds[_level]!;
-    }
-  }
-
-  Future<void> _onButtonClick() async {
-    final now = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setString('lastClickedDate', now.toIso8601String());
-
-    setState(() {
-      _buttonClickedToday = true;
-    });
-  }
-
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
-
-  _loadPercentage() async {
-    //String currentWeekKey = 'percentage_${_getCurrentWeekIdentifier()}';
-    final sp = await SharedPreferences.getInstance();
-    String level = sp.getString('level_${widget.week}') ?? '';
-    bool goal = sp.getBool('goal_${widget.week}') ?? false;
-    setState(() {
-      _level = level;
-      _goalDisable = goal;
-    });
-
-    try {
-      double savedPercentage = sp.getDouble(widget.week) ?? 0.0;
-      _checkGoalStatus();
-      if (_sameDay) {
-        setState(() {
-          _percentage = savedPercentage;
-        });
-      } else {
-        setState(() {
-          _percentage = _dailyUpdate();
-        });
-      }
-    } catch (e) {
-      print('Error loading percentage: $e');
-    }
-  }
-
-  String _getCurrentWeekIdentifier() {
-    DateTime date = widget.startDate;
-    print('now $date');
-    DateTime firstDayOfYear = DateTime(date.year, 1, 1);
-    print('first of the year $firstDayOfYear');
-    int daysDifference = date.difference(firstDayOfYear).inDays;
-    print('differenze $daysDifference');
-    int weekNumber = (daysDifference / 7).ceil() + 1;
-    return "$weekNumber";
-  }
-
-  _setGoal(String level) async {
+  _dailyUpdate() {
     double wRun = 0.3;
     double wBike = 0.2;
     double wWalk = 0.05;
@@ -182,8 +220,55 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       'Camminata': wWalk,
       'Other': wOther
     };
-    Map<String, double> distances = widget.provider.exerciseDistance2();
+    Map<String, double> distances = widget.provider.exerciseDistanceActivities();
     for (String act in distances.keys) {
+      setState(() {
+        _performances[act] = distances[act]!;
+      });
+      if (act == 'Corsa' || act == 'Bici' || act == 'Camminata') {
+        score = score + distances[act]! * weights[act]!;
+      } else {
+        score = score + distances[act]! * weights['Other']!;
+      }
+    }
+    Map<String, double> thresholds = {
+      'Lazy': 50.5,
+      'Medium': 110,
+      'Hard': 150.5
+    };
+    print("score $score");
+    print("_threshold $_threshold");
+    print("level $_level");
+    double p = score / thresholds[_level]!;
+    if (p >= 1) {
+      _reachedGoal();
+      return 1;
+    } else {
+      setState(() {
+        _percentage = score / thresholds[_level]!;
+      });
+      return score / thresholds[_level]!;
+    }
+  }
+
+  _setGoal(String level) {
+    //List<String> names = getNames(widget.provider.exerciseData);
+    String week = _getCurrentWeekIdentifier();
+    double wRun = 0.3;
+    double wBike = 0.2;
+    double wWalk = 0.05;
+    double wOther = 0.45;
+    double score = 0;
+    Map<String, double> weights = {
+      'Corsa': wRun,
+      'Bici': wBike,
+      'Camminata': wWalk,
+      'Other': wOther
+    };
+    Map<String, double> performance = {};
+    Map<String, double> distances = widget.provider.exerciseDistanceActivities();
+    for (String act in distances.keys) {
+      performance[act] = performance[act]! + distances[act]!;
       if (act == 'Corsa' || act == 'Bici' || act == 'Camminata') {
         score = score + distances[act]! * weights[act]!;
       } else {
@@ -196,9 +281,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       'Hard': 150.5
     };
     setState(() {
-      _level = level;
+      //_level = level;
       _threshold = thresholds[level]!;
       _currentScore = score;
+      _performances = performance;
       if (_currentScore / _threshold >= 1) {
         _reachGoal = true;
       } else {
@@ -206,6 +292,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       }
       //print(_currentScore / _threshold); // da togliere
     });
+    // -------> mettere anche sp per percentage???
   }
 
   _reachedGoal() {
@@ -331,7 +418,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
 
     String week = _getCurrentWeekIdentifier();
-    sp.setDouble(week, _percentage);
+    sp.setDouble("percentage_${week}", _percentage);
     sp.setString('level_$week', _level);
     /*
     setState(() {
@@ -341,7 +428,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   Widget _lateralText() {
     List<ExerciseData> exerciseDataList = widget.provider.exerciseData;
-    if (exerciseDataList.isEmpty || _goalDisable == false) {
+    if (exerciseDataList.isEmpty) {
       return const Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -367,12 +454,18 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         'Tennis': Icon(Icons.sports_tennis),
       };
       for (int i = 0; i < names.length; i++) {
+        setState(() {
+          _performances[names[i]] =
+              widget.provider.exerciseDistanceActivities()[names[i]] ?? 0;
+        });
         if (names[i] == "Corsa") {
           namesEn[names[i]] = 'Run';
         } else if (names[i] == 'Bici') {
           namesEn[names[i]] = 'Bike';
         } else if (names[i] == 'Camminata') {
           namesEn[names[i]] = 'Walk';
+        } else if (names[i] == 'Nuoto') {
+          namesEn[names[i]] = 'Swim';
         } else {
           namesEn[names[i]] = names[i];
         }
@@ -394,7 +487,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${namesEn[act]} performance: ${(widget.provider.exerciseDistance2()[act] ?? 0).toStringAsFixed(2)} kilometers',
+                          '${namesEn[act]} performance: ${_performances[act]!.toStringAsFixed(2)} kilometers',
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -407,6 +500,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           ],
         ),
       );
+    }
+  }
+
+  _updatePerformances() async {
+    final sp = await SharedPreferences.getInstance();
+    String week = _getCurrentWeekIdentifier();
+    List<String> names = getNames(widget.provider.exerciseData);
+    for (String act in names) {
+      sp.setDouble("${act}_$week", _performances[act]!);
     }
   }
 
@@ -483,6 +585,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                     ),
                             ),
                             // GOAL BOTTON
+                            (_currentWeek)
+                            ?
                             Card(
                               elevation: 5,
                               child: ListTile(
@@ -586,12 +690,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                                       });
                                                                       _setGoal(
                                                                           _level);
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                      (_reachGoal)
-                                                                          ? _reachedGoal()
-                                                                          : null;
                                                                       final sp =
                                                                           await SharedPreferences
                                                                               .getInstance();
@@ -607,6 +705,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                                       sp.setBool(
                                                                           'goal_$currentWeekKey',
                                                                           true);
+                                                                      for (var act in _performances.keys) {
+                                                                        sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                      }
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                      (_reachGoal)
+                                                                          ? _reachedGoal()
+                                                                          : null;
                                                                     })),
                                                             Card(
                                                                 elevation: 3,
@@ -656,6 +763,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                                       sp.setBool(
                                                                           'goal_$currentWeekKey',
                                                                           true);
+                                                                      for (var act in _performances.keys) {
+                                                                        sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                      }
                                                                       Navigator.of(
                                                                               context)
                                                                           .pop();
@@ -711,6 +821,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                                       sp.setBool(
                                                                           'goal_$currentWeekKey',
                                                                           true);
+                                                                      for (var act in _performances.keys) {
+                                                                        sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                      }
                                                                       Navigator.of(
                                                                               context)
                                                                           .pop();
@@ -739,13 +852,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                             },
                                           );
                                   }),
-                            ),
+                            )
+                            :
 
                             // PERCENTAGE
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 20),
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                                  const EdgeInsets.symmetric(horizontal: 12,vertical: 20),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -783,7 +897,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                             ),
 
                             // SURVEY
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 10),
+                            (_currentWeek) 
+                            ? 
                             Card(
                               elevation: 5,
                               child: ListTile(
@@ -793,12 +909,17 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                     const Color.fromARGB(255, 227, 211, 244),
                                 title: Text(
                                     'Survey of the day'), // funzione definita sotto
-                                subtitle: const Text(
+                                subtitle: _buttonClickedToday
+                                ? Text('Get something more')
+                                : Text(
                                   'Tell me about your activity',
                                   style: TextStyle(fontSize: 11),
                                 ),
+                                trailing: _buttonClickedToday
+                                ? Icon(Icons.done_all, color: Colors.lightGreen.shade900)
+                                : null,
                                 onTap: () {
-                                  if (_buttonClickedToday == false) {
+                                  //if (_buttonClickedToday == false) {
                                     showGeneralDialog(
                                       // si apre il pop-up
                                       barrierDismissible: true,
@@ -834,40 +955,18 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                       mainAxisSize:
                                                           MainAxisSize.min,
                                                       children: [
-                                                        CardDialog(
+                                                        _exToday
+                                                        ? SliderWidget(_buttonClickedToday)
+                                                        : CardDialog(
                                                             _buttonClickedToday), // CARD HERE
                                                         const SizedBox(
                                                             height: 20),
-                                                        OutlinedButton(
-                                                          child: Icon(
-                                                              Icons
-                                                                  .close_rounded,
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      227,
-                                                                      211,
-                                                                      244)),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          style: OutlinedButton
-                                                              .styleFrom(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(6),
-                                                            shape:
-                                                                const CircleBorder(),
-                                                            backgroundColor:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    183,
-                                                                    123,
-                                                                    248),
-                                                          ),
-                                                        ),
+                                                        TextButton(
+                                  child: Text('Close'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                )
                                                       ],
                                                     ),
                                                   ),
@@ -877,17 +976,43 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                       },
                                     );
                                     _onButtonClick();
-                                  } else {
-                                    //print(_buttonClickedToday);
-                                    showDialog(
-                                      // si apre il pop-up
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CardDialog(_buttonClickedToday);
-                                      },
-                                    );
-                                  }
                                 },
+                              ),
+                            )
+                            : Card(
+                              elevation: 5,
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                tileColor:
+                                    const Color.fromARGB(255, 227, 211, 244),
+                                title: Text(
+                                    'Summary of your surveys'), // funzione definita sotto
+                                subtitle: Text('Get something more',
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                onTap: ()  async {
+                    
+                                  final sp = await SharedPreferences.getInstance();
+                                  Map<String, dynamic> results = {};
+                                  int month = widget.provider.start.month;
+                                  List<int> range_days = List.generate(7, (index) => widget.provider.start.add(Duration(days: index)).day);
+                                  for (int d in range_days) {
+                                    if (sp.getDouble("q1_${d}_${widget.provider.start.month}") != null) {
+                                      results["resultS_${d}_${widget.provider.start.month}"] = [
+                                        sp.getDouble("q1_${d}_${widget.provider.start.month}"),
+                                        sp.getDouble("q2_${d}_${widget.provider.start.month}"),
+                                        sp.getDouble("q3_${d}_${widget.provider.start.month}")
+                                      ];
+                                    } else if (sp.getString("survey_${d}_${widget.provider.start.month}") != null) {
+                                        results["resultS_${d}_${widget.provider.start.month}"] = sp.getString("survey_${d}_${widget.provider.start.month}");
+                                    } else {
+                                      results["resultS_${d}_${widget.provider.start.month}"] = 0;
+                                    }
+                                  }
+                                  //surveySummary(context, results, range_days, month);
+                                  
+                                }
                               ),
                             ),
                             SizedBox(
@@ -1089,3 +1214,146 @@ Widget _buildNoDataMessage() {
     ),
   );
 }
+
+/*
+void surveySummary(BuildContext context, Map<String, dynamic> results, List<int> days, int month) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "Survey Results",
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.6,
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: days.map((day) {
+                  String key = "resultS_${day}_${month}";
+                  var result = results[key];
+                  String displayText;
+
+                  if (result == 0) {
+                    displayText = "No survey";
+                  } else if (result is String) {
+                    if (result == 'Yes0') {
+                      displayText = 'Workout done';
+                    }
+                  } else if (result is List) {
+                    displayText = result.join(", ");
+                  } else {
+                    displayText = "Tipo di dato non supportato";
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "$day",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        results[key] ?? "No survey",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Divider(),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: animation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+*/
+
+void surveySummary(BuildContext context, Map<String, dynamic> results, List<int> days, int month) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "Survey Results",
+    barrierColor: Colors.black54,
+    transitionDuration: Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Center(
+        child: Material(
+          type: MaterialType.transparency,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.6,
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: days.map((day) {
+                  String key = "resultS_${day}_${month}";
+                  String result = results[key] ?? "No survey";
+                  String displayText;
+
+                  if (result == "No survey") {
+                    displayText = "Nessun sondaggio";
+                  } else if (result == "Completed") {
+                    displayText = "Sondaggio completato";
+                  } else {
+                    displayText = result;
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Giorno $day",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        displayText,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Divider(),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: animation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+

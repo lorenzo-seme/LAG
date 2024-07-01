@@ -175,7 +175,17 @@ class HomeProvider extends ChangeNotifier {
     return double.parse((total).toStringAsFixed(1));
   }
 
-  
+  bool exerciseToday() {
+    DateTime today = DateTime.now().subtract(Duration(days: 1));
+    int dayIndex = today.weekday -1 ;
+    if (exerciseData[dayIndex].duration > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   double exerciseDistance(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -186,32 +196,7 @@ class HomeProvider extends ChangeNotifier {
   }
   
 
-  /*
-  Map<String, double> exerciseDistance2(){
-    Map<String, double> total = {
-      'Corsa' : 0,
-      'Bici' : 0,
-      'Camminata' : 0
-    };
-    List<String> names = ['Corsa', 'Bici', 'Camminata'];
-    if(exerciseData.isEmpty){
-      return total;
-      } 
-    for (String act in names) {
-      double tt = 0;
-      for(int i=0;i<exerciseData.length;i++){
-        if (exerciseData[i].activities.containsKey(act)) {
-          tt = tt + exerciseData[i].activities[act]![1];
-        }
-        
-        }
-      total[act] = tt;
-    }
-    return total;
-  }
-  */
-
-  Map<String, double> exerciseDistance2(){ // exerciseData is a list, for each day
+  Map<String, double> exerciseDistanceActivities(){ // exerciseData is a list, for each day
     Map<String, double> total = {};
 
     if(exerciseData.isEmpty){
@@ -219,9 +204,13 @@ class HomeProvider extends ChangeNotifier {
       } else {
         for(int i=0; i<exerciseData.length; i++){
         if (exerciseData[i].actNames.length >= 1) {
-          List actName_day = exerciseData[i].actNames;
+          List<String> actName_day = exerciseData[i].actNames;
           for (String act in actName_day) {
-              total[act] = exerciseData[i].activities[act]![1];
+            if (total[act] == null) {
+              total[act] = 0;
+            }
+            total[act] = total[act]! + exerciseData[i].activities[act]![1];
+            //print('names da exDistance2: ${act}_${total[act]}');
             }
         }
         }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/models/exercisedata.dart';
 //import 'package:lag/algorithms/sleepScore.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
@@ -9,6 +10,7 @@ import 'package:lag/screens/infoExercise.dart';
 import 'package:lag/screens/infoSleep.dart';
 import 'package:lag/screens/sleepScreen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'dart:async';
 
 
@@ -16,15 +18,14 @@ import 'package:provider/provider.dart';
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
 
+
+  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
   String getCurrentWeekIdentifier(DateTime dateToday) {
     DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
     int daysDifference = dateToday.difference(firstDayOfYear).inDays;
     int weekNumber = (daysDifference / 7).ceil() + 1;
     return "$weekNumber";
 }
-
-  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
-
 
   @override
   Widget build(BuildContext context) {
@@ -175,14 +176,20 @@ class WeeklyRecap extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.directions_run),
                       trailing: Container(
-                        child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                      title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                      subtitle: Text('Exercise: ${provider.exerciseDistance()} kilometers'),
-                      //subtitle: Text('Total minutes of exercise performed this week'),
-                                //When a ListTile is tapped, the user is redirected to the ExercisePage
+                        child: getIconScore(calculateExerciseScore(provider, provider.start, provider.end, provider.age, provider.ageInserted)),
+                        ),
+                      title: Text('Exercise score: ${calculateExerciseScore(provider, provider.start, provider.end, provider.age, provider.ageInserted)}%'),
+                      subtitle: const Text('about your exercise activity of this week',
+                                          style: TextStyle(fontSize: 11),),
                       onTap: () {
                         print(getCurrentWeekIdentifier(provider.start));
-                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start));
+                        bool current;
+                        if (getCurrentWeekIdentifier(provider.start) == getCurrentWeekIdentifier(DateTime.now())) {
+                          current = true;
+                        } else {
+                          current = false;
+                        }
+                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start), current);
                       } ,
                               ),
                       ),
@@ -348,44 +355,9 @@ class WeeklyRecap extends StatelessWidget {
   }
   
   // Method for navigation weeklyRecap -> exerciseScreen
-  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week, bool current) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week, current : current)));
   }
 } 
 
@@ -399,3 +371,102 @@ String calculateAverageSleepScore(List<double> scores) {
     return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
   }
 }
+
+double calculateExerciseScore(HomeProvider provider, DateTime start, DateTime end, int age, bool ageInserted) {
+  List<ExerciseData>? exerciseDataList = provider.exerciseData; // Ensure exerciseDataList is nullable
+  Map<String, double>? weights;
+  Map<String, int>? activityScores;
+  double d = provider.exerciseDuration();
+  int frequency = 0;
+  double base = 0;
+  if (exerciseDataList.isNotEmpty) {
+    for (var data in exerciseDataList) {
+      if (data.duration > 0) {
+        frequency += 1;
+      }
+    }
+  }
+
+  if (ageInserted) {
+    if (age < 17) {
+      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.3, 'activityType': 0.0};
+      activityScores = {'Corsa': 8, 'Camminata': 6, 'Bici': 7, 'Nuoto': 9, 'Sport': 8};
+      if (d > 60) {
+        base = 40;
+      }
+      if (frequency > 3) {
+        base += 5;
+      }
+    } else if (age <= 64) {
+      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
+      activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
+      if (d > 300) {
+        base = 45;
+      } else if (d > 180) {
+        base = 40;
+      } 
+      if (frequency > 2) {
+        base += 5;
+      }
+    } else {
+      weights = {'duration': 0.2, 'distance': 0.2, 'frequency': 0.3, 'age': 0.2, 'activityType': 0.1};
+      activityScores = {'Corsa': 7, 'Camminata': 8, 'Bici': 6, 'Nuoto': 9, 'Sport': 8};
+      if (d > 150) {
+        base = 40;
+      }
+      if (frequency > 3) {
+        base += 5;
+      }
+    }
+  } else {
+    age = 25;
+    weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
+    activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
+    if (d > 300) {
+        base = 45;
+      } else if (d > 180) {
+        base = 40;
+      } 
+      if (frequency > 2) {
+        base += 5;
+      }
+  }
+  
+  int ageScore = (10 - (age ~/ 10)).clamp(0, 10);
+  double frequencyScore = (frequency) * (10 / 7); // Use null-aware operators to handle exerciseDataList being null
+  //print("agescore $ageScore");
+  //print("freqscore $frequencyScore");
+  //print('frequency $frequency');
+
+  double score = base + frequencyScore * (weights["frequency"] ?? 0) + ageScore * (weights["age"] ?? 0);
+
+  if (exerciseDataList.isNotEmpty) {
+    for (var data in exerciseDataList) {
+      if (data.actNames.isNotEmpty) {
+        for (var act in data.actNames) {
+          if (data.activities.containsKey(act)) {
+            double distanceWeight = (act == 'Bici') ? (weights["distance"] ?? 0 - 0.1) : (weights["distance"] ?? 0);
+           score += (activityScores[act] ?? 0) +
+                ((data.activities[act]![0]) ~/ 10) * (weights["duration"] ?? 0) * (activityScores[act] ?? 0) +
+                ((data.activities[act]![1]) ~/ 10) * distanceWeight * (activityScores[act] ?? 0);
+          }
+        }
+      }
+    }
+  }
+
+  double final_score = double.parse(score.clamp(0, 100).toStringAsFixed(1));
+  return final_score;
+}
+
+Widget getIconScore(double score) {
+  if (score >= 75) {
+    return Icon(Icons.sentiment_very_satisfied); // average score above 80
+  } else if (score >= 45) {
+    return Icon(Icons.sentiment_neutral); // average score between 60 and 80
+  } else { 
+    return Icon(Icons.sentiment_very_dissatisfied); // average score below 60
+  }
+}
+
+
