@@ -1,6 +1,7 @@
 // PREVEDI L'OPZIONE CHE L'UTENTE INSERISCA SOLO ALCUNI DEI DATI PERSONALI ?
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/providers/homeProvider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -36,10 +37,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
         initialDate: selectedDate,
         firstDate: DateTime(1920, 1),
         lastDate: (DateTime.now().month == 2 && DateTime.now().day == 29) 
-                  ? DateTime(DateTime.now().year - 6, 2, 28) // menage leap year
+                  ? DateTime(DateTime.now().year - 6, 2, 28) // manage leap year
                   : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day));
     if (picked != null && picked != selectedDate) {
-      dateController.text = picked.toString();
+      dateController.text = DateFormat('yyyy-MM-dd').format(picked).toString();
     }
   }
 
@@ -75,13 +76,17 @@ class _PersonalInfoState extends State<PersonalInfo> {
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
               ),
               const SizedBox(
-                height: 5,
+                height: 10,
               ),
-              const Text("Info about you for a tailored experience",
+              Text("Info about you for a tailored experience",
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black45,
-                  )),
+                      fontSize: 14, 
+                      color: Colors.black.withOpacity(0.6),
+                  ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 8.0),
                 child: TextFormField(

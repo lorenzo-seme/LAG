@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:lag/models/heartratedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:lag/utils/barplotHR.dart';
@@ -40,18 +38,16 @@ class _RhrScreenState extends State<RhrScreen>{
 
   @override
   Widget build(BuildContext context) {
-    //String dataCheckMessage = checkData(widget.provider.heartRateData);
-    //bool noDataAvailable = dataCheckMessage == "No data available";
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(/*
         title: const Row(
           children: [
             //Icon(Icons.favorite),
             SizedBox(width: 10),
             Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
           ],
-        ),
+        ),*/
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -69,15 +65,15 @@ class _RhrScreenState extends State<RhrScreen>{
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 5),
-                  Text('About last 6 months', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  const Text("Resting heart rate", style: TextStyle(fontSize: 24, color: Colors.black)),
+                  //Text('About last 6 months', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 5),
                   (widget.provider.monthlyHeartRateData.isEmpty) 
                   ? CircularProgressIndicator()
                   : SizedBox(
                     height: 230,
                     width: 330,
-                    child: BarChartSample7(yValues: widget.provider.monthlyHeartRateData, date: widget.provider.yesterday),
+                    child: BarChartSample7(data: widget.provider.monthlyHeartRateData, date: widget.provider.yesterday),
                   ),
                   const SizedBox(height: 20),
                   AnimatedContainer(
@@ -99,11 +95,11 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.monitor_heart),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: ((widget.provider.monthlyHeartRateData[5] > 80.0) | (widget.provider.monthlyHeartRateData[5] < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0) | (widget.provider.monthlyHeartRateData.last.value < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
-                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Average of this month: ${widget.provider.monthlyHeartRateData[5]} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Text("Average of current month: ${widget.provider.monthlyHeartRateData.last.value} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isAvgRhrCardExpanded
                                     ? const Text('Tap to learn more', style: TextStyle(fontSize: 15.0))
                                     : null,
@@ -146,9 +142,9 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.directions_run),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: widget.provider.rhrAvg() > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: widget.provider.monthlyHeartRateData.last.value > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
-                                title: (widget.provider.heartRateData.isEmpty) ? 
+                                title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
                                   Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isRhrCalculatorExpanded
@@ -287,7 +283,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                         SizedBox(height: 10,),
                                         Text("Considering your age (${widget.provider.age}), your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
                                         SizedBox(height: 8,),
-                                        Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![0]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.rhrAvg())*(mappedItems[selectedValue]![1]/100)+widget.provider.rhrAvg()).toStringAsFixed(0)}]")
+                                        Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![0]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![1]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)}]")
                                       ]
                                     ],
                                   ),
@@ -330,26 +326,5 @@ class _RhrScreenState extends State<RhrScreen>{
         ),
       ),
     );
-  }
-  String checkData(List<HeartRateData> heartRateData) {
-    List<String> noDataDays = [];
-    bool noDataFlag = true;
-    for (HeartRateData data in heartRateData) {
-      if (data.value == null) {
-        String formattedDay = DateFormat('EEEE', 'en_US').format(data.day);
-        noDataDays.add(formattedDay);
-      } else {
-        noDataFlag = false;
-      }
-    }
-    if (noDataDays.isEmpty) {
-      return "All days have data";
-    } else if (noDataFlag) {
-      return "No data available";
-    } else if (noDataDays.length == 1) {
-      return "${noDataDays[0]}: No data available";
-    } else {
-      return "${noDataDays.join(' ,')}: No data available";
-    }
   }
 }

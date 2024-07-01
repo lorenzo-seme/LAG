@@ -19,11 +19,16 @@ class _HomeState extends State<Home> {
   }
 
   List<BottomNavigationBarItem> navBarItems = [
+    /*
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.workspace_premium),
+      label: 'My rewards',
+    ),*/
     const BottomNavigationBarItem(
       icon: Icon(Icons.home),
       label: 'Home',
     ),
-    BottomNavigationBarItem(
+    const BottomNavigationBarItem(
       icon: Icon(Icons.manage_accounts),
       label: 'Profile',
     ),

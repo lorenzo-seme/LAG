@@ -20,7 +20,7 @@ class _LoginState extends State<Login> {
 
   Future<void> setSavedUsername(bool isChecked) async {
       final sp = await SharedPreferences.getInstance();
-      await sp.setString("saved_credentials","$isChecked");
+      await sp.setBool("saved_credentials",isChecked);
     }
 
 
