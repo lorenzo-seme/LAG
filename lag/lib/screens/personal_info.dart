@@ -1,7 +1,6 @@
 // PREVEDI L'OPZIONE CHE L'UTENTE INSERISCA SOLO ALCUNI DEI DATI PERSONALI ?
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/providers/homeProvider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -21,7 +20,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
 
-  DateTime selectedDate = DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day);
+  DateTime selectedDate = DateTime.now();
   int? bs;
 
   @override
@@ -35,12 +34,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(1920, 1),
-        lastDate: (DateTime.now().month == 2 && DateTime.now().day == 29) 
-                  ? DateTime(DateTime.now().year - 6, 2, 28) // manage leap year
-                  : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day));
+        firstDate: DateTime(1970, 1),
+        lastDate: DateTime(2024, 12));
     if (picked != null && picked != selectedDate) {
-      dateController.text = DateFormat('yyyy-MM-dd').format(picked).toString();
+      dateController.text = picked.toString();
     }
   }
 
@@ -76,17 +73,13 @@ class _PersonalInfoState extends State<PersonalInfo> {
                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
               ),
               const SizedBox(
-                height: 10,
+                height: 5,
               ),
-              Text("Info about you for a tailored experience",
+              const Text("Info about you for a tailored experience",
                   style: TextStyle(
-                      fontSize: 14, 
-                      color: Colors.black.withOpacity(0.6),
-                  ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+                    fontSize: 12,
+                    color: Colors.black45,
+                  )),
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 8.0),
                 child: TextFormField(

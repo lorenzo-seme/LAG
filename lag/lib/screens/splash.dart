@@ -30,11 +30,10 @@ class Splash extends StatelessWidget {
       if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
         _toHomePage(context);
       } else {
-        final isChecked = sp.getBool('saved_credentials');
-        print(isChecked);
+        final isChecked = sp.getString('saved_credentials');
         if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
-          if (isChecked) {
-            // print("re-authorized thanks to remember me option");
+          // print("re-authorized thanks to remember me option");
+          if (isChecked == "true") {
             final username = sp.getString('username');
             final password = sp.getString('password');
             //final Impact impact = Impact();
@@ -55,14 +54,12 @@ class Splash extends StatelessWidget {
   Widget build(BuildContext context) {
     Future.delayed(
         const Duration(seconds: 3),
-        () => _checkLogin(context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (In realtà qui andrebbe già il fetch dei dati? quindi l'inizializzazione del Provider (trigger costruttore))
+        () => _checkLogin(context)); // PICCOLO DELAY PRIMA DI PASSARE ALLA LOGIN PAGE (CAMBIA)
     return Scaffold(
         body: Center(
             child: Image.asset(
-              'assets/logo_1.png', // CAMBIA LOGO
-              scale: 2,
-            )
-        )
-    );
+      'assets/logo.png', // CAMBIA LOGO
+      scale: 4,
+    )));
   }
 }
