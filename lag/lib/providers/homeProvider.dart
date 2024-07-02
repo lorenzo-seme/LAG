@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/algorithms/exercise_score.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -16,6 +17,8 @@ class HomeProvider extends ChangeNotifier {
   List<HeartRateData> heartRateData = [];
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
+  double exerciseScore = 0;
+  List<String> months = [];
  
   double score = 0;
 
@@ -165,7 +168,6 @@ class HomeProvider extends ChangeNotifier {
     return double.parse((total / counter).toStringAsFixed(1));
   }
   
-
   double exerciseDuration(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -215,7 +217,7 @@ class HomeProvider extends ChangeNotifier {
         }
         }
       }
-      print('exerciseDistance2 : $total');
+      //print('exerciseDistance2 : $total');
       return total;
   }
 
@@ -395,6 +397,8 @@ class HomeProvider extends ChangeNotifier {
     sleepScores = await getSleepScore(sleepData, this.age, this.ageInserted);
     notifyListeners();
   }
+
+
 
   // methods to update start and end: dateSubtractor & dateAdder
   Future<void> dateSubtractor(DateTime start) async{
