@@ -125,8 +125,8 @@ class ExerciseData extends AllData {
                 allActivities[act]?[0] += double.parse(d.toStringAsFixed(2));
               } // non metto la condizione di else perchè è già a 0 il valore se non c'è
               if (item.containsKey("distance")) {
-                double dist = item["distance"];
-                allActivities[act]?[1] += double.parse(dist.toStringAsFixed(2));
+                double d = item["distance"];
+                allActivities[act]?[1] += double.parse(d.toStringAsFixed(2));
               } else if (item.containsKey("steps")) {
                 double s = item["steps"]*0.762/1000;  // converte il numero di step in km
                 allActivities[act]?[1] += double.parse(s.toStringAsFixed(2));
