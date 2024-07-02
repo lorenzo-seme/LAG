@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/algorithms/exercise_score.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -19,6 +20,7 @@ class HomeProvider extends ChangeNotifier {
   double lastMonthHR = 0;
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
+  double exerciseScore = 0;
   List<String> months = [];
  
   double score = 0;
@@ -262,94 +264,7 @@ class HomeProvider extends ChangeNotifier {
     }
     return double.parse((total / counter).toStringAsFixed(1));
   }
-
-  double calculateExerciseScore() {
-  Map<String, double>? weights;
-  Map<String, int>? activityScores;
-  double d = exerciseDuration();
-  int frequency = 0;
-  double base = 0;
-  if (exerciseData.isNotEmpty) {
-    for (var data in exerciseData) {
-      if (data.duration > 0) {
-        frequency += 1;
-      }
-    }
-  }
-
-  if (ageInserted) {
-    if (age < 17) {
-      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.3, 'activityType': 0.0};
-      activityScores = {'Corsa': 8, 'Camminata': 6, 'Bici': 7, 'Nuoto': 9, 'Sport': 8};
-      if (d > 60) {
-        base = 40;
-      }
-      if (frequency > 3) {
-        base += 5;
-      }
-    } else if (age <= 64) {
-      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
-      activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
-      if (d > 300) {
-        base = 45;
-      } else if (d > 180) {
-        base = 40;
-      } 
-      if (frequency > 2) {
-        base += 5;
-      }
-    } else {
-      weights = {'duration': 0.2, 'distance': 0.2, 'frequency': 0.3, 'age': 0.2, 'activityType': 0.1};
-      activityScores = {'Corsa': 7, 'Camminata': 8, 'Bici': 6, 'Nuoto': 9, 'Sport': 8};
-      if (d > 150) {
-        base = 40;
-      }
-      if (frequency > 3) {
-        base += 5;
-      }
-    }
-  } else {
-    age = 25;
-    weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
-    activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
-    if (d > 300) {
-        base = 45;
-      } else if (d > 180) {
-        base = 40;
-      } 
-      if (frequency > 2) {
-        base += 5;
-      }
-  }
   
-  int ageScore = (10 - (age ~/ 10)).clamp(0, 10);
-  double frequencyScore = (frequency) * (10 / 7); // Use null-aware operators to handle exerciseDataList being null
-  //print("agescore $ageScore");
-  //print("freqscore $frequencyScore");
-  //print('frequency $frequency');
-
-  double score = base + frequencyScore * (weights["frequency"] ?? 0) + ageScore * (weights["age"] ?? 0);
-
-  if (exerciseData.isNotEmpty) {
-    for (var data in exerciseData) {
-      if (data.actNames.isNotEmpty) {
-        for (var act in data.actNames) {
-          if (data.activities.containsKey(act)) {
-            double distanceWeight = (act == 'Bici') ? (weights["distance"] ?? 0 - 0.1) : (weights["distance"] ?? 0);
-           score += (activityScores[act] ?? 0) +
-                ((data.activities[act]![0]) ~/ 10) * (weights["duration"] ?? 0) * (activityScores[act] ?? 0) +
-                ((data.activities[act]![1]) ~/ 10) * distanceWeight * (activityScores[act] ?? 0);
-          }
-        }
-      }
-    }
-  }
-
-  double final_score = double.parse(score.clamp(0, 100).toStringAsFixed(1));
-  return final_score;
-}
-  
-
   double exerciseDuration(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -399,7 +314,7 @@ class HomeProvider extends ChangeNotifier {
         }
         }
       }
-      print('exerciseDistance2 : $total');
+      //print('exerciseDistance2 : $total');
       return total;
   }
 
@@ -724,6 +639,8 @@ class HomeProvider extends ChangeNotifier {
     sleepScores = await getSleepScore(sleepData, this.age, this.ageInserted);
     notifyListeners();
   }
+
+
 
   // methods to update start and end: dateSubtractor & dateAdder
   Future<void> dateSubtractor(DateTime start) async{

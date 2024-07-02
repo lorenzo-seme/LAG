@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/algorithms/exercise_score.dart';
+import 'package:lag/models/exercisedata.dart';
+import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -185,19 +188,27 @@ class WeeklyRecap extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10,),
-                          //Text('Exercise Data'),
-                          const SizedBox(height: 10,),
-                  (provider.exerciseData.isEmpty) 
-                  ? const CircularProgressIndicator.adaptive() 
-                  :
-                  Card(
+                  Container(
+                          width: 350, 
+                          //height: 80,
+                          child: (provider.sleepData.isEmpty) 
+                            ? const Card(
+                                elevation: 5,
+                                child: ListTile(
+                                  leading: Icon(Icons.bedtime),
+                                  trailing: CircularProgressIndicator.adaptive(),
+                                  title: Text('Loading...'), 
+                                  subtitle: Text('    '),
+                                ),
+                              )
+                  : Card(
                     elevation: 5,
                     child: ListTile(
                       leading: Icon(Icons.directions_run),
                       trailing: Container(
-                        child: getIconScore(provider.calculateExerciseScore()),
+                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted) as double),
                         ),
-                      title: Text('Exercise score: ${provider.calculateExerciseScore()}%'),
+                      title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)}%'),
                       subtitle: const Text('about your exercise activity of this week',
                                           style: TextStyle(fontSize: 11),),
                       onTap: () {
@@ -212,6 +223,7 @@ class WeeklyRecap extends StatelessWidget {
                       } ,
                               ),
                       ),
+                  ),
                           const SizedBox(height: 10),
 
                           const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
@@ -225,10 +237,10 @@ class WeeklyRecap extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  (provider.score.toInt()).toString(),
+                                  (computeScore(provider).toInt()).toString(),
                                   style: const TextStyle(fontSize: 16),
                                 ),
-                                Text(provider.score / 100 < 0.33
+                                Text(computeScore(provider) / 100 < 0.33
                                       ? "Low"
                                       : provider.score / 100 > 0.33 &&
                                               provider.score / 100 < 0.66
@@ -242,8 +254,8 @@ class WeeklyRecap extends StatelessWidget {
                                   child: ClipRRect(
                                     borderRadius:const BorderRadius.all(Radius.circular(10)),
                                     child: LinearProgressIndicator(
-                                      color: Color.fromARGB(255, 255, 115, 115),
-                                      value: provider.score / 100,
+                                      color: Color.fromARGB(255, 138, 2, 250),
+                                      value: computeScore(provider) / 100,
                                       backgroundColor: Colors.grey.withOpacity(0.5),
                                     ),
                                   ),
@@ -606,103 +618,44 @@ double? calculateAverageSleepScore(List<double> scores) {
   }
 }
 
-/*
-double calculateExerciseScore(HomeProvider provider, DateTime start, DateTime end, int age, bool ageInserted) {
-  List<ExerciseData>? exerciseDataList = provider.exerciseData; // Ensure exerciseDataList is nullable
-  Map<String, double>? weights;
-  Map<String, int>? activityScores;
-  double d = provider.exerciseDuration();
-  int frequency = 0;
-  double base = 0;
-  if (exerciseDataList.isNotEmpty) {
-    for (var data in exerciseDataList) {
-      if (data.duration > 0) {
-        frequency += 1;
-      }
-    }
-  }
-
-  if (ageInserted) {
-    if (age < 17) {
-      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.3, 'activityType': 0.0};
-      activityScores = {'Corsa': 8, 'Camminata': 6, 'Bici': 7, 'Nuoto': 9, 'Sport': 8};
-      if (d > 60) {
-        base = 40;
-      }
-      if (frequency > 3) {
-        base += 5;
-      }
-    } else if (age <= 64) {
-      weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
-      activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
-      if (d > 300) {
-        base = 45;
-      } else if (d > 180) {
-        base = 40;
-      } 
-      if (frequency > 2) {
-        base += 5;
-      }
-    } else {
-      weights = {'duration': 0.2, 'distance': 0.2, 'frequency': 0.3, 'age': 0.2, 'activityType': 0.1};
-      activityScores = {'Corsa': 7, 'Camminata': 8, 'Bici': 6, 'Nuoto': 9, 'Sport': 8};
-      if (d > 150) {
-        base = 40;
-      }
-      if (frequency > 3) {
-        base += 5;
-      }
-    }
+double calculateAverageExerciseScore(List<ExerciseData> exerciseData, int age, bool ageInserted) {
+  List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
+  if (scores.isEmpty) {
+    return 0;
   } else {
-    age = 25;
-    weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
-    activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
-    if (d > 300) {
-        base = 45;
-      } else if (d > 180) {
-        base = 40;
-      } 
-      if (frequency > 2) {
-        base += 5;
-      }
+    double sum = scores.reduce((a, b) => a + b); // Sum all elements in the list
+    double average = sum / scores.length;
+    return double.parse(average.toStringAsFixed(2));
   }
-  
-  int ageScore = (10 - (age ~/ 10)).clamp(0, 10);
-  double frequencyScore = (frequency) * (10 / 7); // Use null-aware operators to handle exerciseDataList being null
-  //print("agescore $ageScore");
-  //print("freqscore $frequencyScore");
-  //print('frequency $frequency');
-
-  double score = base + frequencyScore * (weights["frequency"] ?? 0) + ageScore * (weights["age"] ?? 0);
-
-  if (exerciseDataList.isNotEmpty) {
-    for (var data in exerciseDataList) {
-      if (data.actNames.isNotEmpty) {
-        for (var act in data.actNames) {
-          if (data.activities.containsKey(act)) {
-            double distanceWeight = (act == 'Bici') ? (weights["distance"] ?? 0 - 0.1) : (weights["distance"] ?? 0);
-           score += (activityScores[act] ?? 0) +
-                ((data.activities[act]![0]) ~/ 10) * (weights["duration"] ?? 0) * (activityScores[act] ?? 0) +
-                ((data.activities[act]![1]) ~/ 10) * distanceWeight * (activityScores[act] ?? 0);
-          }
-        }
-      }
-    }
-  }
-
-  double final_score = double.parse(score.clamp(0, 100).toStringAsFixed(1));
-  return final_score;
 }
-*/
 
 Widget getIconScore(double score) {
   if (score >= 75) {
-    return Icon(Icons.sentiment_very_satisfied); // average score above 80
+    return Icon(Icons.sentiment_very_satisfied); 
   } else if (score >= 45) {
-    return Icon(Icons.sentiment_neutral); // average score between 60 and 80
+    return Icon(Icons.sentiment_neutral); 
   } else { 
-    return Icon(Icons.sentiment_very_dissatisfied); // average score below 60
+    return Icon(Icons.sentiment_very_dissatisfied); 
   }
 }
+
+double computeScore(HomeProvider provider) {
+  List<ExerciseData> exerciseData = provider.exerciseData;
+  double sleepScore;
+  double exerciseScore; 
+  double totalScore;
+
+  // Ensure the sleepScores list is non-null before passing it to the function
+  List<double> sleepScores = (provider.sleepScores["scores"] ?? []).cast<double>();
+
+  sleepScore = calculateAverageSleepScore(sleepScores) ?? 0.0;
+  exerciseScore = calculateAverageExerciseScore(exerciseData, provider.age, provider.ageInserted);
+  totalScore = ((sleepScore + exerciseScore) / 2);
+
+  return totalScore;
+}
+
+
+
 
 
