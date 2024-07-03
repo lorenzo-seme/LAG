@@ -127,7 +127,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     prefixIcon: const Icon(
                       Icons.calendar_month,
                     ),
-                    hintText: 'Date of Birth',
+                    hintText: 'Date of Birth: YYYY-MM-DD',
                   ),
                 ),
               ),

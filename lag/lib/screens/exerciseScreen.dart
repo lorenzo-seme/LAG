@@ -114,7 +114,7 @@ _isCurrentWeek() async {
     await prefs.setString('lastClickedDate', now.toIso8601String());
 
     setState(() {
-      _buttonClickedToday = false;  // da cambiare a true
+      _buttonClickedToday = true;  // da cambiare a true
     });
   }
 
@@ -129,7 +129,7 @@ _isCurrentWeek() async {
       if (_isSameDay(lastClicked, now)) {
         setState(
           () {
-            _buttonClickedToday = false;  // da cambaire a true
+            _buttonClickedToday = true;  // da cambaire a true
           },
         );
       }
@@ -154,8 +154,8 @@ _isCurrentWeek() async {
   // ----- GOAL INTERNAL METHODS:----------------------
   _loadPercentage() async {
     final sp = await SharedPreferences.getInstance();
-    String level = sp.getString('level_${widget.week}') ?? '';
-    bool goal = sp.getBool('goal_${widget.week}') ?? false;
+    String level = sp.getString('level_${widget.week}') ?? ''; // livello
+    bool goal = sp.getBool('goal_${widget.week}') ?? false;  // se il goal è già stato settato nella settimana
     List<String> names = getNames(widget.provider.exerciseData);
     Map<String, double> performance = {};
     print("widget.week : ${widget.week}");
@@ -181,7 +181,11 @@ _isCurrentWeek() async {
         _dailyUpdate();
         sp.setDouble("percentage_${widget.week}", _percentage);
         for (var act in names) {
-          sp.setDouble("${act}_${widget.week}", _performances[act]!);
+          if (_performances[act] != null) {
+            sp.setDouble("${act}_${widget.week}", _performances[act]!);
+          } else {
+            sp.setDouble("${act}_${widget.week}", 0);
+          }
         }
         print(_performances);
       }
@@ -1018,22 +1022,6 @@ _isCurrentWeek() async {
                             SizedBox(
                               height: 15,
                             ),
-                            Card(
-                              elevation: 5,
-                              child: ListTile(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                tileColor:
-                                    const Color.fromARGB(255, 227, 211, 244),
-                                title: Text('Temporary button, to RHR screen'),
-                                onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) => RhrScreen(
-                                            startDate: widget.provider.start,
-                                            endDate: widget.provider.end,
-                                            provider: widget.provider))),
-                              ),
-                            )
                           ]))),
             ),
     );
