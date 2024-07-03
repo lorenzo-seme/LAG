@@ -17,14 +17,13 @@ class MyApp extends StatelessWidget {
           create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
           builder: (context, child) => MaterialApp(
             debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const Splash()
-      )
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            home: const Splash()
+          )
     );
   }
 }

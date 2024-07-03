@@ -156,7 +156,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                   content: const SingleChildScrollView(
                                     child: ListBody(
                                       children: <Widget>[
-                                        Text('To be more precise, we need your age. Would you like to go to Profile page and add it?'),
+                                        Text('To be more precise, we need your age. Would you like to go to Profile page and add it? If you press no, an age of 25 will be used for the following computations.'),
                                       ],
                                     ),
                                   ),
