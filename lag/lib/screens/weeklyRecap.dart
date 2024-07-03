@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:lag/algorithms/exercise_score.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/sleepdata.dart';
+import 'package:lag/algorithms/exercise_score.dart';
+import 'package:lag/models/exercisedata.dart';
+import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -654,12 +657,6 @@ double computeScore(HomeProvider provider) {
 
   return totalScore;
 }
-
-
-
-
-
-
 
 
 
