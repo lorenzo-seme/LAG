@@ -421,10 +421,11 @@ class WeeklyRecap extends StatelessWidget {
   };*/
 
   final Map<int, String> fromIntToImg = {
+    0: 'rew1.jpeg',
     1: 'rew1.jpeg',
-    2: 'rew1.jpeg',
+    2: 'rew2.jpeg',
     3: 'rew2.jpeg',
-    4: 'rew2.jpeg',
+    4: 'rew3.jpeg',
     5: 'rew3.jpeg',
     6: 'rew4.jpeg',
     7: 'rew5.jpeg',
