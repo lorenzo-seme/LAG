@@ -54,6 +54,7 @@ class WeeklyRecap extends StatelessWidget {
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
                           elevation: 5,
+                          color: Color.fromARGB(255, 243, 232, 251),
                           child: ListTile(
                             leading: const Icon(Icons.wb_cloudy),
                             /*
@@ -74,7 +75,7 @@ class WeeklyRecap extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
                       decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 248, 226, 226),
+                        color: Color.fromARGB(255, 239, 226, 250),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                       child: Column(children: [
@@ -84,7 +85,7 @@ class WeeklyRecap extends StatelessWidget {
                         const SizedBox(height: 10),
                         Container(
                           decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 250, 196, 196),
+                            color: Color.fromARGB(255, 215, 188, 255),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child: Row(
