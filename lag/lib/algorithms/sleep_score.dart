@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:lag/models/sleepdata.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-
+ 
 Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int age, bool ageInserted) async {
   List<double> scores = [];
   List<double> sleepHoursScores = [];

@@ -210,3 +210,4 @@ class Profile extends StatelessWidget {
         MaterialPageRoute(builder: ((context) => const Splash())));
   } */
 }
+

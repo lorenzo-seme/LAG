@@ -1,7 +1,10 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lag/screens/sliderWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 // ignore: must_be_immutable
 class CardDialog extends StatefulWidget {
@@ -19,29 +22,32 @@ class CardDialog extends StatefulWidget {
 class _CardDialogState extends State<CardDialog> {
   //final GlobalKey<_CardDialogState> cardDialogKey = GlobalKey<_CardDialogState>();
   int _nq = 0;
+  final day = DateTime.now().subtract(Duration(days: 1)).day;
+  final month = DateTime.now().subtract(Duration(days: 1)).month;
   String _currentAnswer = '';
   bool _showButton = true;
   bool _showText = false;
   bool _endSurvery = false;
+  //late final HomeProvider provider;
   String _icon = 'assets/';
-  Map<int, dynamic> _questions = {
+  final Map<int, dynamic> _questions = {
     0: 'Did you work out today?',
     1: 'Are you motivated?',
     2: 'Did you have time to try to workout?'
   };
-  Map<int, dynamic> _answers = {
+  final Map<int, dynamic> _answers = {
     0: 'Good job!! Exercise improves cardiorespiratory fitness at different ages, even in the elderly and when performed in a reduced-time session of moderate activity',
     1: 'Come on!! Work out so you can eat more pizza guilt-free, sleep like a baby, and live long enough to become a legendary grandparent!',
     2: 'Discover the secret to have more workout time: set your alarm earlier, skip the snooze, and let those endorphins be your morning coffee! By the way, physical inactivity may be the preferential target for clinical and public health interventions which may ultimately reduce the mortality gap. In fact, delivering physical exercise or physical activity may not only improve depression severity, but also directly tackle the constitutive elements of cardiovascular risk. Nonetheless, several challenges remain to be addressed by further research.',
     3: 'Physical inactivity may be the preferential target for clinical and public health interventions which may ultimately reduce the mortality gap. In fact, delivering physical exercise or physical activity may not only improve depression severity, but also directly tackle the constitutive elements of cardiovascular risk. Nonetheless, several challenges remain to be addressed by further research.'
   };
   String _result = '';
-  Map<String, String> _reason = {
-    'No1': 'feel like',
-    'No2': 'have enough time',
-    'Yes2': 'want'
+  final Map<String, String> _reason = {
+    'No1': 'feel like to',
+    'No2': 'have enough time to',
+    'Yes2': 'want to'
   };
-  Map<String, String> _solution = {
+  final Map<String, String> _solution = {
     'No1': 'how to find a good motivation',
     'No2': 'how to better organize your days',
     'Yes2': 'why you should do it'
@@ -51,16 +57,17 @@ class _CardDialogState extends State<CardDialog> {
   void initState() {
     super.initState();
     _todayResults();
+    //_exerciseToday();
   }
-
+  
   _todayResults() async {
     final sp = await SharedPreferences.getInstance();
-    final day = DateTime.now().day;
-    final month = DateTime.now().month;
+    final day = DateTime.now().subtract(Duration(days: 1)).day;
+    final month = DateTime.now().subtract(Duration(days: 1)).month;
     print('${day}_${month}');
     if (widget.buttonClickedToday) {
       setState(() {
-        _result = sp.getString('${day}_${month}') ?? '';
+        _result = sp.getString('survey_${day}_${month}') ?? '';
         print('_result updated in _todayResults: $_result');
       });
     }
@@ -68,8 +75,8 @@ class _CardDialogState extends State<CardDialog> {
 
   _checkAnswer() async {
     final sp = await SharedPreferences.getInstance();
-    final day = DateTime.now().day;
-    final month = DateTime.now().month;
+    final day = DateTime.now().subtract(Duration(days: 1)).day;
+    final month = DateTime.now().subtract(Duration(days: 1)).month;
 
     if (_currentAnswer == 'Yes' && _nq == 0) {
       setState(() {
@@ -129,8 +136,8 @@ class _CardDialogState extends State<CardDialog> {
         _result = 'No2';
         print('_result updated in _checkAnswer (No2): $_result');
       });
-      await sp.setString('${day}_${month}', _result);
     }
+    await sp.setString('survey_${day}_${month}', _result);
   }
 
   Map<String, String> _getResults() {
@@ -141,31 +148,31 @@ class _CardDialogState extends State<CardDialog> {
         'reason': '',
         'solution': '',
       };
-    } else if (_reason.containsKey(_result) &&
-        _solution.containsKey(_result)) {
+    } else {/*if (_reason.containsKey(_result) &&
+        _solution.containsKey(_result)) {*/
       return {
         'wo': 'No',
         'reason': _reason[_result]!,
         'solution': _solution[_result]!,
       };
-    } else {
+   /* } else {
       return {
         'wo': 'No',
         'reason': 'Unknown reason',
         'solution': 'Unknown solution',
-      };
+      };*/
     }
   }
 
   _showAlternative() {
-    return Column(
+      return Column(
       children: [
         Text('BUT',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18, color: Colors.black)),
         const SizedBox(height: 15),
         Text(
-            'since you didn\'t ${_getResults()['reason']} to workout (till now), discover here ${_getResults()['solution']}',
+            'since you didn\'t ${_getResults()['reason']} workout (till now), discover here ${_getResults()['solution']}',
             style: TextStyle(fontSize: 18, color: Colors.black),
             textAlign: TextAlign.center,),
         const SizedBox(height: 20),
@@ -183,18 +190,47 @@ class _CardDialogState extends State<CardDialog> {
     );
   }
 
+    
+  Widget _returnStatus() {
+    if (_result == 'Yes0') {
+      return Row(
+        children: [
+          Text('Today you are a champion!', style: TextStyle(fontWeight: FontWeight.bold),),
+          const SizedBox(width: 5),
+          Icon(Icons.emoji_events_sharp, color: Colors.amberAccent)
+        ],);
+    } else if (_result == 'No1') {
+      return Row(
+        children: [
+          Text('No motivation', style: TextStyle(fontWeight: FontWeight.bold),),
+          const SizedBox(width: 5),
+          Icon(Icons.battery_0_bar, color: Colors.red[900])
+        ],);
+    } else if (_result == 'No2') {
+      return Row(
+        children: [
+          Text('No time', style: TextStyle(fontWeight: FontWeight.bold),),
+          const SizedBox(width: 5),
+          Icon(Icons.schedule, color: Colors.purple[900])
+        ],);
+    } else {
+      return Row(
+        children: [
+          Text('Lazy', style: TextStyle(fontWeight: FontWeight.bold),),
+          const SizedBox(width: 5),
+          Icon(Icons.mood_bad, color: Colors.black)
+        ],);
+    }
+  }
+
+  
   @override
   Widget build(BuildContext context) {
-    if (widget.buttonClickedToday) {
+  if (widget.buttonClickedToday) {  
       return SimpleDialog(
         title: Row(
           children: [
-            Text(
-              'Oh no!',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 5),
-            Icon(Icons.sentiment_very_dissatisfied, color: Colors.pink[800])
+            _returnStatus(),
           ],
         ),
         elevation: 5,
@@ -212,17 +248,11 @@ class _CardDialogState extends State<CardDialog> {
                 ),
                 const SizedBox(height: 15),
                 (_getResults()['wo'] == 'Yes')
-                    ? OutlinedButton(
-                        child: Icon(Icons.close_rounded,
-                            color: Color.fromARGB(255, 227, 211, 244)),
+                    ? TextButton(
+                        child: Text('Close'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.all(6),
-                          shape: const CircleBorder(),
-                          backgroundColor: Color.fromARGB(255, 183, 123, 248),
-                        ),
                       )
                     : _showAlternative()
               ],
@@ -231,40 +261,43 @@ class _CardDialogState extends State<CardDialog> {
         ],
       );
     } else {
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const SizedBox(height: 32),
-        _showText
-            ? Column(
-                children: [
-                  Image.asset(_icon),
-                  SizedBox(height: 20),
-                  Text(_answers[_nq], style: TextStyle(fontSize: 17)),
-                ],
-              )
-            : Text(_questions[_nq], style: TextStyle(fontSize: 17)),
-        const SizedBox(height: 20),
-        Visibility(
-          visible: !_endSurvery && _showButton,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                  onPressed: () {
-                    _currentAnswer = 'Yes';
-                    _checkAnswer();
-                  },
-                  child: Text('Yes')),
-              const SizedBox(width: 20),
-              ElevatedButton(
-                  onPressed: () {
-                    _currentAnswer = 'No';
-                    _checkAnswer();
-                  },
-                  child: Text('No'))
-            ],
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 32),
+          _showText
+              ? Column(
+                  children: [
+                    Image.asset(_icon),
+                    SizedBox(height: 20),
+                    Text(_answers[_nq], style: TextStyle(fontSize: 17)),
+                  ],
+                )
+              : Text(_questions[_nq], style: TextStyle(fontSize: 17)),
+          const SizedBox(height: 20),
+          Visibility(
+            visible: !_endSurvery && _showButton,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      _currentAnswer = 'Yes';
+                      _checkAnswer();
+                    },
+                    child: Text('Yes')),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                    onPressed: () {
+                      _currentAnswer = 'No';
+                      _checkAnswer();
+                    },
+                    child: Text('No'))
+              ],
+            ),
           ),
-        )
-      ]);
+        ],
+      );
     }
   }
 }

@@ -19,6 +19,7 @@ class HomeProvider extends ChangeNotifier {
   double lastMonthHR = 0;
   List<ExerciseData> exerciseData = [];
   Map<String, List<double>> sleepScores = {};
+  double exerciseScore = 0;
   List<String> months = [];
  
   double score = 0;
@@ -263,7 +264,6 @@ class HomeProvider extends ChangeNotifier {
     return double.parse((total / counter).toStringAsFixed(1));
   }
   
-
   double exerciseDuration(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -273,7 +273,17 @@ class HomeProvider extends ChangeNotifier {
     return double.parse((total).toStringAsFixed(1));
   }
 
-  
+  bool exerciseToday() {
+    DateTime today = DateTime.now().subtract(Duration(days: 1));
+    int dayIndex = today.weekday -1 ;
+    if (exerciseData[dayIndex].duration > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   double exerciseDistance(){
     if(exerciseData.isEmpty){return 0.0;}
     double total = 0;
@@ -284,59 +294,28 @@ class HomeProvider extends ChangeNotifier {
   }
   
 
-  
-  Map<String, double> exerciseDistance2(){
-    Map<String, double> total = {
-      'Corsa' : 0,
-      'Bici' : 0,
-      'Camminata' : 0
-    };
-    List<String> names = ['Corsa', 'Bici', 'Camminata'];
+  Map<String, double> exerciseDistanceActivities(){ // exerciseData is a list, for each day
+    Map<String, double> total = {};
+
     if(exerciseData.isEmpty){
-      return total;
-      } 
-    for (String act in names) {
-      double tt = 0;
-      for(int i=0;i<exerciseData.length;i++){
-        if (exerciseData[i].activities.containsKey(act)) {
-          tt = tt + exerciseData[i].activities[act]![1];
-        }
-        
-        }
-      total[act] = tt;
-    }
-    return total;
-  }
-
-/*
-  Map<String, double> exerciseDistance2() {
-  Map<String, double> total = {
-    'Corsa': 0,
-    'Bici': 0,
-    'Camminata': 0,
-  };
-  
-  if (exerciseData.isEmpty) {
-    return total;
-  }
-  
-  for (var data in exerciseData) {
-    for (var entry in data.activities.entries) {
-      String act = entry.key;
-      double distance = entry.value[1];
-      
-      if (total.containsKey(act)) {
-        total[act] = total[act]! + distance;
+      return total = {'Null' : 0};
       } else {
-        total[act] = distance;
+        for(int i=0; i<exerciseData.length; i++){
+        if (exerciseData[i].actNames.length >= 1) {
+          List<String> actName_day = exerciseData[i].actNames;
+          for (String act in actName_day) {
+            if (total[act] == null) {
+              total[act] = 0;
+            }
+            total[act] = total[act]! + exerciseData[i].activities[act]![1];
+            //print('names da exDistance2: ${act}_${total[act]}');
+            }
+        }
+        }
       }
-    }
+      print('exerciseDistance2 : $total');
+      return total;
   }
-
-  return total;
-}*/
-
-
 
   // method to get the data of the chosen week
   Future<void> getDataOfWeek(DateTime start, DateTime end, bool init) async {
@@ -376,6 +355,7 @@ class HomeProvider extends ChangeNotifier {
     print('Got data for week from $start to $end');//: ${heartRates.length}');
     notifyListeners();
     print('\n $dateRange \n');
+
   }
 
   //Method to fetch sleep data from the server
@@ -679,6 +659,11 @@ class HomeProvider extends ChangeNotifier {
   
   
 }
+
+
+
+
+
 
 
 

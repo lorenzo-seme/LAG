@@ -3,10 +3,10 @@ import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/splash.dart';
 import 'package:provider/provider.dart';
 
-void main() {  
+void main() { 
   runApp(const MyApp()); 
-}       
-  
+}         
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-//import 'package:lag/algorithms/sleepScore.dart';
+import 'package:lag/algorithms/exercise_score.dart';
+import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -13,22 +14,19 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-//import 'dart:async';
-
 
 // CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
 
+
+  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
   String getCurrentWeekIdentifier(DateTime dateToday) {
     DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
     int daysDifference = dateToday.difference(firstDayOfYear).inDays;
     int weekNumber = (daysDifference / 7).ceil() + 1;
     return "$weekNumber";
 }
-
-  //Future<double> sleepAvg = calculateAverageSleepScoreString(BuildContext context, Future<List<double>> sleepDataFuture); 
-
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +50,7 @@ class WeeklyRecap extends StatelessWidget {
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
                           elevation: 5,
+                          color: Color.fromARGB(255, 243, 232, 251),
                           child: ListTile(
                             leading: const Icon(Icons.wb_cloudy),
                             /*
@@ -72,7 +71,7 @@ class WeeklyRecap extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
                       decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 248, 226, 226),
+                        color: Color.fromARGB(255, 239, 226, 250),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                       child: Column(children: [
@@ -82,7 +81,7 @@ class WeeklyRecap extends StatelessWidget {
                         const SizedBox(height: 10),
                         Container(
                           decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 250, 196, 196),
+                            color: Color.fromARGB(255, 215, 188, 255),
                             borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
                           child: Row(
@@ -189,33 +188,42 @@ class WeeklyRecap extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10,),
-                          //Text('Exercise Data'),
-                          Container(
-                            width: 350, 
-                            //height: 90,
-                            child: (provider.exerciseData.isEmpty) 
-                              ? const Card(
-                                  elevation: 5,
-                                  child: ListTile(
-                                    leading: Icon(Icons.directions_run),
-                                    trailing: CircularProgressIndicator.adaptive(),
-                                    title: Text('Loading...'), 
-                                    subtitle: Text('    '),
-                                  ),
+                  Container(
+                          width: 350, 
+                          //height: 80,
+                          child: (provider.sleepData.isEmpty) 
+                            ? const Card(
+                                elevation: 5,
+                                child: ListTile(
+                                  leading: Icon(Icons.bedtime),
+                                  trailing: CircularProgressIndicator.adaptive(),
+                                  title: Text('Loading...'), 
+                                  subtitle: Text('    '),
+                                ),
                               )
-                              : Card(
-                                  elevation: 5,
-                                  child: ListTile(
-                                    leading: Icon(Icons.directions_run),
-                                    trailing: Container(
-                                      child: (provider.exerciseDuration()>=30*7) ? const Icon(Icons.thumb_up) : const Icon(Icons.thumb_down),), //qui mettere la media della settimana al posto del solo primo giorno
-                                    title: Text('Exercise : ${provider.exerciseDuration()} minutes'),
-                                    subtitle: Text('Total minutes of exercise performed this week'),
-                                              //When a ListTile is tapped, the user is redirected to the ExercisePage
-                                    onTap: () => _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start)),
-                                            ),
+                  : Card(
+                    elevation: 5,
+                    child: ListTile(
+                      leading: Icon(Icons.directions_run),
+                      trailing: Container(
+                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)),
+                        ),
+                      title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)}%'),
+                      subtitle: const Text('about your exercise activity of this week',
+                                          style: TextStyle(fontSize: 11),),
+                      onTap: () {
+                        print(getCurrentWeekIdentifier(provider.start));
+                        bool current;
+                        if (getCurrentWeekIdentifier(provider.start) == getCurrentWeekIdentifier(DateTime.now())) {
+                          current = true;
+                        } else {
+                          current = false;
+                        }
+                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start), current);
+                      } ,
                               ),
-                          ),
+                      ),
+                  ),
                           const SizedBox(height: 10),
 
                           const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
@@ -229,10 +237,10 @@ class WeeklyRecap extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  (provider.score.toInt()).toString(),
+                                  (computeScore(provider).toInt()).toString(),
                                   style: const TextStyle(fontSize: 16),
                                 ),
-                                Text(provider.score / 100 < 0.33
+                                Text(computeScore(provider) / 100 < 0.33
                                       ? "Low"
                                       : provider.score / 100 > 0.33 &&
                                               provider.score / 100 < 0.66
@@ -246,8 +254,8 @@ class WeeklyRecap extends StatelessWidget {
                                   child: ClipRRect(
                                     borderRadius:const BorderRadius.all(Radius.circular(10)),
                                     child: LinearProgressIndicator(
-                                      color: Color.fromARGB(255, 255, 115, 115),
-                                      value: provider.score / 100,
+                                      color: Color.fromARGB(255, 138, 2, 250),
+                                      value: computeScore(provider) / 100,
                                       backgroundColor: Colors.grey.withOpacity(0.5),
                                     ),
                                   ),
@@ -383,9 +391,9 @@ class WeeklyRecap extends StatelessWidget {
   }
   
   // Method for navigation weeklyRecap -> exerciseScreen
-  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week) {
+  void _toExercisePage(BuildContext context, DateTime start, DateTime end, HomeProvider provider, String week, bool current) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week)));
+      builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week, current : current)));
   }
   
   void _toMoodPage(BuildContext context, HomeProvider provider) {
@@ -609,3 +617,41 @@ double? calculateAverageSleepScore(List<double> scores) {
     return averageScore;
   }
 }
+
+double calculateAverageExerciseScore(List<ExerciseData> exerciseData, int age, bool ageInserted) {
+  List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
+  if (scores.isEmpty) {
+    return 0;
+  } else {
+    double sum = scores.reduce((a, b) => a + b); // Sum all elements in the list
+    double average = sum / scores.length;
+    return double.parse(average.toStringAsFixed(2));
+  }
+}
+
+Widget getIconScore(double score) {
+  if (score >= 75) {
+    return Icon(Icons.sentiment_very_satisfied); // average score above 80
+  } else if (score >= 45) {
+    return Icon(Icons.sentiment_neutral); // average score between 60 and 80
+  } else { 
+    return Icon(Icons.sentiment_very_dissatisfied); // average score below 60
+  }
+}
+
+double computeScore(HomeProvider provider) {
+  List<ExerciseData> exerciseData = provider.exerciseData;
+  double sleepScore;
+  double exerciseScore; 
+  double totalScore;
+
+  // Ensure the sleepScores list is non-null before passing it to the function
+  List<double> sleepScores = (provider.sleepScores["scores"] ?? []).cast<double>();
+
+  sleepScore = calculateAverageSleepScore(sleepScores) ?? 0.0;
+  exerciseScore = calculateAverageExerciseScore(exerciseData, provider.age, provider.ageInserted);
+  totalScore = ((sleepScore + exerciseScore) / 2);
+
+  return totalScore;
+}
+

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -128,7 +129,7 @@ class Impact{
 
   } //_fetchSleepData
 
-  static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async {
+static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async {
 
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
@@ -164,52 +165,6 @@ class Impact{
     return result;
 
   } //_fetchHeartRateData
-/*
-  static Future<dynamic> fetchMonthlyHeartRateData(String date) async {
-
-    List<String> months = [];
-    DateFormat dateFormat = DateFormat("yyyy.MM-dd");
-    DateTime date_obj = dateFormat.parse(date);
-    DateFormat monthFormat = DateFormat("MM");
-
-    for (int i = 5; i >= 0; i--) {
-      DateTime previousMonth = DateTime(date_obj.year, date_obj.month - i, date_obj.day);
-      String monthNumber = monthFormat.format(previousMonth);
-      months.add(monthNumber);
-    }
-
-    final sp = await SharedPreferences.getInstance();
-    var access = sp.getString('access');
-
-    //If access token is expired, refresh it
-    if(JwtDecoder.isExpired(access!)){
-      await Impact.refreshTokens();
-      access = sp.getString('access');
-    }//if
-
-    //Create the (representative) request
-    String url = "";
-    if (startDay == endDay) {
-      url = baseUrl + exerciseEndpoint + patientUsername + '/day/$startDay';
-    } else {
-      url = baseUrl + exerciseEndpoint + patientUsername + '/daterange/start_date/$startDay/end_date/$endDay/';
-    }
-    final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
-
-    //Get the response
-    print('Calling: $url');
-    final response = await http.get(Uri.parse(url), headers: headers);
-    
-    //if OK parse the response, otherwise return null
-    var result = null;
-    if (response.statusCode == 200) {
-      result = jsonDecode(response.body);
-    } //if
-
-    //Return the result
-    return result;
-  }
-  */
 
   static Future<dynamic> fetchExerciseData(String startDay, String endDay) async {
 

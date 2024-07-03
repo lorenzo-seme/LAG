@@ -91,7 +91,7 @@ class _SleepScreenState extends State<SleepScreen> {
           ),
         ),
       ),
-    );
+    ); 
   }
 
 Widget _buildNoDataMessage() {
@@ -321,7 +321,7 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
                     if (userAge != null && name != null) {
                       widget.provider.nick = name;
                       widget.provider.age = int.parse(userAge);
-                    }
+                    } 
                   });
                 },
               ),
