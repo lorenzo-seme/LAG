@@ -58,8 +58,8 @@ class Splash extends StatelessWidget {
     return Scaffold(
         body: Center(
             child: Image.asset(
-      'assets/logo.png', // CAMBIA LOGO
-      scale: 4,
+      'assets/logo_1.png', // CAMBIA LOGO
+      scale: 2,
     )));
   }
 }
