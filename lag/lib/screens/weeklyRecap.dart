@@ -4,10 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/algorithms/exercise_score.dart';
 import 'package:lag/models/exercisedata.dart';
-import 'package:lag/models/sleepdata.dart';
-import 'package:lag/algorithms/exercise_score.dart';
-import 'package:lag/models/exercisedata.dart';
-import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -210,7 +206,7 @@ class WeeklyRecap extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.directions_run),
                       trailing: Container(
-                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted) as double),
+                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)),
                         ),
                       title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)}%'),
                       subtitle: const Text('about your exercise activity of this week',
@@ -627,44 +623,10 @@ double calculateAverageExerciseScore(List<ExerciseData> exerciseData, int age, b
   if (scores.isEmpty) {
     return 0;
   } else {
-    age = 25;
-    weights = {'duration': 0.2, 'distance': 0.3, 'frequency': 0.2, 'age': 0.1, 'activityType': 0.2};
-    activityScores = {'Corsa': 10, 'Camminata': 5, 'Bici': 7, 'Nuoto': 8, 'Sport': 7};
-    if (d > 300) {
-        base = 45;
-      } else if (d > 180) {
-        base = 40;
-      } 
-      if (frequency > 2) {
-        base += 5;
-      }
+    double sum = scores.reduce((a, b) => a + b); // Sum all elements in the list
+    double average = sum / scores.length;
+    return double.parse(average.toStringAsFixed(2));
   }
-  
-  int ageScore = (10 - (age ~/ 10)).clamp(0, 10);
-  double frequencyScore = (frequency) * (10 / 7); // Use null-aware operators to handle exerciseDataList being null
-  //print("agescore $ageScore");
-  //print("freqscore $frequencyScore");
-  //print('frequency $frequency');
-
-  double score = base + frequencyScore * (weights["frequency"] ?? 0) + ageScore * (weights["age"] ?? 0);
-
-  if (exerciseDataList.isNotEmpty) {
-    for (var data in exerciseDataList) {
-      if (data.actNames.isNotEmpty) {
-        for (var act in data.actNames) {
-          if (data.activities.containsKey(act)) {
-            double distanceWeight = (act == 'Bici') ? (weights["distance"] ?? 0 - 0.1) : (weights["distance"] ?? 0);
-           score += (activityScores[act] ?? 0) +
-                ((data.activities[act]![0]) ~/ 10) * (weights["duration"] ?? 0) * (activityScores[act] ?? 0) +
-                ((data.activities[act]![1]) ~/ 10) * distanceWeight * (activityScores[act] ?? 0);
-          }
-        }
-      }
-    }
-  }
-
-  double final_score = double.parse(score.clamp(0, 100).toStringAsFixed(1));
-  return final_score;
 }
 
 Widget getIconScore(double score) {
@@ -677,4 +639,19 @@ Widget getIconScore(double score) {
   }
 }
 
+double computeScore(HomeProvider provider) {
+  List<ExerciseData> exerciseData = provider.exerciseData;
+  double sleepScore;
+  double exerciseScore; 
+  double totalScore;
+
+  // Ensure the sleepScores list is non-null before passing it to the function
+  List<double> sleepScores = (provider.sleepScores["scores"] ?? []).cast<double>();
+
+  sleepScore = calculateAverageSleepScore(sleepScores) ?? 0.0;
+  exerciseScore = calculateAverageExerciseScore(exerciseData, provider.age, provider.ageInserted);
+  totalScore = ((sleepScore + exerciseScore) / 2);
+
+  return totalScore;
+}
 
