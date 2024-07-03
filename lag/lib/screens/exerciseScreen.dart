@@ -1018,22 +1018,6 @@ _isCurrentWeek() async {
                             SizedBox(
                               height: 15,
                             ),
-                            Card(
-                              elevation: 5,
-                              child: ListTile(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                tileColor:
-                                    const Color.fromARGB(255, 227, 211, 244),
-                                title: Text('Temporary button, to RHR screen'),
-                                onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) => RhrScreen(
-                                            startDate: widget.provider.start,
-                                            endDate: widget.provider.end,
-                                            provider: widget.provider))),
-                              ),
-                            )
                           ]))),
             ),
     );
