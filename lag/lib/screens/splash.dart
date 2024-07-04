@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:lag/screens/downScreen.dart';
 import 'package:lag/screens/home.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/utils/impact.dart';
@@ -20,30 +21,41 @@ class Splash extends StatelessWidget {
         .pushReplacement(MaterialPageRoute(builder: ((context) => Login())));
   } //_toLoginPage
 
+  void _toDownScreen(BuildContext context) {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: ((context) => DownScreen())));
+  } //_toLoginPage
+
+
   Future<void> _checkLogin(BuildContext context) async {
-    final sp = await SharedPreferences.getInstance();
-    final access = sp.getString('access');
-    if (access != null && !(JwtDecoder.isExpired(access))) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
-      _toHomePage(context);
+    if(!(await Impact.isImpactUp()))
+    {
+      _toDownScreen(context);
     } else {
-      final result = await Impact.refreshTokens();
-      if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
+      final sp = await SharedPreferences.getInstance();
+      final access = sp.getString('access');
+      if (access != null && !(JwtDecoder.isExpired(access))) { // 1. CONTROLLA DI AVERE L'ACCESS NELLE SP
         _toHomePage(context);
       } else {
-        final isChecked = sp.getString('saved_credentials');
-        if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
-          // print("re-authorized thanks to remember me option");
-          if (isChecked == "true") {
-            final username = sp.getString('username');
-            final password = sp.getString('password');
-            //final Impact impact = Impact();
-            await Impact.getAndStoreTokens(username!, password!);
-            _toHomePage(context);
+        final result = await Impact.refreshTokens();
+        if (result == 200) { // 2. CONTROLLA DI AVERE IL REFRESH
+          _toHomePage(context);
+        } else {
+          final isChecked = sp.getBool('saved_credentials');
+          if (isChecked != null) { // 3. CONTROLLA IL REMEMBER ME
+            // print("re-authorized thanks to remember me option");
+            if (isChecked) {
+              final username = sp.getString('username');
+              final password = sp.getString('password');
+              //final Impact impact = Impact();
+              await Impact.getAndStoreTokens(username!, password!);
+              _toHomePage(context);
+            } else {
+              _toLoginPage(context);
+            }
           } else {
             _toLoginPage(context);
           }
-        } else {
-          _toLoginPage(context);
         }
       }
     }

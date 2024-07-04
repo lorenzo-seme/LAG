@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lag/algorithms/exercise_score.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/models/heartratedata.dart';
 import 'package:lag/models/sleepdata.dart';
@@ -18,6 +19,7 @@ class HomeProvider extends ChangeNotifier {
   List<HeartRateData> monthlyHeartRateData = [];
   double lastMonthHR = 0;
   List<ExerciseData> exerciseData = [];
+  List<double> exerciseScores = [];
   Map<String, List<double>> sleepScores = {};
   double exerciseScore = 0;
   List<String> months = [];
@@ -612,6 +614,7 @@ class HomeProvider extends ChangeNotifier {
             //print(exerciseData.last);
         }
       notifyListeners();
+      calculateExerciseScore(exerciseData);
       }}//if
   }//fetchExerciseData
   
@@ -631,6 +634,11 @@ class HomeProvider extends ChangeNotifier {
   void _loading() {
     //heartRates = [];
     score = 0;
+    notifyListeners();
+  }
+
+  void calculateExerciseScore(List<ExerciseData> exerciseData) async{
+    exerciseScores = await getExerciseScore(exerciseData, this.age, this.ageInserted).map((score) => score.toDouble()).toList();
     notifyListeners();
   }
 

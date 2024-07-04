@@ -1,7 +1,7 @@
 
 import 'package:lag/models/exercisedata.dart';
 
-List<double> calculateExerciseScore(List<ExerciseData> exerciseDataList, int age, bool ageInserted) {
+List<double> getExerciseScore(List<ExerciseData> exerciseDataList, int age, bool ageInserted) {
   Map<String, double> weights = {};
   Map<String, int> activityScores = {};
   List<double> durations = [];
