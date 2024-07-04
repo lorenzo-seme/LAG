@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:lag/algorithms/exercise_score.dart';
-import 'package:lag/models/exercisedata.dart';
+//import 'package:lag/algorithms/exercise_score.dart';
+//import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -43,9 +43,109 @@ class WeeklyRecap extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 18)),
-                    const SizedBox(height: 20),
-                    //const Text('Personal Recap',style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25)),
+                    const SizedBox(height: 25),
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 215, 188, 255),
+                        borderRadius: BorderRadius.all(Radius.circular(10))
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: InkWell(onTap: () async {
+                                if(provider.isReady){
+                                  await provider.dateSubtractor(provider.start);
+                                  await provider.getDataOfWeek(provider.start, provider.end, false);
+                                  //ScaffoldMessenger.of(context).clearSnackBars();
+                                }
+                                else{
+                                  ScaffoldMessenger.of(context)
+                                          ..clearSnackBars()
+                                          ..showSnackBar(
+                                            const SnackBar(
+                                              backgroundColor: Colors.blue,
+                                              behavior: SnackBarBehavior.floating,
+                                              margin: EdgeInsets.all(8),
+                                              duration: Duration(seconds: 1),
+                                              content: Text(
+                                                  "Still loading... Keep calm!"),
+                                            ),
+                                          );
+                                }
+                              },
+                              child: const Icon(Icons.navigate_before),
+                            ),
+                          ),
+                          (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day)
+                          ? Text(DateFormat('EEE, d MMM').format(provider.start))
+                          : Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
+                              const Icon(Icons.stop) :
+                              InkWell(
+                                onTap: () async {
+                                  if(provider.isReady){
+                                      await provider.dateAdder(provider.start);
+                                      await provider.getDataOfWeek(provider.start, provider.end, false);
+                                      //ScaffoldMessenger.of(context).clearSnackBars();
+                                  }
+                                  else{
+                                    ScaffoldMessenger.of(context)
+                                          ..clearSnackBars()
+                                          ..showSnackBar(
+                                            const SnackBar(
+                                              backgroundColor: Colors.blue,
+                                              behavior: SnackBarBehavior.floating,
+                                              margin: EdgeInsets.all(8),
+                                              duration: Duration(seconds: 1),
+                                              content: Text(
+                                                  "Still loading... Keep calm!"),
+                                            ),
+                                          );
+                                  }
+                                },
+                                child: const Icon(Icons.navigate_next),
+                              ), 
+                          ),
+                        ]
+                      ),
+                    ),
                     Gamification(provider),
+                    Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [/*
+                                Text(
+                                  (computeScore(provider).toInt()).toString(),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                Text(computeScore(provider) / 100 < 0.33
+                                      ? "Low"
+                                      : provider.score / 100 > 0.33 &&
+                                              provider.score / 100 < 0.66
+                                          ? "Medium"
+                                          : "High",
+                                  style:const TextStyle(fontSize: 12, color: Colors.black45),
+                                ),*/
+                                Container(
+                                  margin: const EdgeInsets.only(top: 20, bottom: 10),
+                                  height: 15,
+                                  child: ClipRRect(
+                                    borderRadius:const BorderRadius.all(Radius.circular(10)),
+                                    child: LinearProgressIndicator(
+                                      color: Color.fromARGB(255, 138, 2, 250),
+                                      value: computeScore(provider) / 100,
+                                      backgroundColor: Colors.grey.withOpacity(0.5),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                    ),
                     const SizedBox(height: 15),
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
@@ -75,87 +175,12 @@ class WeeklyRecap extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
                       child: Column(children: [
-                        const Text("Weekly Trends for sleep and exercise",
+                        const Text("Your scores for the selected week",
+                        //const Text("Weekly Trends for sleep and exercise",
                           style: TextStyle(fontSize: 19),
                         ), 
                         const SizedBox(height: 10),
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 215, 188, 255),
-                            borderRadius: BorderRadius.all(Radius.circular(10))
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(onTap: () async {
-                                    if(provider.isReady){
-                                      await provider.dateSubtractor(provider.start);
-                                      await provider.getDataOfWeek(provider.start, provider.end, false);
-                                      //ScaffoldMessenger.of(context).clearSnackBars();
-                                    }
-                                    else{
-                                      ScaffoldMessenger.of(context)
-                                              ..clearSnackBars()
-                                              ..showSnackBar(
-                                                const SnackBar(
-                                                  backgroundColor: Colors.blue,
-                                                  behavior: SnackBarBehavior.floating,
-                                                  margin: EdgeInsets.all(8),
-                                                  duration: Duration(seconds: 1),
-                                                  content: Text(
-                                                      "Still loading... Keep calm!"),
-                                                ),
-                                              );
-                                    }
-                                  },
-                                  child: const Icon(Icons.navigate_before),
-                                ),
-                              ),
-                              (provider.start.year == provider.end.year && provider.start.month == provider.end.month && provider.start.day == provider.end.day)
-                              ? Text(DateFormat('EEE, d MMM').format(provider.start))
-                              : Text('${DateFormat('EEE, d MMM').format(provider.start)} - ${DateFormat('EEE, d MMM').format(provider.end)}'),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: (provider.end.year == provider.showDate.year && provider.end.month == provider.showDate.month && provider.end.day == provider.showDate.day) ?
-                                  const Icon(Icons.stop) :
-                                  InkWell(
-                                    onTap: () async {
-                                      if(provider.isReady){
-                                          await provider.dateAdder(provider.start);
-                                          await provider.getDataOfWeek(provider.start, provider.end, false);
-                                          //ScaffoldMessenger.of(context).clearSnackBars();
-                                      }
-                                      else{
-                                        ScaffoldMessenger.of(context)
-                                              ..clearSnackBars()
-                                              ..showSnackBar(
-                                                const SnackBar(
-                                                  backgroundColor: Colors.blue,
-                                                  behavior: SnackBarBehavior.floating,
-                                                  margin: EdgeInsets.all(8),
-                                                  duration: Duration(seconds: 1),
-                                                  content: Text(
-                                                      "Still loading... Keep calm!"),
-                                                ),
-                                              );
-                                      }
-                                    },
-                                    child: const Icon(Icons.navigate_next),
-                                  ), 
-                              ),
-                            ]
-                          ),
-                        ),
                         
-
-                        //const SizedBox(height: 5),
-                        /*
-                        const Text("See how much you’ve been striving throughout the week",
-                            style: TextStyle(fontSize: 12,color: Colors.black45),
-                            ),*/
-                        const SizedBox(height: 10),
                         //const Text('Sleep Data'),
                         Container(
                           width: 350, 
@@ -166,7 +191,7 @@ class WeeklyRecap extends StatelessWidget {
                                 child: ListTile(
                                   leading: Icon(Icons.bedtime),
                                   trailing: CircularProgressIndicator.adaptive(),
-                                  title: Text('Loading...'), 
+                                  title: Text('Sleep score: loading...'), 
                                   subtitle: Text('    '),
                                 ),
                               )
@@ -195,9 +220,9 @@ class WeeklyRecap extends StatelessWidget {
                             ? const Card(
                                 elevation: 5,
                                 child: ListTile(
-                                  leading: Icon(Icons.bedtime),
+                                  leading: Icon(Icons.directions_run),
                                   trailing: CircularProgressIndicator.adaptive(),
-                                  title: Text('Loading...'), 
+                                  title: Text('Exercise score: loading...'), 
                                   subtitle: Text('    '),
                                 ),
                               )
@@ -206,9 +231,9 @@ class WeeklyRecap extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.directions_run),
                       trailing: Container(
-                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)),
+                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseScores)),
                         ),
-                      title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseData, provider.age, provider.ageInserted)}%'),
+                      title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%'),
                       subtitle: const Text('about your exercise activity of this week',
                                           style: TextStyle(fontSize: 11),),
                       onTap: () {
@@ -224,6 +249,7 @@ class WeeklyRecap extends StatelessWidget {
                               ),
                       ),
                   ),
+                  /*
                           const SizedBox(height: 10),
 
                           const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
@@ -231,38 +257,8 @@ class WeeklyRecap extends StatelessWidget {
                           const Text("Descriptive index of the quality of your week",
                               style: TextStyle(fontSize: 12,color: Colors.black45),
                               ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  (computeScore(provider).toInt()).toString(),
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                Text(computeScore(provider) / 100 < 0.33
-                                      ? "Low"
-                                      : provider.score / 100 > 0.33 &&
-                                              provider.score / 100 < 0.66
-                                          ? "Medium"
-                                          : "High",
-                                  style:const TextStyle(fontSize: 12, color: Colors.black45),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(top: 20, bottom: 10),
-                                  height: 15,
-                                  child: ClipRRect(
-                                    borderRadius:const BorderRadius.all(Radius.circular(10)),
-                                    child: LinearProgressIndicator(
-                                      color: Color.fromARGB(255, 138, 2, 250),
-                                      value: computeScore(provider) / 100,
-                                      backgroundColor: Colors.grey.withOpacity(0.5),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
+                              */
+                          
                         ],
                       )
                     ),
@@ -403,30 +399,14 @@ class WeeklyRecap extends StatelessWidget {
   
   // OCCHIO CHE VORREBBE COSTRUIRE PRIMA CHE I DATI SIANO STATI FETCHATI !!!
   Widget Gamification(HomeProvider provider) {
-  /*final Map<int, String> fromIntToImg = {
-    1: 'reward_1.png',
-    2: 'reward_1.png',
-    3: 'reward_2.png',
-    4: 'reward_3.png',
-    5: 'reward_4.png',
-    6: 'reward_5.png',
-    7: 'reward_6.png',
-    8: 'reward_7.png',
-    9: 'reward_8.png',
-    10: 'reward_9.png',
-    11: 'reward_10.png',
-    12: 'reward_11.png',
-    13: 'reward_12.png',
-    14: 'reward_12.png'
-  };*/
 
   final Map<int, String> fromIntToImg = {
     0: 'rew1.jpeg',
-    1: 'rew1.jpeg',
-    2: 'rew2.jpeg',
-    3: 'rew2.jpeg',
+    1: 'rew2.jpeg',
+    2: 'rew3.jpeg',
+    3: 'rew3.jpeg',
     4: 'rew3.jpeg',
-    5: 'rew3.jpeg',
+    5: 'rew4.jpeg',
     6: 'rew4.jpeg',
     7: 'rew5.jpeg',
     8: 'rew6.jpeg',
@@ -485,10 +465,8 @@ class WeeklyRecap extends StatelessWidget {
                       progressColor: const Color(0xFF4e50bf),
                       animation: true,
                       animationDuration: 1000,
-                      footer: Text('Sleep', style: TextStyle(fontSize: 10)),
-                      percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                          ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)! / 100
-                          : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                      footer: Text('Exercise', style: TextStyle(fontSize: 10)),
+                      percent: calculateAverageExerciseScore(provider.exerciseScores) / 100,
                       circularStrokeCap: CircularStrokeCap.round,
                     )
                   : CircularProgressIndicator(),
@@ -513,7 +491,7 @@ class WeeklyRecap extends StatelessWidget {
                             topRight: Radius.circular(15.0)),
                         image: DecorationImage(
                           fit: BoxFit.contain,
-                          image: AssetImage('assets/rewards2/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!)]}'),
+                          image: AssetImage('assets/rewards2/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores)]}'),
                         ),
                       ),
                     )
@@ -555,7 +533,7 @@ class WeeklyRecap extends StatelessWidget {
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
-                    footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                    footer: Text('?', style: TextStyle(fontSize: 10)),
                     percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
                       ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
                       : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
@@ -571,9 +549,9 @@ class WeeklyRecap extends StatelessWidget {
     );
   }
 
-  int imageToShow(List<double> scores){
+  int imageToShow(List<double> sleepScores, List<double> exerciseScores){
     int ind = 0;
-    for (double value in scores) {
+    for (double value in sleepScores) {
       if (value > 90) {
         ind = ind + 2;
       } else if (value < 80) {
@@ -582,7 +560,17 @@ class WeeklyRecap extends StatelessWidget {
         ind++;
       }
     }
-    return ind;
+    for (double value in exerciseScores) {
+      if (value > 85) {
+        ind = ind + 2;
+      } else if (value < 60) {
+      } 
+      else {
+        ind++;
+      }
+    }
+    print(ind ~/ 2);
+    return ind ~/ 2;
   }
   
   double percentageSun(HomeProvider provider) {
@@ -619,8 +607,8 @@ double? calculateAverageSleepScore(List<double> scores) {
   }
 }
 
-double calculateAverageExerciseScore(List<ExerciseData> exerciseData, int age, bool ageInserted) {
-  List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
+double calculateAverageExerciseScore(List<double> scores) {
+  //List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
   if (scores.isEmpty) {
     return 0;
   } else {
@@ -641,7 +629,7 @@ Widget getIconScore(double score) {
 }
 
 double computeScore(HomeProvider provider) {
-  List<ExerciseData> exerciseData = provider.exerciseData;
+  //List<ExerciseData> exerciseData = provider.exerciseData;
   double sleepScore;
   double exerciseScore; 
   double totalScore;
@@ -650,7 +638,7 @@ double computeScore(HomeProvider provider) {
   List<double> sleepScores = (provider.sleepScores["scores"] ?? []).cast<double>();
 
   sleepScore = calculateAverageSleepScore(sleepScores) ?? 0.0;
-  exerciseScore = calculateAverageExerciseScore(exerciseData, provider.age, provider.ageInserted);
+  exerciseScore = calculateAverageExerciseScore(provider.exerciseScores);
   totalScore = ((sleepScore + exerciseScore) / 2);
 
   return totalScore;

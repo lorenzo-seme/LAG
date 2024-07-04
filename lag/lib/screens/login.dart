@@ -20,8 +20,8 @@ class _LoginState extends State<Login> {
 
   Future<void> setSavedUsername(bool isChecked) async {
       final sp = await SharedPreferences.getInstance();
-      await sp.setString("saved_credentials","$isChecked");
-    }
+      await sp.setBool("saved_credentials", isChecked);
+  }
 
 
   void _showPassword() {
@@ -43,7 +43,10 @@ class _LoginState extends State<Login> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset('assets/logo_c.png', scale: 4), // CAMBIA LOGO
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.asset('assets/logo_c_1.png', scale: 3), // pensavo di mettere la scitta LAG con la A fatta dal cervello
+                ),
                 const SizedBox(height: 30),
                 const Text(
                   'Welcome! ',
