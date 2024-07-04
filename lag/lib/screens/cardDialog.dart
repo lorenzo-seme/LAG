@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lag/screens/sliderWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 // ignore: must_be_immutable
@@ -179,7 +180,13 @@ class _CardDialogState extends State<CardDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () {}, child: Text('More info')),
+            ElevatedButton(onPressed: () async {
+              (_currentAnswer == 'No1')
+              ? await launchUrl(Uri.parse('https://www.nia.nih.gov/health/exercise-and-physical-activity/5-tips-help-you-stay-motivated-exercise'))
+               : (_currentAnswer == 'No2') 
+                ? await launchUrl(Uri.parse('https://www.bronsonhealth.com/news/six-ways-to-find-time-for-the-gym-when-youre-busy/'))
+                : await launchUrl(Uri.parse('https://healthy.kaiserpermanente.org/health-wellness/healtharticle.7-tips-to-help-you-stick-with-a-workout-routine'));
+            }, child: Text('More info')),
             const SizedBox(width: 15),
             ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),

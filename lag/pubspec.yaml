@@ -39,6 +39,7 @@ dependencies:
   dropdown_button2: ^2.3.9
   percent_indicator: ^4.0.1 
   flutter_emoji: ^2.5.1
+  url_launcher: ^6.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -46,9 +47,17 @@ dependencies:
   provider: ^6.1.2
   material_design_icons_flutter: ^7.0.7296
 
+
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo_1.png"
+  remove_alpha_ios: true 
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

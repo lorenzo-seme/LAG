@@ -43,11 +43,12 @@ class _LoginState extends State<Login> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset('assets/logo.png', scale: 4), // CAMBIA LOGO
+                Image.asset('assets/logo_c.png', scale: 4), // CAMBIA LOGO
                 const SizedBox(height: 30),
                 const Text(
-                  'Welcome',
+                  'Welcome! ',
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(
                   height: 10,
@@ -71,7 +72,8 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: Colors.purple, width: 2.0)),
                     prefixIcon: const Icon(
                       Icons.person,
                     ),
@@ -97,7 +99,8 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        borderSide: BorderSide(color: Colors.purple, width: 2.0)),
                     prefixIcon: const Icon(
                       Icons.lock,
                     ),

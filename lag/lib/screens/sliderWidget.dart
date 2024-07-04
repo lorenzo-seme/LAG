@@ -49,6 +49,7 @@ class _SliderWidgetState extends State<SliderWidget> {
   @override
   Widget build(BuildContext context) {
   if (widget.buttonClickedToday) {
+    print('no ok');
     return Column(
         children: [
           Padding(
@@ -63,38 +64,39 @@ class _SliderWidgetState extends State<SliderWidget> {
                   Text(
           "Your workout performance of today",
           style: TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 20),
                   Row(
                     children: [
                       Flexible(
                         child: Text('Hard level: ${_currentValue[1]}'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       _currentValue[1]! > 5
                           ? Icon(Icons.thumb_up)
                           : Icon(Icons.thumb_down),
                     ],
                   ),
-                  const SizedBox(height: 10), // Aggiungi spazio tra le righe
+                  const SizedBox(height: 15), // Aggiungi spazio tra le righe
                   Row(
                     children: [
                       Flexible(
                         child: Text('Satisfaction level: ${_currentValue[2]}'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       _currentValue[2]! > 5
                           ? Icon(Icons.thumb_up)
                           : Icon(Icons.thumb_down),
                     ],
                   ),
-                  const SizedBox(height: 10), // Aggiungi spazio tra le righe
+                  const SizedBox(height: 15), // Aggiungi spazio tra le righe
                   Row(
                     children: [
                       Flexible(
                         child: Text('Wellness level: ${_currentValue[3]}'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       _currentValue[3]! > 5
                           ? Icon(Icons.thumb_up)
                           : Icon(Icons.thumb_down),
@@ -107,6 +109,7 @@ class _SliderWidgetState extends State<SliderWidget> {
         ],
       );
   } else {
+    print('ok');
       return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
