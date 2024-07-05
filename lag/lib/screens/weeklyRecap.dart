@@ -619,12 +619,16 @@ double calculateAverageExerciseScore(List<double> scores) {
 }
 
 Widget getIconScore(double score) {
-  if (score >= 75) {
-    return Icon(Icons.sentiment_very_satisfied); // average score above 80
-  } else if (score >= 45) {
-    return Icon(Icons.sentiment_neutral); // average score between 60 and 80
-  } else { 
-    return Icon(Icons.sentiment_very_dissatisfied); // average score below 60
+  if (score >= 90) {
+    return const Icon(Icons.sentiment_very_satisfied); 
+  } else if (score >= 80) {
+    return const Icon(Icons.sentiment_satisfied); 
+  } else if (score >= 70) {
+    return const Icon(Icons.sentiment_neutral); 
+  } else if (score >= 60) {
+    return const Icon(Icons.sentiment_dissatisfied); 
+  } else {
+    return const Icon(Icons.sentiment_very_dissatisfied); 
   }
 }
 

@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
               children: [
                 Align(
                   alignment: Alignment.center,
-                  child: Image.asset('assets/logo_c_1.png', scale: 3), // pensavo di mettere la scitta LAG con la A fatta dal cervello
+                  child: Image.asset('assets/logo_login.png', scale: 3), // pensavo di mettere la scitta LAG con la A fatta dal cervello
                 ),
                 const SizedBox(height: 30),
                 const Text(
