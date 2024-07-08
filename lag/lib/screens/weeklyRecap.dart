@@ -26,15 +26,13 @@ class WeeklyRecap extends StatelessWidget {
     int daysDifference = dateToday.difference(firstDayOfYear).inDays;
     int weekNumber = (daysDifference / 7).ceil() + 1;
     return "$weekNumber";
-}
+  } //getCurrentWeekIdentifier
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: /*ChangeNotifierProvider(
-            create: (context) => HomeProvider(),
-            builder: (context, child) => */Padding(
+          child: Padding(
               padding:
                   const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
               child: Consumer<HomeProvider>(builder: (context, provider, child) {
@@ -42,7 +40,8 @@ class WeeklyRecap extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 18)),
+                    Text("Hello, ${provider.nick}!", 
+                      style: const TextStyle(fontSize: 18)),
                     const SizedBox(height: 25),
                     Container(
                       decoration: const BoxDecoration(
@@ -478,31 +477,42 @@ class WeeklyRecap extends StatelessWidget {
 
           // Second Column (center)
           Column(
-            children: [
-              ((provider.sleepScores)["scores"] != null)
-                  ? Container(
-                      width: 160,
-                      height: 260,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            bottomLeft: Radius.circular(15.0),
-                            bottomRight: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0)),
-                        image: DecorationImage(
-                          fit: BoxFit.contain,
-                          image: AssetImage('assets/rewards2/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores)]}'),
-                        ),
-                      ),
-                    )
-                  : CircularProgressIndicator(),
-              (provider.end.year == provider.showDate.year &&
-                      provider.end.month == provider.showDate.month &&
-                      provider.end.day == provider.showDate.day)
-                  ? Text("Still growing!")
-                  : Text("Your plant for that week"), // cambia questa frase
-            ],
-          ),
+              children: [
+                ((provider.sleepScores)["scores"] != null)
+                    ? FutureBuilder<int>(
+                        future: imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores, provider),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return Container(
+                              width: 160,
+                              height: 260,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(15.0),
+                                  bottomLeft: Radius.circular(15.0),
+                                  bottomRight: Radius.circular(15.0),
+                                  topRight: Radius.circular(15.0)),
+                                image: DecorationImage(
+                                  fit: BoxFit.contain,
+                                  image: AssetImage('assets/rewards2/${fromIntToImg[snapshot.data]}'),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    : CircularProgressIndicator(),
+                (provider.end.year == provider.showDate.year &&
+                        provider.end.month == provider.showDate.month &&
+                        provider.end.day == provider.showDate.day)
+                    ? Text("Still growing!")
+                    : Text("Your plant for that week"), // cambia questa frase
+              ],
+            ),
           
           // Spacer to push third column to the right
           Spacer(),
@@ -533,7 +543,7 @@ class WeeklyRecap extends StatelessWidget {
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
-                    footer: Text('?', style: TextStyle(fontSize: 10)),
+                    footer: Text('Score', style: TextStyle(fontSize: 10)),
                     percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
                       ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
                       : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
@@ -541,7 +551,7 @@ class WeeklyRecap extends StatelessWidget {
                     //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
-              ],
+              ], // METTI QUI IL VALORE PERCENTUALE DELLA CRESCITA DELLA PIANTINA !!!
             ),
           ],
       ),
@@ -549,8 +559,20 @@ class WeeklyRecap extends StatelessWidget {
     );
   }
 
-  int imageToShow(List<double> sleepScores, List<double> exerciseScores){
+  Future<int> imageToShow(List<double> sleepScores, List<double> exerciseScores, HomeProvider provider) async {
     int ind = 0;
+    DateTime start = provider.start;
+    DateTime end = provider.end;
+
+    List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
+      List<DateTime> daysOfWeek = [];
+      for (int i = 0; i <= end.difference(start).inDays; i++) {
+        daysOfWeek.add(start.add(Duration(days: i)));
+      }
+      return daysOfWeek;
+    }
+    List<DateTime> daysOfWeek = generateDaysOfWeek(start, end);
+
     for (double value in sleepScores) {
       if (value > 90) {
         ind = ind + 2;
@@ -560,6 +582,7 @@ class WeeklyRecap extends StatelessWidget {
         ind++;
       }
     }
+
     for (double value in exerciseScores) {
       if (value > 85) {
         ind = ind + 2;
@@ -569,9 +592,22 @@ class WeeklyRecap extends StatelessWidget {
         ind++;
       }
     }
-    print(ind ~/ 2);
-    return ind ~/ 2;
-  }
+
+    for (DateTime day in daysOfWeek) {
+      if (await provider.getMoodScore(day) != null) {
+        ind++;
+      }
+      if (await provider.getMoodText() != null) {
+        if ((await provider.getMoodText())![day] != null) {
+          ind++;
+        }
+      }
+    }
+
+    print(ind ~/ 3);
+    return ind ~/ 3;
+  } //imageToShow
+
   
   double percentageSun(HomeProvider provider) {
     if (provider.todayMoodTracked) {
@@ -581,22 +617,10 @@ class WeeklyRecap extends StatelessWidget {
     } else {
       return 0;
     }
-  }
-
+  } //percentageSun
 }
 
 
-
-/*
-String calculateAverageSleepScoreString(List<double> scores) {
-  List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
-  if (validScores.isEmpty) {
-    return "No data available"; // if no valid scores
-  } else {
-    double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
-    return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
-  }
-}*/
 double? calculateAverageSleepScore(List<double> scores) {
   List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
   if (validScores.isEmpty) {

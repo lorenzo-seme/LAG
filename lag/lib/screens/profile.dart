@@ -56,7 +56,7 @@ class Profile extends StatelessWidget {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const PersonalInfo()));
                   },
-                ),
+                ),/*
                 Divider(
                   color: Color(0xFFFFFFFF),
                   thickness: 3,
@@ -68,7 +68,7 @@ class Profile extends StatelessWidget {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Settings()));
                   },
-                )
+                )*/
               ],
             ),
             const SizedBox(
@@ -131,7 +131,7 @@ class Profile extends StatelessWidget {
             ),
             const SizedBox(
               height: 30,
-            ),
+            ),/*
             Align(
               alignment: Alignment.bottomCenter,
               child: Text(
@@ -141,7 +141,7 @@ class Profile extends StatelessWidget {
                         color: Colors.black.withOpacity(0.6)
                     ),
               ),
-            )
+            )*/
           ],
         ),
       ),

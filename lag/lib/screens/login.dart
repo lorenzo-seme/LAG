@@ -15,14 +15,12 @@ class _LoginState extends State<Login> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  //final Impact impact = Impact();
   bool isChecked = false;
 
   Future<void> setSavedUsername(bool isChecked) async {
       final sp = await SharedPreferences.getInstance();
       await sp.setBool("saved_credentials", isChecked);
-  }
-
+  } //setSavedUsername
 
   void _showPassword() {
     setState(() {
@@ -45,23 +43,19 @@ class _LoginState extends State<Login> {
               children: [
                 Align(
                   alignment: Alignment.center,
-                  child: Image.asset('assets/logo_login.png', scale: 3), // pensavo di mettere la scitta LAG con la A fatta dal cervello
+                  child: Row(
+                    children: [
+                      Image.asset('assets/logo_1.png', scale: 3),
+                      Image.asset('assets/logo_2.png', scale: 1.3)
+                    ],
+                  ), 
                 ),
                 const SizedBox(height: 30),
-                const Text(
-                  'Welcome! ',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30),
+                const Text('Welcome to LAG!',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  'Login',
-                ),
-                const SizedBox(
-                  height: 25,
-                ),
+                const SizedBox(height: 25),
                 TextFormField(
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
@@ -76,7 +70,7 @@ class _LoginState extends State<Login> {
                     ),
                     border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        borderSide: BorderSide(color: Colors.purple, width: 2.0)),
+                        borderSide: BorderSide(color: Color(0xFF4e50bf), width: 2.0)),
                     prefixIcon: const Icon(
                       Icons.person,
                     ),
@@ -103,13 +97,12 @@ class _LoginState extends State<Login> {
                     ),
                     border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        borderSide: BorderSide(color: Colors.purple, width: 2.0)),
+                        borderSide: BorderSide(color: Color(0xFF4e50bf), width: 2.0)),
                     prefixIcon: const Icon(
                       Icons.lock,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        // Based on passwordVisible state choose the icon
                         _passwordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
@@ -126,6 +119,7 @@ class _LoginState extends State<Login> {
                 Row(
                   children: [
                     Checkbox(
+                      activeColor: Color(0xFF4e50bf),
                       value: isChecked,
                       onChanged: (value) async{
                         setState(() {
@@ -159,12 +153,12 @@ class _LoginState extends State<Login> {
                                   ..removeCurrentSnackBar()
                                   ..showSnackBar(
                                     const SnackBar(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Colors.grey,
                                       behavior: SnackBarBehavior.floating,
                                       margin: EdgeInsets.all(8),
                                       duration: Duration(seconds: 2),
-                                      content: Text(
-                                          "Username or password incorrect"),
+                                      content: Text("Username or password incorrect",
+                                        textAlign: TextAlign.center,),
                                     ),
                                   );
                               }
@@ -174,7 +168,7 @@ class _LoginState extends State<Login> {
                               ..removeCurrentSnackBar()
                               ..showSnackBar(
                                 const SnackBar(
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: Colors.grey,
                                   behavior: SnackBarBehavior.floating,
                                   margin: EdgeInsets.all(8),
                                   duration: Duration(seconds: 2),
@@ -198,6 +192,7 @@ class _LoginState extends State<Login> {
                         child: const Text('Log In'),
                       ),
                     )),
+                /*  
                 const Spacer(),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -205,7 +200,7 @@ class _LoginState extends State<Login> {
                     "By logging in, you agree to LAG's\nTerms & Conditions and Privacy Policy",
                     style: TextStyle(fontSize: 12),
                   ),
-                ),
+                ),*/
               ],
             ),
           ),
