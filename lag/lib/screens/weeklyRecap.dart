@@ -26,15 +26,13 @@ class WeeklyRecap extends StatelessWidget {
     int daysDifference = dateToday.difference(firstDayOfYear).inDays;
     int weekNumber = (daysDifference / 7).ceil() + 1;
     return "$weekNumber";
-}
+  } //getCurrentWeekIdentifier
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SafeArea(
-          child: /*ChangeNotifierProvider(
-            create: (context) => HomeProvider(),
-            builder: (context, child) => */Padding(
+          child: Padding(
               padding:
                   const EdgeInsets.only(left: 12.0, right: 12.0, top: 10, bottom: 20),
               child: Consumer<HomeProvider>(builder: (context, provider, child) {
@@ -42,7 +40,8 @@ class WeeklyRecap extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello, ${provider.nick}!",style: const TextStyle(fontSize: 18)),
+                    Text("Hello, ${provider.nick}!", 
+                      style: const TextStyle(fontSize: 18)),
                     const SizedBox(height: 25),
                     Container(
                       decoration: const BoxDecoration(
@@ -114,6 +113,7 @@ class WeeklyRecap extends StatelessWidget {
                       ),
                     ),
                     Gamification(provider),
+                    /*
                     Padding(
                             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
                             child: Column(
@@ -146,6 +146,7 @@ class WeeklyRecap extends StatelessWidget {
                               ],
                             ),
                     ),
+                    */
                     const SizedBox(height: 15),
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
@@ -450,7 +451,7 @@ class WeeklyRecap extends StatelessWidget {
                     )
                   : CircularProgressIndicator(),
               const SizedBox(height: 40),
-              ((provider.sleepScores)["scores"] != null)
+              (provider.exerciseScores != null)
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -481,31 +482,50 @@ class WeeklyRecap extends StatelessWidget {
 
           // Second Column (center)
           Column(
-            children: [
-              ((provider.sleepScores)["scores"] != null)
-                  ? Container(
-                      width: 160,
-                      height: 260,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            bottomLeft: Radius.circular(15.0),
-                            bottomRight: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0)),
-                        image: DecorationImage(
-                          fit: BoxFit.contain,
-                          image: AssetImage('assets/rewards2/${fromIntToImg[imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores)]}'),
-                        ),
-                      ),
-                    )
-                  : CircularProgressIndicator(),
-              (provider.end.year == provider.showDate.year &&
-                      provider.end.month == provider.showDate.month &&
-                      provider.end.day == provider.showDate.day)
-                  ? Text("Still growing!")
-                  : Text("Your plant for that week"), // cambia questa frase
-            ],
-          ),
+              children: [
+                ((provider.plantScore) != null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
+                    ?  /*FutureBuilder<int>(
+                        future: imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores, provider),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Container(
+                              width: 160,
+                              height: 260,
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return*/ Container(
+                              width: 160,
+                              height: 260,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(15.0),
+                                  bottomLeft: Radius.circular(15.0),
+                                  bottomRight: Radius.circular(15.0),
+                                  topRight: Radius.circular(15.0)),
+                                image: DecorationImage(
+                                  fit: BoxFit.contain,
+                                  image: AssetImage('assets/rewards2/${fromIntToImg[provider.plantScore]}'),
+                                ),
+                              ),
+                            )
+                          
+                        
+                      
+                    : Container(
+                              width: 160,
+                              height: 260,
+                              child: CircularProgressIndicator(),
+                    ),
+                (provider.end.year == provider.showDate.year &&
+                        provider.end.month == provider.showDate.month &&
+                        provider.end.day == provider.showDate.day)
+                    ? Text("Still growing!")
+                    : Text("Your plant for that week"), // cambia questa frase
+              ],
+            ),
           
           // Spacer to push third column to the right
           Spacer(),
@@ -513,7 +533,7 @@ class WeeklyRecap extends StatelessWidget {
           // Third Column (right)
           Column(
             children: [
-              ((provider.sleepScores)["scores"] != null)
+              (provider.moodScores != null) // metti mood nel provider, in modo da poter fare un controllo tip provider.mood != null
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -522,13 +542,13 @@ class WeeklyRecap extends StatelessWidget {
                       animation: true,
                       animationDuration: 1000,
                       footer: Text('Mood', style: TextStyle(fontSize: 10)),
-                      percent: percentageSun(provider),
+                      percent: calculateAverageMoodScore(provider.moodScores),
                       circularStrokeCap: CircularStrokeCap.round,
                     //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
                 const SizedBox(height: 40),
-                ((provider.sleepScores)["scores"]!=null)
+                (provider.plantScore !=null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
                 ?  CircularPercentIndicator(
                     radius: 35,
                     lineWidth: 8,
@@ -536,70 +556,22 @@ class WeeklyRecap extends StatelessWidget {
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
-                    footer: Text('?', style: TextStyle(fontSize: 10)),
-                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                      ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
-                      : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                    footer: Text('Plant progress', style: TextStyle(fontSize: 10)),
+                    percent: provider.plantScore / 14,
                     circularStrokeCap: CircularStrokeCap.round,
                     //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
-              ],
+              ], // METTI QUI IL VALORE PERCENTUALE DELLA CRESCITA DELLA PIANTINA !!!
             ),
           ],
       ),
     ),
     );
   }
-
-  int imageToShow(List<double> sleepScores, List<double> exerciseScores){
-    int ind = 0;
-    for (double value in sleepScores) {
-      if (value > 90) {
-        ind = ind + 2;
-      } else if (value < 80) {
-      } 
-      else {
-        ind++;
-      }
-    }
-    for (double value in exerciseScores) {
-      if (value > 85) {
-        ind = ind + 2;
-      } else if (value < 60) {
-      } 
-      else {
-        ind++;
-      }
-    }
-    print(ind ~/ 2);
-    return ind ~/ 2;
-  }
-  
-  double percentageSun(HomeProvider provider) {
-    if (provider.todayMoodTracked) {
-      return 0.5;
-    } else if (provider.firstThoughtsubmitted) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
 }
 
 
-
-/*
-String calculateAverageSleepScoreString(List<double> scores) {
-  List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
-  if (validScores.isEmpty) {
-    return "No data available"; // if no valid scores
-  } else {
-    double averageScore = validScores.reduce((a, b) => a + b) / validScores.length;
-    return "Sleep score: ${averageScore.toStringAsFixed(1)}%";
-  }
-}*/
 double? calculateAverageSleepScore(List<double> scores) {
   List<double> validScores = scores.where((score) => score >= 0).toList(); // to not consider scores=-1 (days without sleep data)
   if (validScores.isEmpty) {
@@ -612,6 +584,16 @@ double? calculateAverageSleepScore(List<double> scores) {
 
 double calculateAverageExerciseScore(List<double> scores) {
   //List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
+  if (scores.isEmpty) {
+    return 0;
+  } else {
+    double sum = scores.reduce((a, b) => a + b); // Sum all elements in the list
+    double average = sum / scores.length;
+    return double.parse(average.toStringAsFixed(2));
+  }
+}
+
+double calculateAverageMoodScore(List<double> scores) {
   if (scores.isEmpty) {
     return 0;
   } else {
@@ -636,7 +618,7 @@ Widget getIconScore(double score) {
     return const Icon(Icons.sentiment_very_dissatisfied); 
   }
 }
-
+/*
 double computeScore(HomeProvider provider) {
   //List<ExerciseData> exerciseData = provider.exerciseData;
   double sleepScore;
@@ -652,4 +634,4 @@ double computeScore(HomeProvider provider) {
 
   return totalScore;
 }
-
+*/

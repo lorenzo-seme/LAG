@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/screens/personal_info.dart';
-import 'package:lag/screens/settings.dart';
 import 'package:provider/provider.dart';
 // import 'package:lag/screens/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +55,7 @@ class Profile extends StatelessWidget {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const PersonalInfo()));
                   },
-                ),
+                ),/*
                 Divider(
                   color: Color(0xFFFFFFFF),
                   thickness: 3,
@@ -68,7 +67,7 @@ class Profile extends StatelessWidget {
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => Settings()));
                   },
-                )
+                )*/
               ],
             ),
             const SizedBox(
@@ -131,7 +130,7 @@ class Profile extends StatelessWidget {
             ),
             const SizedBox(
               height: 30,
-            ),
+            ),/*
             Align(
               alignment: Alignment.bottomCenter,
               child: Text(
@@ -141,7 +140,7 @@ class Profile extends StatelessWidget {
                         color: Colors.black.withOpacity(0.6)
                     ),
               ),
-            )
+            )*/
           ],
         ),
       ),

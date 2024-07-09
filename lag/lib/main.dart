@@ -10,11 +10,10 @@ void main() {
 class MyApp extends StatelessWidget { 
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-          create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
+          create: (context) => HomeProvider(), 
           builder: (context, child) => MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
