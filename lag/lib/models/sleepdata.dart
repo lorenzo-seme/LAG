@@ -37,9 +37,6 @@ class SleepData extends AllData{
           "rem": double.parse((json["data"] is List ? json["data"][0]["levels"]["summary"]["rem"]["minutes"] : json["data"]["levels"]["summary"]["rem"]["minutes"]).toStringAsFixed(1)),
         },
         super(day: DateFormat('yyyy-MM-dd').parse(json["date"]));       
-  
-  // nota che in alcuni (rari) giorni, il contenuto di json["data"] è una lista di un solo elemento (problema del server probabilmente)
-  // gestiamo questa possibilità con l'operatore ternario
 
   @override
   String toString() {

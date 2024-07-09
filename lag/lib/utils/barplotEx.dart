@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-//import 'package:lag/algorithms/sleep_score.dart';
 
 class BarChartSample7 extends StatefulWidget {
   const BarChartSample7(
@@ -64,14 +63,13 @@ class _BarChartSample7State extends State<BarChartSample7> {
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
-              maxY: 1.0, // Imposta il valore massimo sull'asse Y
-              titlesData: FlTitlesData(show: false),
+              maxY: 1.0,
+              titlesData: const FlTitlesData(show: false),
               borderData: FlBorderData(show: false),
               barGroups: List.generate(7, (index) {
                 return BarChartGroupData(
                     x: 0, barRods: [BarChartRodData(toY: 0)]);
-              }), // Barra con altezza zero
-              // Aggiungi altre barre con altezza zero qui
+              }),
             ),
           ),
         ),
@@ -205,7 +203,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
                               ),
                               actions: [
                                 TextButton(
-                                  child: Text('Close'),
+                                  child: const Text('Close'),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },

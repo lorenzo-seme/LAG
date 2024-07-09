@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:lag/utils/barplotHR.dart';
-//import 'package:lag/utils/barplot.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-// CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class RhrScreen extends StatefulWidget {
   final HomeProvider provider;
 
@@ -40,14 +38,8 @@ class _RhrScreenState extends State<RhrScreen>{
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(/*
-        title: const Row(
-          children: [
-            //Icon(Icons.favorite),
-            SizedBox(width: 10),
-            Text('Resting heart rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-          ],
-        ),*/
+      appBar: AppBar(
+        title: const Text("Resting heart rate", style: TextStyle(fontSize: 24, color: Colors.black)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -65,8 +57,6 @@ class _RhrScreenState extends State<RhrScreen>{
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Resting heart rate", style: TextStyle(fontSize: 24, color: Colors.black)),
-                  //Text('About last 6 months', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 5),
                   (widget.provider.monthlyHeartRateData.isEmpty) 
                   ? CircularProgressIndicator()
@@ -88,14 +78,14 @@ class _RhrScreenState extends State<RhrScreen>{
                             _isAvgRhrCardExpanded = ! _isAvgRhrCardExpanded;
                           });
                         },
-                        child:  Column(
+                        child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ListTile(
                                 leading: const Icon(Icons.monitor_heart),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0) | (widget.provider.monthlyHeartRateData.last.value < 55.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
                                 ),
                                 title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
@@ -110,7 +100,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Your resting heart rate should be between 55 and 80 bpm. A resting heart rate between 81 and 90 doubles the risk of premature death. If greater than 90, the risk is three times higher. ", style: TextStyle(fontSize: 14.0)),
+                                      Text("Your resting heart rate should be between 55 and 80 bpm. A resting heart rate between 81 and 90 doubles the risk of premature death. If greater than 90, the risk is three times higher. If your resting heart rate is lower than 55 and you're not an athlete... contact your doctor!", style: TextStyle(fontSize: 14.0)),
                                       // fonte https://heart.bmj.com/content/99/12/882.full?sid=90e3623c-1250-4b94-928c-0a8f95c5b36b
                                     ],
                                   ),
@@ -120,8 +110,6 @@ class _RhrScreenState extends State<RhrScreen>{
                       ),
                     ),
                   ),
-                  // gestisci caso in cui <55, dovrebbe mostrare un alert dialog dicendo tipo "maybe you're an athlete... If not, contact your doctor!"
-                  // se l'utente schiaccia su I'm an athlete, questo viene ricordato (sp) e non gli viene più mostrato questo alert
 
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
@@ -140,10 +128,6 @@ class _RhrScreenState extends State<RhrScreen>{
                             children: [
                               ListTile(
                                 leading: const Icon(Icons.directions_run),
-                                trailing: SizedBox(
-                                  width: 10,
-                                  child: widget.provider.monthlyHeartRateData.last.value > 80.0 ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
-                                ),
                                 title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
                                   Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -152,33 +136,45 @@ class _RhrScreenState extends State<RhrScreen>{
                                     : null,
                               ),
                               if(_isRhrCalculatorExpanded & !(widget.provider.ageInserted) & (widget.provider.showAlertForAge)) ...[
-                                AlertDialog(title: const Text('Alert'),
-                                  content: const SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        Text('To be more precise, we need your age. Would you like to go to Profile page and add it? If you press no, an age of 25 will be used for the following computations.'),
+
+                                Column(
+                                  children: [
+                                    const Text("Estimates were made assuming that your age is 25. \nAdd your personal information for a customized advice!",
+                                      style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        TextButton(
+                                          child: const Text('To Personal Info',
+                                            style: TextStyle(fontSize: 11.0)),
+                                          onPressed: () async {
+                                            await Navigator.of(context).push(
+                                              MaterialPageRoute(builder: (context) => PersonalInfo())
+                                            );
+                                            final sp = await SharedPreferences.getInstance();
+                                            final name = sp.getString('name');
+                                            final userAge = sp.getString('userAge');
+                                            setState(() {
+                                              widget.provider.showAlertForAge = false;
+                                              if (userAge != null && name != null) {
+                                                widget.provider.nick = name;
+                                                widget.provider.age = int.parse(userAge);
+                                              } 
+                                            });
+                                          },
+                                        ),
+
+                                        TextButton(
+                                          child: const Text('Do not ask again',
+                                            style: TextStyle(fontSize: 11.0)),
+                                          onPressed: () {
+                                            setState(() {
+                                              widget.provider.showAlertForAge = false;
+                                            });
+                                          },
+                                        )
                                       ],
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: const Text('Yes'),
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => PersonalInfo())
-                                        );
-                                        setState(() {
-                                            widget.provider.showAlertForAge = false;
-                                        });
-                                      },
-                                    ),
-                                    TextButton(
-                                      onPressed: (){
-                                        setState(() {
-                                          widget.provider.showAlertForAge = false;
-                                        });
-                                      }, 
-                                      child: const Text('No'))
+                                    )
                                   ],
                                 ),
                                 ] else if(_isRhrCalculatorExpanded)...[
@@ -188,7 +184,6 @@ class _RhrScreenState extends State<RhrScreen>{
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text("Exercise is the best way to lower your resting heart rate. Here we guide you in setting a target heart rate to be maintained while exercising. Keep in mind that high-intensity aerobic training is the best way, but if you don't exercise regularly, you should check with your doctor before you set a target heart rate. We recommend you to gradually increase the intensity. ", style: TextStyle(fontSize: 14.0),),
-                                      //Text("If you have heart diseases or feel pain, always contact your doctor before starting a training program!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
                                       SizedBox(height: 10,),
                                       Text("Choose an intensity level: ", style: TextStyle(fontSize: 14.0)),
                                       SizedBox(height: 10,),
@@ -294,32 +289,6 @@ class _RhrScreenState extends State<RhrScreen>{
                       ),
                     ),
                   ),
-                  
-
-
-
-                  /*
-                  const SizedBox(height: 5),
-                  RichText(
-                    text: TextSpan(
-                      children:[
-                        TextSpan(
-                          text: "To better understand these data, ",
-                          style: TextStyle(color: Colors.black)
-                        ),
-                        TextSpan(
-                          text: "press here",
-                          style: TextStyle(color: Colors.blue),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {Navigator.of(context).push(MaterialPageRoute(builder: (_) => InfoRHR()));},
-                        ),
-                        TextSpan(
-                          text: ".",
-                          style: TextStyle(color: Colors.black)
-                        ),
-                      ]
-                    ),
-                  ),*/
                 ],
               ),
           ),

@@ -1,16 +1,4 @@
-// DA SISTEMARE
-// non riesco rip 1. FAI IN MODO CHE SAVE IN MY DIARY SIA POSSIBILE SOLO QUANDO C'è EFFETTIVAMENTE DEL TESTO INSERITO NEL BOX
-// fatto 2. FAI IN MODO CHE OLTRE CHE A RICORDARE NEL PROVIDER CHE HAI GIà INSERITO IL MOOD, CHE ANCHE NON TI RICHIEDA DI DIRE COME MAI TI SEI SENTITO COSI
-// fatto 3. POTREBBE ESSERE UN PROBLEMA SALVARE QUESTE COSE NELLE SP SE POI CON IL LOGOUT VIENE TUTTO DIMENTICATO: 
-//    AVVIDA L'UTENTE PRIMA DEL LOG OUT modifica in profile
-// 4. NEL PROVIDER FORSE CONVERRà CAMBIARE IL GETMOOD SULLA STESSA LOGICA DI GETMOODTEXT (DA VALUTARE QUANDO CALCOLEREMO LO SCORE TOTALE)
-
-// AD AGGIUNGERE
-// 1. CONSIGLI RANDOMICI MOTIVAZIONALI IN BASE AL MOOD
-// 2. CONSIGLI MUSICALI IN BASE AL GENERE PREFERITO?
-// 3. DISCAIMER SULL'IMPORTANZA DEL MOOD TRACKING
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
@@ -46,7 +34,6 @@ class _MoodScreenState extends State<MoodScreen> {
     "very happy",
   ];
 
-  // Frasi motivazionali per ciascun mood
   Map<String, List<String>> moodMotivationalPhrases = {
     "very sad": [
       "Even the darkest nights will end and the sun will rise again.",
@@ -69,7 +56,6 @@ class _MoodScreenState extends State<MoodScreen> {
       "There is beauty in the journey of healing, even amidst pain.",
       "Your heart knows how to heal itself. Trust in the process.",
       "In the depth of winter, I finally learned that within me there lay an invincible summer.",
-      // Aggiungi altre frasi motivazionali per "very sad" qui
     ],
     "a little sad": [
       "Every cloud has a silver lining, even on gray days.",
@@ -92,7 +78,6 @@ class _MoodScreenState extends State<MoodScreen> {
       "Gentle reminders: You are loved, you matter, and you are enough.",
       "The world needs your unique light and perspective.",
       "Be kind to yourself as you navigate through challenging emotions."
-      // Aggiungi altre frasi motivazionali per "a little sad" qui
     ],
     "just okay": [
       "Every day may not be good, but there is something good in every day.",
@@ -115,7 +100,6 @@ class _MoodScreenState extends State<MoodScreen> {
       "Focus on what you can control; let go of what you cannot.",
       "You have the power to create positive change in your life.",
       "You're capable of finding happiness in unexpected places.",
-      // Aggiungi altre frasi motivazionali per "just okay" qui
     ],
     "quite happy": [
       "Your positivity shines bright and lifts those around you.",
@@ -138,7 +122,6 @@ class _MoodScreenState extends State<MoodScreen> {
       "Find beauty in the simple pleasures of everyday life.",
       "Your enthusiasm and zest for life are inspiring.",
       "Choose happiness, even when faced with challenges."
-      // Aggiungi altre frasi motivazionali per "quite happy" qui
     ],
     "very happy": [
       "Your happiness is a beacon of light for those around you.",
@@ -161,11 +144,10 @@ class _MoodScreenState extends State<MoodScreen> {
       "Celebrate the journey that led you to this moment of happiness.",
       "Your smile lights up the room and warms hearts.",
       "Chase your dreams with a heart full of joy and determination.",
-      // Aggiungi altre frasi motivazionali per "very happy" qui
     ],
   };
 
-  String? _selectedMotivationalPhrase; // Frase motivazionale selezionata casualmente
+  String? _selectedMotivationalPhrase;
 
   @override
   Widget build(BuildContext context) {
@@ -173,22 +155,22 @@ class _MoodScreenState extends State<MoodScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Icon(Icons.wb_cloudy, color: Color(0xFF4e50bf)), 
+            const Icon(Icons.wb_cloudy), 
             const SizedBox(width: 10),
             Text(
               DateFormat('EEE, d MMM').format(DateTime.now()), 
               textAlign: TextAlign.center, 
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF4e50bf)), 
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold), 
             ),
           ],
         ),        
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF4e50bf)), 
+          icon: const Icon(Icons.arrow_back), 
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        backgroundColor: Color.fromARGB(255, 247, 202, 202),
+        backgroundColor: const Color.fromARGB(255, 227, 211, 244),
       ),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -197,9 +179,9 @@ class _MoodScreenState extends State<MoodScreen> {
             child: Column(
               children: [
                 const Text("How are you feeling today?", 
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4e50bf))), 
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color.fromARGB(202, 97, 20, 169))), 
                 const Text('Tracking your mood can provide valuable insights into your emotional well-being, helping you identify triggers',
-                  style: const TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,),
                 const SizedBox(height: 5),
                 _buildMoodTrackerCard(),
@@ -215,7 +197,6 @@ class _MoodScreenState extends State<MoodScreen> {
   @override
   void initState() {
     super.initState();
-    // Carica lo stato precedente dell'icona selezionata se todayMoodTracked è true
     if (widget.provider.todayMoodTracked) {
       widget.provider.getMoodScore(DateTime.now()).then((moodScore) {
         if (moodScore != null) {
@@ -252,7 +233,7 @@ class _MoodScreenState extends State<MoodScreen> {
                     setState(() {
                       _selectedMoodIndex = index;
                       _selectRandomMotivationalPhrase(moodLabels[index]);
-                      _saveMood(); // Salva il mood selezionato
+                      _saveMood();
                     });
                   },
                   child: Column(
@@ -260,8 +241,8 @@ class _MoodScreenState extends State<MoodScreen> {
                       Icon(
                         moodIcons[index],
                         color: _selectedMoodIndex == index 
-                          ? const Color.fromARGB(255, 247, 202, 202)
-                          : const Color(0xFF4e50bf), 
+                          ? const Color.fromARGB(255, 241, 98, 88)
+                          : const Color.fromARGB(202, 97, 20, 169), 
                         size: _selectedMoodIndex == index 
                           ? 50
                           : 40,
@@ -306,16 +287,15 @@ class _MoodScreenState extends State<MoodScreen> {
                   : 'This box will stay open for you.\nFeel free to enter any other thought that comes to your mind!',
                 hintStyle: const TextStyle(fontSize: 12),
                 border: const OutlineInputBorder(),
-                fillColor: const Color(0xFFe3b74f), 
               ),
             ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _submitFeelings,
             child: const Text("Save in my diary",
-              style: TextStyle(color: const Color(0xFF4e50bf))),
+              style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 247, 202, 202), 
+                    backgroundColor: const Color.fromARGB(202, 97, 20, 169), 
                   ),
           ),
           const SizedBox(height: 10),
@@ -328,7 +308,7 @@ class _MoodScreenState extends State<MoodScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFe3b74f), 
+        color:  const Color.fromARGB(202, 97, 20, 169), 
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -336,62 +316,35 @@ class _MoodScreenState extends State<MoodScreen> {
         children: [
           Text(
             _selectedMotivationalPhrase!,
-            style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Color(0xFF4e50bf)), 
+            style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.white), 
           ),
         ],
       ),
     );
   }
 
-/*
-  void _submitFeelings() {
-    setState(() {
-      _saved = true;
-      _saveMoodText(_moodController.text); 
-      _moodController.clear(); // Clear the text field
-    });
-  }
-  */
   void _submitFeelings() async {
-  // Verifica se il contenuto del TextField è vuoto
   if (_moodController.text.isEmpty) {
-    // Mostra un messaggio di errore o un feedback all'utente
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please enter your thoughts before saving.')),
+      const SnackBar(content: Text('Please enter your thoughts before saving.')),
     );
     return;
   }
-
-
-  // Salva il contenuto del TextField
   await _saveMoodText(_moodController.text);
-
-  // Aggiorna lo stato per riflettere che i dati sono stati salvati
   setState(() {
     _saved = true;
   });
-
-  // Cancella il contenuto del TextField
   _moodController.clear();
-
-  // Mostra un messaggio di conferma o un feedback all'utente
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Your mood has been saved successfully.')),
+    const SnackBar(content: Text('Your mood has been saved successfully.')),
   );
 }
-
-
 
   Future<void> _saveMood() async {
     int moodScore = _selectedMoodIndex! + 1;
     await widget.provider.saveMoodScore(DateTime.now(), moodScore);
   }
 
-/*
-  Future<void> _saveMoodText(String text) async {
-    await widget.provider.saveMoodText(DateTime.now(), text);
-  }
-*/
 Future<void> _saveMoodText(String text) async {
   await widget.provider.saveMoodText(DateTime.now(), text);
 }
@@ -407,7 +360,7 @@ Future<void> _saveMoodText(String text) async {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-          MaterialPageRoute(builder: (context) => DiaryScreen(provider: widget.provider)), 
+          MaterialPageRoute(builder: (context) => DiaryScreen(provider: widget.provider, showArrow: true,)), 
         );
       },
       child: const Card(
@@ -416,7 +369,7 @@ Future<void> _saveMoodText(String text) async {
         child: Padding(
           padding: EdgeInsets.all(5.0),
           child: ListTile(
-            trailing: Icon(Icons.book, color: const Color(0xFF4e50bf)),
+            trailing: Icon(Icons.book),
             title: Text("My diary", style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
             subtitle: Text('Tap to read your old thoughts', style: TextStyle(fontSize: 11.0)),
           ),

@@ -3,12 +3,12 @@ import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:provider/provider.dart';
-// import 'package:lag/screens/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Profile extends StatelessWidget {
-  const Profile({super.key});
+  final HomeProvider provider;
+  const Profile({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +35,6 @@ class Profile extends StatelessWidget {
             const SizedBox(
               height: 15,
             ),
-            /*
-            const Text(
-              "Account",
-              style: TextStyle(fontSize: 16),
-            ),
-            */
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,19 +49,7 @@ class Profile extends StatelessWidget {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const PersonalInfo()));
                   },
-                ),/*
-                Divider(
-                  color: Color(0xFFFFFFFF),
-                  thickness: 3,
                 ),
-                ListTile(
-                  leading: Text("Settings", style: TextStyle(fontSize: 14)),
-                  trailing: Icon(Icons.navigate_next),
-                  onTap: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => Settings()));
-                  },
-                )*/
               ],
             ),
             const SizedBox(
@@ -96,23 +78,6 @@ class Profile extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            /*Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () async {
-                  _toLogin(context); 
-                },
-                style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                        const EdgeInsets.symmetric(
-                            horizontal: 80, vertical: 12)),
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color(0xFF384242))),
-                child: const Text('Log Out'),
-              ),
-            ),*/
             Align(
               alignment: Alignment.center,
               child: ElevatedButton(
@@ -130,17 +95,7 @@ class Profile extends StatelessWidget {
             ),
             const SizedBox(
               height: 30,
-            ),/*
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                "version 2.0.0",
-                style: TextStyle(
-                        fontSize: 14, 
-                        color: Colors.black.withOpacity(0.6)
-                    ),
-              ),
-            )*/
+            ),
           ],
         ),
       ),
@@ -153,10 +108,10 @@ class Profile extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Are you sure you want to log out?',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center),
           content: const Text('Remember that logging out will result in the loss of your diary!',
-            style: const TextStyle(fontSize: 13),
+            style: TextStyle(fontSize: 13),
             textAlign: TextAlign.center),
           actions: <Widget>[
             Row(
@@ -164,15 +119,15 @@ class Profile extends StatelessWidget {
               children: 
                 [TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Chiude il pop-up
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Back'),
                 ),
                 const SizedBox(width: 70),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Chiude il pop-up
-                    _toLogin(context); // Invoca il logout
+                    Navigator.of(context).pop();
+                    _toLogin(context);
                   },
                   child: const Text('Log Out'),
                 )],
@@ -185,28 +140,11 @@ class Profile extends StatelessWidget {
 
   _toLogin(BuildContext context) async {
     final sp = await SharedPreferences.getInstance();
-
-    // opt 1: remove specific keys
-    // await sp.remove("age");
-    // await sp.remove("gender");
-    // await sp.remove("username");
-    // await sp.remove("password");
-
-    // opt 2: clear whole shared prefs
     await sp.clear();
     //Then pop the HomePage
     await Provider.of<HomeProvider>(context, listen: false).updateSP();
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: ((context) => const Login())));
+        MaterialPageRoute(builder: ((context) => Login(provider: provider))));
   }
-
-/*
-  _makeTokenExpire(BuildContext context) async{
-    final sp = await SharedPreferences.getInstance();
-    await sp.remove("access");
-    await sp.remove("refresh");
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: ((context) => const Splash())));
-  } */
 }
 

@@ -38,8 +38,6 @@ class InfoRHR extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                //Text('Premature death is defined as death that occurs before the average age of death in a certain population. One of the main causes of death is heart disease. Experts say most cases of premature death form heart disease are completely preventable. Risk factors include having high pressure or cholesterol, heavy drinking and physical inactivity. Here we focus on this latter point, in particular on its link with resting heart rate. Generally, a lower heart rate at rest implies more efficient heart function and better cardiovascular fitness. This is crucial to help prevent heart diseases.\nTo see your resting heart rate and get personalized advises on the exercise you should perform, click the button below.'),
-                
                 RichText(
                   text: const TextSpan(
                     text:'Premature death is defined as death that occurs before the average age of death in a certain population. One of the main causes of death is heart disease. ',
@@ -88,11 +86,10 @@ class InfoRHR extends StatelessWidget {
                       leading: const Icon(Icons.monitor_heart),
                       trailing: SizedBox(
                         width: 10,
-                        child: ((provider.lastMonthHR > 80.0) | (provider.lastMonthHR < 55.0)) ? const Icon(Icons.thumb_down) : const Icon(Icons.thumb_up),
+                        child: ((provider.lastMonthHR > 80.0)) ? const Icon(Icons.thumb_down) : const Icon(Icons.thumb_up),
                         ), 
                       title: Text('Resting heart rate : ${provider.lastMonthHR} bpm'),
                       subtitle: const Text('Average of current month'),
-                                //When a ListTile is tapped, the user is redirected to the ExercisePage
                       onTap: () async {
                           if(provider.monthlyHeartRateData.length!=6)
                           {

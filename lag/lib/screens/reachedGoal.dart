@@ -1,9 +1,7 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 
 class ReachedGoal extends StatefulWidget {
-  bool reachGoal;
+  final bool reachGoal;
 
   ReachedGoal({required this.reachGoal});
 
@@ -45,12 +43,12 @@ class _ReachedGoalState extends State<ReachedGoal> {
                 child: AlertDialog(
                   backgroundColor: const Color.fromARGB(255, 242, 239, 245),
                   content: Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                           'Congratulation! You have reached your goal!!',
                           style: TextStyle(
                               fontSize: 20,
@@ -61,36 +59,9 @@ class _ReachedGoalState extends State<ReachedGoal> {
                         const SizedBox(height: 20),
                         Image.asset('assets/goal.jpg'),
                         const SizedBox(height: 20),
-                        /*
-                        Text('Do you want to move to the next level?',
-                            style: TextStyle(fontSize: 14),
-                            textAlign: TextAlign.center),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  print('current level $_level');
-                                  print('current score $_currentScore');
-                                  _upDateGoal();
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Yes')),
-                            const SizedBox(width: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _percentage = 1;
-                                });
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('No'),
-                            ),
-                          ],
-                        ),*/
                         TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: Text("Close"))
+                            child: const Text("Close"))
                       ],
                     ),
                   ),
@@ -100,7 +71,7 @@ class _ReachedGoalState extends State<ReachedGoal> {
         );
       }
     });
-      }
+  }
 
   @override
   Widget build(BuildContext context) {

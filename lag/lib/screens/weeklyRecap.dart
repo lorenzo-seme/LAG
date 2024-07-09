@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-//import 'package:lag/algorithms/exercise_score.dart';
-//import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/InfoRHR.dart';
 import 'package:lag/screens/exerciseScreen.dart';
@@ -14,19 +10,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-
-// CHIEDI COME AGGIUSTARE IN BASE ALLA GRANDEZZA DELLO SCHERMO
 class WeeklyRecap extends StatelessWidget {
   const WeeklyRecap({super.key});
-
-
-  //Future<double> sleepAvg = calculateAverageSleepScore(BuildContext context, Future<List<double>> sleepDataFuture); 
-  String getCurrentWeekIdentifier(DateTime dateToday) {
-    DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
-    int daysDifference = dateToday.difference(firstDayOfYear).inDays;
-    int weekNumber = (daysDifference / 7).ceil() + 1;
-    return "$weekNumber";
-  } //getCurrentWeekIdentifier
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +30,7 @@ class WeeklyRecap extends StatelessWidget {
                     const SizedBox(height: 25),
                     Container(
                       decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 215, 188, 255),
+                        color: Color.fromARGB(255, 204, 149, 248),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                       ),
                       child: Row(
@@ -57,7 +42,6 @@ class WeeklyRecap extends StatelessWidget {
                                 if(provider.isReady){
                                   await provider.dateSubtractor(provider.start);
                                   await provider.getDataOfWeek(provider.start, provider.end, false);
-                                  //ScaffoldMessenger.of(context).clearSnackBars();
                                 }
                                 else{
                                   ScaffoldMessenger.of(context)
@@ -89,7 +73,6 @@ class WeeklyRecap extends StatelessWidget {
                                   if(provider.isReady){
                                       await provider.dateAdder(provider.start);
                                       await provider.getDataOfWeek(provider.start, provider.end, false);
-                                      //ScaffoldMessenger.of(context).clearSnackBars();
                                   }
                                   else{
                                     ScaffoldMessenger.of(context)
@@ -113,159 +96,102 @@ class WeeklyRecap extends StatelessWidget {
                       ),
                     ),
                     Gamification(provider),
-                    /*
-                    Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [/*
-                                Text(
-                                  (computeScore(provider).toInt()).toString(),
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                Text(computeScore(provider) / 100 < 0.33
-                                      ? "Low"
-                                      : provider.score / 100 > 0.33 &&
-                                              provider.score / 100 < 0.66
-                                          ? "Medium"
-                                          : "High",
-                                  style:const TextStyle(fontSize: 12, color: Colors.black45),
-                                ),*/
-                                Container(
-                                  margin: const EdgeInsets.only(top: 20, bottom: 10),
-                                  height: 15,
-                                  child: ClipRRect(
-                                    borderRadius:const BorderRadius.all(Radius.circular(10)),
-                                    child: LinearProgressIndicator(
-                                      color: Color.fromARGB(255, 138, 2, 250),
-                                      value: computeScore(provider) / 100,
-                                      backgroundColor: Colors.grey.withOpacity(0.5),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                    ),
-                    */
                     const SizedBox(height: 15),
-                    (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
-                        ? Card(
-                          elevation: 5,
-                          color: Color.fromARGB(255, 243, 232, 251),
-                          child: ListTile(
-                            leading: const Icon(Icons.wb_cloudy),
-                            /*
-                            trailing: Container(
-                              child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
-                            ),
-                            */
-                            title: Text("Today's mood"), 
-                            subtitle: const Text("Track today's feeling to provide sun to your little plant!", style: TextStyle(fontSize: 11),),
-                            onTap: () => _toMoodPage(context, provider),
-                          ),
-                          )
-                        : const SizedBox(height: 10),
-                    
                     Container(
-                      //height: 600,
                       width: 370,
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
                       margin: const EdgeInsets.only(top: 10, bottom: 10),
                       decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 239, 226, 250),
+                        color: Color.fromARGB(255, 204, 149, 248),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                         ),
-                      child: Column(children: [
-                        const Text("Your scores for the selected week",
-                        //const Text("Weekly Trends for sleep and exercise",
-                          style: TextStyle(fontSize: 19),
-                        ), 
-                        const SizedBox(height: 10),
-                        
-                        //const Text('Sleep Data'),
-                        Container(
-                          width: 350, 
-                          //height: 80,
-                          child: (provider.sleepData.isEmpty) 
-                            ? const Card(
-                                elevation: 5,
-                                child: ListTile(
-                                  leading: Icon(Icons.bedtime),
-                                  trailing: CircularProgressIndicator.adaptive(),
-                                  title: Text('Sleep score: loading...'), 
-                                  subtitle: Text('    '),
-                                ),
-                              )
-                            : Card(
-                                elevation: 5,
-                                child: ListTile(
-                                  leading: const Icon(Icons.bedtime),
-                                  trailing: Container(
-                                    child: getScoreIcon((provider.sleepScores)["scores"]!) // funzione definita in sleepScreen
+                      child: Column(
+                        children: [
+                          const Text("Your scores for the selected week",
+                            style: TextStyle(fontSize: 19),
+                          ), 
+                          const SizedBox(height: 10),
+                          Container(
+                            width: 350, 
+                            child: (provider.sleepData.isEmpty) 
+                              ? const Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.bedtime),
+                                    trailing: CircularProgressIndicator.adaptive(),
+                                    title: Text('Sleep score: loading...'), 
+                                    subtitle: Text('    '),
                                   ),
-                                  title: 
-                                    calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
-                                    ? Text("Sleep score: ${calculateAverageSleepScore((provider.sleepScores)["scores"]!)!.toStringAsFixed(1)}%")
-                                    : Text("No data available"), // funzione definita sotto
-                                  subtitle: const Text('about quality of your sleep this week',
-                                                      style: TextStyle(fontSize: 11),),
-                                  onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
-                                ),
+                                )
+                              : Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: const Icon(Icons.bedtime),
+                                    trailing: Container(
+                                      child: getScoreIcon((provider.sleepScores)["scores"]!)
+                                    ),
+                                    title: 
+                                      calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                                      ? Text("Sleep score: ${calculateAverageSleepScore((provider.sleepScores)["scores"]!)!.toStringAsFixed(1)}%")
+                                      : Text("No sleep data available"),
+                                    subtitle: const Text('about quality of your sleep this week',
+                                                        style: TextStyle(fontSize: 11),),
+                                    onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
+                                  ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10,),
-                  Container(
-                          width: 350, 
-                          //height: 80,
-                          child: (provider.sleepData.isEmpty) 
-                            ? const Card(
+                            const SizedBox(height: 10,),
+                            Container(
+                              width: 350, 
+                              child: (provider.sleepData.isEmpty) 
+                              ? const Card(
+                                  elevation: 5,
+                                  child: ListTile(
+                                    leading: Icon(Icons.directions_run),
+                                    trailing: CircularProgressIndicator.adaptive(),
+                                    title: Text('Exercise score: loading...'), 
+                                    subtitle: Text('    '),
+                                  ),
+                                )
+                              : Card(
                                 elevation: 5,
                                 child: ListTile(
                                   leading: Icon(Icons.directions_run),
-                                  trailing: CircularProgressIndicator.adaptive(),
-                                  title: Text('Exercise score: loading...'), 
-                                  subtitle: Text('    '),
+                                  trailing: Container(
+                                    child: getIconScore(calculateAverageExerciseScore(provider.exerciseScores)),
+                                    ),
+                                  title: 
+                                  calculateAverageExerciseScore(provider.exerciseScores) != 0
+                                  ? Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%')
+                                  : Text('No exercise data available'),
+                                  subtitle: const Text('about your exercise activity of this week',
+                                                      style: TextStyle(fontSize: 11),),
+                                  onTap: () {
+                                    bool current;
+                                    if (getCurrentWeekIdentifier(provider.start) == getCurrentWeekIdentifier(DateTime.now())) {
+                                      current = true;
+                                    } else {
+                                      current = false;
+                                    }
+                                    _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start), current);
+                                  },
                                 ),
-                              )
-                  : Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: Icon(Icons.directions_run),
-                      trailing: Container(
-                        child: getIconScore(calculateAverageExerciseScore(provider.exerciseScores)),
-                        ),
-                      title: 
-                      calculateAverageExerciseScore(provider.exerciseScores) != 0
-                      ? Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%')
-                      : Text('No data available'),
-                      subtitle: const Text('about your exercise activity of this week',
-                                          style: TextStyle(fontSize: 11),),
-                      onTap: () {
-                        print(getCurrentWeekIdentifier(provider.start));
-                        bool current;
-                        if (getCurrentWeekIdentifier(provider.start) == getCurrentWeekIdentifier(DateTime.now())) {
-                          current = true;
-                        } else {
-                          current = false;
-                        }
-                        _toExercisePage(context, provider.start, provider.end, provider, getCurrentWeekIdentifier(provider.start), current);
-                      } ,
                               ),
-                      ),
-                  ),
-                  /*
-                          const SizedBox(height: 10),
-
-                          const Text("Cumulative Score", style: TextStyle(fontSize: 16)),
-                          const SizedBox(height: 5),
-                          const Text("Descriptive index of the quality of your week",
-                              style: TextStyle(fontSize: 12,color: Colors.black45),
-                              ),
-                              */
-                          
+                            ), 
                         ],
                       )
                     ),
+                    (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
+                    ? Card(
+                          elevation: 5,
+                          child: ListTile(
+                            leading: const Icon(Icons.wb_cloudy),
+                            title: Text("Today's mood"), 
+                            subtitle: const Text("Track today's feeling to provide sun to your little plant!", style: TextStyle(fontSize: 11),),
+                            onTap: () => _toMoodPage(context, provider),
+                          ),
+                      )
+                    : SizedBox(height: 10,),
                     const SizedBox(height: 20), 
                     const Text(
                       "Learn Something More",
@@ -292,7 +218,7 @@ class WeeklyRecap extends StatelessWidget {
                                       onTap: () {
                                         if(provider.monthlyHeartRateData.length==1)
                                         {
-                                          //faccio partire il fetch in background
+                                          //fetch starts in background
                                           provider.fetchMonthlyHeartRateData(DateFormat("yyyy-MM-dd").format(provider.yesterday), false);
                                         }
                                         Navigator.of(context).push(
@@ -382,6 +308,13 @@ class WeeklyRecap extends StatelessWidget {
     //)
     );
   }
+
+  String getCurrentWeekIdentifier(DateTime dateToday) {
+    DateTime firstDayOfYear = DateTime(dateToday.year, 1, 1);
+    int daysDifference = dateToday.difference(firstDayOfYear).inDays;
+    int weekNumber = (daysDifference / 7).ceil() + 1;
+    return "$weekNumber";
+  } //getCurrentWeekIdentifier
   
   // Method for navigation weeklyRecap -> sleepScreen
   void _toSleepPage(BuildContext context, DateTime start, DateTime end, HomeProvider provider) {
@@ -395,31 +328,27 @@ class WeeklyRecap extends StatelessWidget {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ExerciseScreen(startDate: start, endDate: end, provider: provider, week: week, current : current)));
   }
-  
+
+  // Method for navigation weeklyRecap -> moodScreen
   void _toMoodPage(BuildContext context, HomeProvider provider) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => MoodScreen(provider: provider)));
   }
   
-  // OCCHIO CHE VORREBBE COSTRUIRE PRIMA CHE I DATI SIANO STATI FETCHATI !!!
   Widget Gamification(HomeProvider provider) {
 
   final Map<int, String> fromIntToImg = {
     0: 'rew1.jpeg',
-    1: 'rew2.jpeg',
-    2: 'rew3.jpeg',
+    1: 'rew1.jpeg',
+    2: 'rew2.jpeg',
     3: 'rew3.jpeg',
-    4: 'rew3.jpeg',
-    5: 'rew4.jpeg',
-    6: 'rew4.jpeg',
-    7: 'rew5.jpeg',
-    8: 'rew6.jpeg',
-    9: 'rew7.jpeg',
-    10: 'rew8.jpeg',
-    11: 'rew9.jpeg',
-    12: 'rew9.jpeg',
-    13: 'rew10.jpeg',
-    14: 'rew10.jpeg'
+    4: 'rew4.jpeg',
+    5: 'rew5.jpeg',
+    6: 'rew6.jpeg',
+    7: 'rew7.jpeg',
+    8: 'rew8.jpeg',
+    9: 'rew9.jpeg',
+    10: 'rew10.jpeg',
   };
 
   return SizedBox(
@@ -437,20 +366,21 @@ class WeeklyRecap extends StatelessWidget {
                       lineWidth: 8,
                       center: Icon(
                         MdiIcons.wateringCan,
-                        size: 35.0, // Dimensione dell'icona
-                        color: Colors.blue, // Colore dell'icona
-                      ), // QUI L'IMMAGINE DELL'INNAFFIATORE
+                        size: 35.0,
+                        color: Colors.blue,
+                      ),
                       progressColor: const Color(0xFF4e50bf),
                       animation: true,
                       animationDuration: 1000,
                       footer: Text('Sleep', style: TextStyle(fontSize: 10)),
                       percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
                           ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)! / 100
-                          : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                          : 0,
                       circularStrokeCap: CircularStrokeCap.round,
                     )
                   : CircularProgressIndicator(),
               const SizedBox(height: 40),
+              // ignore: unnecessary_null_comparison
               (provider.exerciseScores != null)
                   ? CircularPercentIndicator(
                       radius: 35,
@@ -462,7 +392,7 @@ class WeeklyRecap extends StatelessWidget {
                           decoration: const BoxDecoration(
                             image: DecorationImage(
                               fit: BoxFit.contain,
-                              image: AssetImage('assets/shovel.png'),
+                              image: AssetImage('assets/fertilizer.png'),
                             ),
                           ),
                         ),
@@ -483,47 +413,33 @@ class WeeklyRecap extends StatelessWidget {
           // Second Column (center)
           Column(
               children: [
-                ((provider.plantScore) != null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
-                    ?  /*FutureBuilder<int>(
-                        future: imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores, provider),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Container(
-                              width: 160,
-                              height: 260,
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else {
-                            return*/ Container(
-                              width: 160,
-                              height: 260,
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(15.0),
-                                  bottomLeft: Radius.circular(15.0),
-                                  bottomRight: Radius.circular(15.0),
-                                  topRight: Radius.circular(15.0)),
-                                image: DecorationImage(
-                                  fit: BoxFit.contain,
-                                  image: AssetImage('assets/rewards2/${fromIntToImg[provider.plantScore]}'),
-                                ),
-                              ),
-                            )
-                          
-                        
-                      
+                // ignore: unnecessary_null_comparison
+                ((provider.plantScore) != null)
+                    ? Container(
+                        width: 160,
+                        height: 260,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            bottomLeft: Radius.circular(15.0),
+                            bottomRight: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0)),
+                          image: DecorationImage(
+                            fit: BoxFit.contain,
+                            image: AssetImage('assets/rewards2/${fromIntToImg[provider.plantScore.toInt()]}'),
+                          ),
+                        ),
+                      )
                     : Container(
-                              width: 160,
-                              height: 260,
-                              child: CircularProgressIndicator(),
+                        width: 160,
+                        height: 260,
+                        child: CircularProgressIndicator(),
                     ),
                 (provider.end.year == provider.showDate.year &&
                         provider.end.month == provider.showDate.month &&
                         provider.end.day == provider.showDate.day)
                     ? Text("Still growing!")
-                    : Text("Your plant for that week"), // cambia questa frase
+                    : Text("Your plant for that week"),
               ],
             ),
           
@@ -533,7 +449,8 @@ class WeeklyRecap extends StatelessWidget {
           // Third Column (right)
           Column(
             children: [
-              (provider.moodScores != null) // metti mood nel provider, in modo da poter fare un controllo tip provider.mood != null
+              // ignore: unnecessary_null_comparison
+              (provider.moodScores != null)
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -544,27 +461,26 @@ class WeeklyRecap extends StatelessWidget {
                       footer: Text('Mood', style: TextStyle(fontSize: 10)),
                       percent: calculateAverageMoodScore(provider.moodScores),
                       circularStrokeCap: CircularStrokeCap.round,
-                    //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
-                const SizedBox(height: 40),
-                (provider.plantScore !=null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
+              const SizedBox(height: 40),
+              // ignore: unnecessary_null_comparison
+              (provider.plantScore !=null)
                 ?  CircularPercentIndicator(
                     radius: 35,
                     lineWidth: 8,
-                    center: null, // QUI L'IMMAGINE DELL'INNAFFIATORE
+                    center: Text('${(provider.plantScore/10*100).toInt()}%'),
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
                     footer: Text('Plant progress', style: TextStyle(fontSize: 10)),
-                    percent: provider.plantScore / 14,
+                    percent: provider.plantScore / 10,
                     circularStrokeCap: CircularStrokeCap.round,
-                    //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
-              ], // METTI QUI IL VALORE PERCENTUALE DELLA CRESCITA DELLA PIANTINA !!!
+              ],
             ),
-          ],
+        ],
       ),
     ),
     );
@@ -583,7 +499,6 @@ double? calculateAverageSleepScore(List<double> scores) {
 }
 
 double calculateAverageExerciseScore(List<double> scores) {
-  //List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
   if (scores.isEmpty) {
     return 0;
   } else {
@@ -618,20 +533,3 @@ Widget getIconScore(double score) {
     return const Icon(Icons.sentiment_very_dissatisfied); 
   }
 }
-/*
-double computeScore(HomeProvider provider) {
-  //List<ExerciseData> exerciseData = provider.exerciseData;
-  double sleepScore;
-  double exerciseScore; 
-  double totalScore;
-
-  // Ensure the sleepScores list is non-null before passing it to the function
-  List<double> sleepScores = (provider.sleepScores["scores"] ?? []).cast<double>();
-
-  sleepScore = calculateAverageSleepScore(sleepScores) ?? 0.0;
-  exerciseScore = calculateAverageExerciseScore(provider.exerciseScores);
-  totalScore = ((sleepScore + exerciseScore) / 2);
-
-  return totalScore;
-}
-*/

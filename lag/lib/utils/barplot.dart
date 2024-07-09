@@ -175,7 +175,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
                             ])),
                         actions: [
                           TextButton(
-                            child: Text('Close'),
+                            child: const Text('Close'),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },

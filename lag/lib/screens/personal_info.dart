@@ -1,10 +1,7 @@
-// PREVEDI L'OPZIONE CHE L'UTENTE INSERISCA SOLO ALCUNI DEI DATI PERSONALI ?
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
-//import 'package:lag/providers/homeProvider.dart';
 import 'package:provider/provider.dart';
-//import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalInfo extends StatefulWidget {
@@ -20,13 +17,11 @@ class _PersonalInfoState extends State<PersonalInfo> {
   final TextEditingController dateController = TextEditingController();
 
   DateTime selectedDate = (DateTime.now().month == 2 && DateTime.now().day == 29) 
-                  ? DateTime(DateTime.now().year - 6, 2, 28) // menage leap year
+                  ? DateTime(DateTime.now().year - 6, 2, 28) // manage leap year
                   : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day);
-  //int? bs;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadPrefs();
   }
@@ -37,21 +32,18 @@ class _PersonalInfoState extends State<PersonalInfo> {
         initialDate: selectedDate,
         firstDate: DateTime(1920, 1),
         lastDate: (DateTime.now().month == 2 && DateTime.now().day == 29) 
-                  ? DateTime(DateTime.now().year - 6, 2, 28) // menage leap year
+                  ? DateTime(DateTime.now().year - 6, 2, 28) // manage leap year
                   : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day));
     if (picked != null && picked != selectedDate) {
-      dateController.text = picked.toString();
+      dateController.text = DateFormat('yyyy-MM-dd').format(picked).toString();
     }
   }
 
   void _loadPrefs() async {
     final sp = await SharedPreferences.getInstance();
-    // Use a default value if the key doesn't exist
-    //String bioS = sp.getString('bs') ?? "";
     String dob = sp.getString('dob') ?? "";
     String name = sp.getString('name') ?? "";
     setState(() {
-      //bs = int.tryParse(bioS);
       dateController.text = dob;
       nameController.text = name;
     });
@@ -62,7 +54,11 @@ class _PersonalInfoState extends State<PersonalInfo> {
     return Scaffold(
       resizeToAvoidBottomInset: false, 
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFFFFF),
+        title: const Text(
+                'Personal Info',
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
+              ),
+        backgroundColor: const Color.fromARGB(255, 227, 211, 244),
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 8.0, top: 4),
@@ -71,17 +67,13 @@ class _PersonalInfoState extends State<PersonalInfo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Personal Info',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
-              ),
               const SizedBox(
-                height: 5,
+                height: 10,
               ),
               const Text("Info about you for a tailored experience",
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black45,
+                    fontSize: 14,
+                    color: Colors.black,
                   )),
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 8.0),
@@ -131,44 +123,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     hintText: 'Date of Birth: YYYY-MM-DD',
                   ),
                 ),
-              ),/*
-              Padding(
-                padding: const EdgeInsets.only(top: 10, right: 8.0),
-                child: DropdownButtonFormField(
-                  value: bs,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Biological Sex is required';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  hint: Row(children: [
-                    Icon(MdiIcons.genderMaleFemale),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text("Biological Sex")
-                  ]),
-                  items: [
-                    DropdownMenuItem(
-                      child: Text("Male"),
-                      value: 0,
-                    ),
-                    DropdownMenuItem(
-                      child: Text("Female"),
-                      value: 1,
-                    )
-                  ],
-                  onChanged: (value) {
-                    bs = value ?? bs;
-                  },
-                ),
-              ),*/
+              ),
               const SizedBox(
                 height: 20,
               ),
@@ -179,10 +134,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final sp = await SharedPreferences.getInstance();
-                        //await sp.setString('bs', bs.toString());
                         await sp.setString('dob', dateController.text.toString());
                         await sp.setString('name', nameController.text.toString());
-                        // Calculate userAge from date of birth
                         DateTime birthDate = DateTime.parse(dateController.text.toString());
                         DateTime now = DateTime.now();
                         int userAge = now.year - birthDate.year;
@@ -192,7 +145,6 @@ class _PersonalInfoState extends State<PersonalInfo> {
                           }
                         await sp.setString('userAge', userAge.toString());
                         await Provider.of<HomeProvider>(context, listen: false).updateSP();
-
                         Navigator.of(context).pop();
                       }
                     },
@@ -206,11 +158,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
                             const Color(0xFF384242))),
                     child: const Text('Save'),
                   ),
-                  SizedBox(width: 15,),
+                  const SizedBox(width: 15,),
                   ElevatedButton(
                     onPressed: () async {
                       final sp = await SharedPreferences.getInstance();
-                      //await sp.remove('bs');
                       await sp.remove('dob');
                       await sp.remove('name');
                       await sp.remove('userAge');
@@ -223,9 +174,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
                             const EdgeInsets.symmetric(
                                 horizontal: 30, vertical: 12)),
                         foregroundColor:
-                            MaterialStateProperty.all<Color>(Color.fromRGBO(255, 255, 255, 1)),
+                            MaterialStateProperty.all<Color>(const Color.fromRGBO(255, 255, 255, 1)),
                         backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 228, 106, 106))),
+                            const Color.fromARGB(255, 228, 106, 106))),
                     child: const Text('Forget my info'),
                   ),
               ],)

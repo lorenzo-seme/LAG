@@ -45,6 +45,22 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   Map<String, double> _performances = {};
   bool _currentWeek = true;
   bool _isExerciseCardExpanded = false;
+  double wRun = 0.3;
+  double wBike = 0.2;
+  double wWalk = 0.05;
+  double wOther = 0.45;
+  double score = 0;
+  Map<String, double> weights = {
+    'Corsa': 0.3,
+    'Bici': 0.2,
+    'Camminata': 0.05,
+    'Other': 0.45
+  };
+  Map<String, double> thresholds = {
+      'Lazy': 50.5,
+      'Medium': 110,
+      'Hard': 150.5
+    };
 
   @override
   void initState() {
@@ -64,11 +80,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   String _getCurrentWeekIdentifier() {
     DateTime date = widget.startDate;
-    //print('now $date');
     DateTime firstDayOfYear = DateTime(date.year, 1, 1);
-    //print('first of the year $firstDayOfYear');
     int daysDifference = date.difference(firstDayOfYear).inDays;
-    //print('differenze $daysDifference');
     int weekNumber = (daysDifference / 7).ceil() + 1;
     return "$weekNumber";
   }
@@ -76,9 +89,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   _isCurrentWeek() async {
     final sp = await SharedPreferences.getInstance();
     double currentWeek = double.parse(
-        _getCurrentWeekIdentifier()); // settimana che sto visualizzando
+        _getCurrentWeekIdentifier());
     double? week = sp.getDouble('CurrentWeek');
-    DateTime now = DateTime.now().subtract(Duration(days: 1));
+    DateTime now = DateTime.now().subtract(const Duration(days: 1));
     DateTime firstDayOfYear = DateTime(now.year, 1, 1);
     int daysDifference = now.difference(firstDayOfYear).inDays;
     double weekNumber = (daysDifference / 7).floor() + 1;
@@ -107,7 +120,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     await prefs.setString('lastClickedDate', now.toIso8601String());
 
     setState(() {
-      _buttonClickedToday = true; // da cambiare a true
+      _buttonClickedToday = true;
     });
   }
 
@@ -122,7 +135,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       if (_isSameDay(lastClicked, now)) {
         setState(
           () {
-            _buttonClickedToday = true; // da cambaire a true
+            _buttonClickedToday = true;
           },
         );
       }
@@ -131,7 +144,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   _exerciseToday() async {
     final sp = await SharedPreferences.getInstance();
-    DateTime date = DateTime.now().subtract(Duration(days: 1));
+    DateTime date = DateTime.now().subtract(const Duration(days: 1));
     String dateString = date.toIso8601String().split('T').first;
     if (widget.provider.exerciseToday()) {
       setState(() {
@@ -140,23 +153,21 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     } else {
       _exToday = false;
     }
-    sp.setBool('exToday_${dateString}', _exToday);
-    print('exToday_${dateString} ${_exToday}');
+    sp.setBool('exToday_$dateString', _exToday);
   }
 
   // ----- GOAL INTERNAL METHODS:----------------------
   _loadPercentage() async {
     final sp = await SharedPreferences.getInstance();
-    String level = sp.getString('level_${widget.week}') ?? ''; // livello
+    String level = sp.getString('level_${widget.week}') ?? '';
     bool goal = sp.getBool('goal_${widget.week}') ??
-        false; // se il goal è già stato settato nella settimana
+        false;
     List<String> names = getNames(widget.provider.exerciseData);
     Map<String, double> performance = {};
 
     setState(() {
-      // setto ora perchè questi non cambiano nell'arco della settimana
       _level = level;
-      _goalDisable = goal; // ----> da mettere goal
+      _goalDisable = goal;
     });
 
     try {
@@ -166,24 +177,19 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       }
       _checkGoalStatus();
       if (_sameDay && _goalDisable) {
-        // significa che ho già messo il goal e che sto rientrando nell pagina oggi
         setState(() {
-          _percentage =
-              savedPercentage; // every time that open the page but it is the same day, returns the same value of percentage
+          _percentage = savedPercentage; // every time that open the page but it is the same day, returns the same value of percentage
           _performances = performance;
         });
       } else if (_sameDay && !_goalDisable) {
-        // sto sempre rientrando ma nessun goal è settato
         setState(() {
           _percentage = 0;
         });
       } else if (!_sameDay && !_goalDisable) {
-        // giorno dopo ma non ho settato goal ieri
         setState(() {
           _percentage = 0;
         });
       } else {
-        // è il giorno dopo che ho settato il goal
         _dailyUpdate();
         sp.setDouble("percentage_${widget.week}", _percentage);
         for (var act in names) {
@@ -193,9 +199,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             sp.setDouble("${act}_${widget.week}", 0);
           }
         }
-        print(_performances);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error loading percentage: $e');
     }
   }
@@ -219,18 +225,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   _dailyUpdate() {
-    print("enter in _dailyUpdate");
-    double wRun = 0.3;
-    double wBike = 0.2;
-    double wWalk = 0.05;
-    double wOther = 0.45;
-    double score = 0;
-    Map<String, double> weights = {
-      'Corsa': wRun,
-      'Bici': wBike,
-      'Camminata': wWalk,
-      'Other': wOther
-    };
+    
     Map<String, double> distances = _performances;
     for (String act in distances.keys) {
       setState(() {
@@ -243,16 +238,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       }
     }
 
-    Map<String, double> thresholds = {
-      'Lazy': 50.5,
-      'Medium': 110,
-      'Hard': 150.5
-    };
+    
 
-    //Map<String, double> thresholds = {'Lazy': 1, 'Medium': 0.15, 'Hard': 0.05};
-    /*print("score $score");
-    print("_threshold $_threshold");
-    print("level $_level");*/
     double p = score / thresholds[_level]!;
     if (p >= 1) {
       setState(() {
@@ -268,19 +255,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   _setGoal(String level) {
-    double wRun = 0.3;
-    double wBike = 0.2;
-    double wWalk = 0.05;
-    double wOther = 0.45;
-    double score = 0;
-    Map<String, double> weights = {
-      'Corsa': wRun,
-      'Bici': wBike,
-      'Camminata': wWalk,
-      'Other': wOther
-    };
     Map<String, double> distances =
         widget.provider.exerciseDistanceActivities();
+    
     for (String act in distances.keys) {
       if (act == 'Corsa' || act == 'Bici' || act == 'Camminata') {
         score = score + distances[act]! * weights[act]!;
@@ -288,12 +265,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         score = score + distances[act]! * weights['Other']!;
       }
     }
-
-    Map<String, double> thresholds = {
-      'Lazy': 50.5,
-      'Medium': 110,
-      'Hard': 150.5
-    };
 
     setState(() {
       _threshold = thresholds[level]!;
@@ -309,8 +280,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   _upDateGoal() async {
-    Map<String, double> thresholds = {'Lazy': 50.5, 'Medium': 110, 'Hard': 150};
-
     final sp = await SharedPreferences.getInstance();
     String currLevel = _level;
     double currScore = _currentScore;
@@ -321,7 +290,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       newthreshold = thresholds['Medium']!;
       if (difference / newthreshold <= 1) {
         setState(() {
-          print('Ok percentage = ${difference / newthreshold}');
           _percentage = difference / newthreshold;
           _level = 'Medium';
           _reachGoal = false;
@@ -355,87 +323,51 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
 
     String week = _getCurrentWeekIdentifier();
-    sp.setDouble("percentage_${week}", _percentage);
-    sp.setString('level_${week}', _level);
+    sp.setDouble("percentage_$week", _percentage);
+    sp.setString('level_$week', _level);
     _showPercentage();
   }
 
   Widget _showPercentage() {
-    try {
-      double percentValue = _percentage > 1 ? 1 : _percentage;
-      if (percentValue > 1) {
-        percentValue = 1;
-      }
-      return GestureDetector(
-        onTap: () {
-          _reachGoal ? _upDateGoal() : null;
-        },
-        child: CircularPercentIndicator(
-          radius: 75,
-          lineWidth: 15,
-          center: _reachGoal
-              ? Text(
-                  "100%",
-                  style: TextStyle(fontSize: 20),
-                )
-              : Text(
-                  "${(_percentage * 100).toStringAsFixed(2)}%",
-                  style: TextStyle(fontSize: 20),
-                ),
-          progressColor: Color.fromARGB(255, 131, 35, 233),
-          animation: true,
-          animationDuration: 2000,
-          footer: ((_level != '' || _level == 'Hard') && !_reachGoal)
-              ? Text(
-                  '${_level} level',
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                )
-              : (_reachGoal)
-                  ? Text("${_level} reached, press here to update!")
-                  : null,
-          percent: _reachGoal ? 1 : percentValue,
-          circularStrokeCap: CircularStrokeCap.round,
-        ),
-      );
-    } catch (e) {
-      print("Error in percentage $e");
-      return GestureDetector(
-        onTap: () {
-          _reachGoal ? _upDateGoal() : null;
-        },
-        child: CircularPercentIndicator(
-          radius: 75,
-          lineWidth: 15,
-          center: _reachGoal
-              ? Text(
-                  "100%",
-                  style: TextStyle(fontSize: 20),
-                )
-              : Text(
-                  "${(_percentage * 100).toStringAsFixed(2)}%",
-                  style: TextStyle(fontSize: 20),
-                ),
-          progressColor: Color.fromARGB(255, 131, 35, 233),
-          animation: true,
-          animationDuration: 2000,
-          footer: (_level != '' && !_reachGoal)
-              ? Text(
-                  'You chose the ${_level.toLowerCase()} level',
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                )
-              : (_reachGoal)
-                  ? Text("Press here to update!")
-                  : null,
-          percent: _percentage,
-          circularStrokeCap: CircularStrokeCap.round,
-        ),
-      );
+    double percentValue = _percentage > 1 ? 1 : _percentage;
+    if (percentValue > 1) {
+      percentValue = 1;
     }
-  }
+    return GestureDetector(
+      onTap: () {
+        _reachGoal ? _upDateGoal() : null;
+      },
+      child: CircularPercentIndicator(
+        radius: 75,
+        lineWidth: 15,
+        center: _reachGoal
+            ? const Text(
+                "100%",
+                style: TextStyle(fontSize: 20),
+              )
+            : Text(
+                "${(_percentage * 100).toStringAsFixed(2)}%",
+                style: const TextStyle(fontSize: 20),
+              ),
+        progressColor: const Color.fromARGB(255, 131, 35, 233),
+        animation: true,
+        animationDuration: 2000,
+        footer: ((_level != '' || _level == 'Hard') && !_reachGoal)
+            ? Text(
+                '$_level level',
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+              )
+            : (_reachGoal)
+                ? Text("$_level reached, press here to update!")
+                : const Text("No goal set"),
+        percent: _reachGoal ? 1 : percentValue,
+        circularStrokeCap: CircularStrokeCap.round,
+      ),
+    );
+    }
+  
 
   Future<void> _notifyOnePossibilityGoal() async {
     await showDialog(
@@ -443,11 +375,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Be careful! This is your goal for the week.',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center),
           content: const Text(
               'Once you set a goal, you won\'t be able to change it until the next week. Make sure to choose wisely and stay committed!',
-              style: const TextStyle(fontSize: 13),
+              style: TextStyle(fontSize: 13),
               textAlign: TextAlign.center),
           actions: <Widget>[
             Row(
@@ -465,7 +397,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                 const SizedBox(width: 70),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Chiude il pop-up
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Back'),
                 )
@@ -496,13 +428,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       List<String> names = getNames(exerciseDataList);
       Map<String, String> namesEn = {};
       Map<String, Icon> imm = {
-        'Corsa': Icon(Icons.directions_run),
-        'Bici': Icon(Icons.directions_bike),
-        'Camminata': Icon(Icons.directions_walk),
-        'Spinning': Icon(Icons.pool),
-        'Nuoto': Icon(Icons.pool),
-        'Basket': Icon(Icons.sports_basketball),
-        'Tennis': Icon(Icons.sports_tennis),
+        'Corsa': const Icon(Icons.directions_run),
+        'Bici': const Icon(Icons.directions_bike),
+        'Camminata': const Icon(Icons.directions_walk),
+        'Spinning': const Icon(Icons.directions_bike),
+        'Nuoto': const Icon(Icons.pool),
+        'Basket': const Icon(Icons.sports_basketball),
+        'Tennis': const Icon(Icons.sports_tennis),
       };
       for (int i = 0; i < names.length; i++) {
         setState(() {
@@ -543,8 +475,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   Row(
                     children: [
                       imm[act] ??
-                          Icon(Icons
-                              .fitness_center), // Icona di default se non trovata
+                          const Icon(Icons
+                              .fitness_center),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -580,7 +512,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     style: TextStyle(fontSize: 11.0)),
                 onPressed: () async {
                   await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => PersonalInfo()));
+                      MaterialPageRoute(builder: (context) => const PersonalInfo()));
                   final sp = await SharedPreferences.getInstance();
                   final name = sp.getString('name');
                   final userAge = sp.getString('userAge');
@@ -619,7 +551,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             "Exercise is your magic wand for an energetic golden age. Every step is a victory, keeping the spells of aging at bay. Walk, dance, or garden—each move is a triumph for staying young at heart and nimble as a cat! 🚶‍♂️💃🌼";
       }
       return Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Text(message, style: TextStyle(fontSize: 11.0)),
+        Text(message, style: const TextStyle(fontSize: 11.0)),
         const Text("- National Foundation of Exercise",
             style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0))
       ]);
@@ -672,7 +604,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     children: [
                       // PLOT
                       const SizedBox(height: 5),
-                      Text(
+                      const Text(
                           'How much did you work out everyday during this week?',
                           style: TextStyle(
                               fontSize: 15.0, fontWeight: FontWeight.bold)),
@@ -693,10 +625,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                             : Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: _buildBarPlot(widget.provider
-                                    .exerciseData), // input = list with exData every day of the week
+                                    .exerciseData),
                               ),
                       ),
-                      // GOAL BOTTON
+                      // GOAL BUTTON
                       (_currentWeek)
                           ? Card(
                               elevation: 5,
@@ -704,20 +636,19 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                   leading: _goalDisable
-                                      ? Icon(Icons.info_outline)
-                                      : Icon(Icons
-                                          .run_circle_outlined), // metti qualcos'altro
+                                      ? const Icon(Icons.info_outline)
+                                      : const Icon(Icons
+                                          .run_circle_outlined),
                                   tileColor:
                                       const Color.fromARGB(255, 227, 211, 244),
                                   title: _goalDisable
-                                      ? Text('Some suggestions!')
-                                      : Text("Set a goal!"),
+                                      ? const Text('Some suggestions!')
+                                      : const Text("Set a goal!"),
                                   subtitle: _goalDisable
-                                      ? Text(
+                                      ? const Text(
                                           'I want to help you to reach your goal easily, click here!')
-                                      : Text(
-                                          'Find a good motivation to move your 🍑'),
-                                  iconColor: Color.fromARGB(255, 131, 35, 233),
+                                      : const Text(
+                                          'Find a good motivation to move'),
                                   hoverColor:
                                       const Color.fromARGB(255, 227, 211, 244),
                                   onTap: () async {
@@ -740,8 +671,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                               (context, a1, a2, widget) {
                                             return SlideTransition(
                                               position: Tween(
-                                                      begin: Offset(0, 1),
-                                                      end: Offset(0, 0)).animate(a1),
+                                                      begin: const Offset(0, 1),
+                                                      end: const Offset(0, 0)).animate(a1),
                                               child: FadeTransition(
                                                 opacity: Tween<double>(
                                                         begin: 0.5, end: 1.0).animate(a1),
@@ -752,27 +683,27 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                       SingleChildScrollView(
                                                     child: Container(
                                                       padding:
-                                                          EdgeInsets.all(20),
+                                                          const EdgeInsets.all(20),
                                                       child: Column(
                                                         mainAxisAlignment: MainAxisAlignment.center,
                                                         mainAxisSize: MainAxisSize.min,
                                                         children: [
-                                                          Text('How strong are you this week?',
+                                                          const Text('How strong are you this week?',
                                                             style: TextStyle(
                                                               fontWeight:FontWeight.bold),
                                                           ),
-                                                          SizedBox(height: 20),
+                                                          const SizedBox(height: 20),
                                                           Card(
                                                               elevation: 3,
                                                               color: Colors.purple[100],
                                                               child: ListTile(
-                                                                  title: Text('Lazy level'),
+                                                                  title: const Text('Lazy level'),
                                                                   subtitle: const Text('Minimum activity acceptable to live in a healthy way',
                                                                     style: TextStyle(
                                                                         fontSize: 11),
                                                                   ),
                                                                   trailing:
-                                                                      Icon(Icons.battery_0_bar),
+                                                                      const Icon(Icons.battery_0_bar),
                                                                   iconColor: Colors.black,
                                                                   onTap: () async {
                                                                     Navigator.of(context).pop();
@@ -794,13 +725,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                               elevation: 3,
                                                               color: Colors.purple[200],
                                                               child: ListTile(
-                                                                  title: Text('Medium level'),
+                                                                  title: const Text('Medium level'),
                                                                   subtitle: const Text('Medium activity to live in a healthy way',
                                                                     style: TextStyle(
                                                                         fontSize: 11),
                                                                   ),
                                                                   trailing:
-                                                                      Icon(Icons.battery_3_bar),
+                                                                      const Icon(Icons.battery_3_bar),
                                                                   iconColor: Colors.black,
                                                                   onTap: () async {
                                                                     Navigator.of(context).pop();
@@ -824,14 +755,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                               elevation: 3,
                                                               color: Colors.purple[300],
                                                               child: ListTile(
-                                                                  title: Text('Hard level'),
+                                                                  title: const Text('Hard level'),
                                                                   subtitle:
                                                                       const Text('Strong activity life',
                                                                     style: TextStyle(
                                                                         fontSize: 11),
                                                                   ),
                                                                   trailing:
-                                                                      Icon(Icons.battery_full),
+                                                                      const Icon(Icons.battery_full),
                                                                   iconColor:Colors.black,
                                                                   onTap: () async {
                                                                     Navigator.of(context).pop();
@@ -851,9 +782,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                                   },
                                                                   ),
                                                                   ),
-                                                          SizedBox(height: 20),
+                                                          const SizedBox(height: 20),
                                                           TextButton(
-                                                            child: Text('Close'),
+                                                            child: const Text('Close'),
                                                             onPressed: () {
                                                               setState(() {
                                                                 _goalDisable = false;
@@ -908,15 +839,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                     borderRadius: BorderRadius.circular(10)),
                                 leading: const Icon(
                                   Icons.live_help,
-                                  color: Color.fromARGB(255, 131, 35, 233),
                                 ),
                                 tileColor:
                                     const Color.fromARGB(255, 227, 211, 244),
-                                title: Text(
-                                    'Survey of the day'), // funzione definita sotto
+                                title: const Text(
+                                    'Survey of the day'),
                                 subtitle: _buttonClickedToday
-                                    ? Text('Get something more')
-                                    : Text(
+                                    ? const Text('Get something more')
+                                    : const Text(
                                         'Tell me about your activity',
                                       ),
                                 trailing: _buttonClickedToday
@@ -924,9 +854,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                         color: Colors.lightGreen.shade900)
                                     : null,
                                 onTap: () async {
-                                  //if (_buttonClickedToday == false) {
                                   await showGeneralDialog(
-                                    // si apre il pop-up
                                     barrierDismissible: true,
                                     barrierLabel: "",
                                     transitionDuration:
@@ -947,7 +875,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                                   const Color.fromARGB(255, 242, 239, 245),
                                               content: SingleChildScrollView(
                                                 child: Container(
-                                                  padding: EdgeInsets.all(5),
+                                                  padding: const EdgeInsets.all(5),
                                                   child: Column(
                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                     mainAxisSize: MainAxisSize.min,
@@ -967,8 +895,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                 },
                               ),
                             )
-                          : SizedBox(height: 10),
-                      SizedBox(height: 10),
+                          : const SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
@@ -988,10 +916,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                       borderRadius: BorderRadius.circular(10)),
                                   leading: const Icon(
                                     Icons.fitness_center,
-                                    color: Color.fromARGB(255, 131, 35, 233),
                                   ),
-                                  tileColor: Color.fromARGB(255, 227, 211, 244),
-                                  title: Text(
+                                  tileColor: const Color.fromARGB(255, 227, 211, 244),
+                                  title: const Text(
                                     "Why sport is important for YOU",
                                   ),
                                   subtitle: const Text('Tap to learn more'),
@@ -1019,19 +946,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 }
 
 _buildBarPlot(List<ExerciseData> exerciseDataList) {
-  // lista della settimana
-  List<double> minOfEx = []; // 52.62
+  List<double> minOfEx = [];
   List<PieChart?> pieList = [];
   List<String?> legend = [];
-  List<String> names = getNames(exerciseDataList); // spinning
-  //print('getNames in _buildBarPlot : $names');
+  List<String> names = getNames(exerciseDataList);
 
   for (ExerciseData data in exerciseDataList) {
     minOfEx.add(data.duration);
-    //print('minOfEx: $minOfEx');
     pieList.add(_buildPieChart([data], true));
 
-    // Crea dinamicamente la legenda per ogni attività
     String legendEntry = names.map((activity) {
       final percentage = calculatePercentage([data])?[activity] ?? 0;
       return "$activity: ${percentage.toStringAsFixed(1)}%";
@@ -1050,15 +973,12 @@ _buildBarPlot(List<ExerciseData> exerciseDataList) {
 }
 
 Map<String, double>? calculatePercentage(List<ExerciseData> exerciseDataList) {
-  //print('ok');
   Map<String, double> total = {};
   double t = 0;
   Set<String> names = {};
 
   if (exerciseDataList.length > 1) {
-    // più di un giorno
     for (var data in exerciseDataList) {
-      // seleziono exData singolo gg
       for (var act in data.actNames) {
         total[act] = (total[act] ?? 0) + (data.activities[act]?[0] ?? 0);
         names.add(act);
@@ -1066,19 +986,15 @@ Map<String, double>? calculatePercentage(List<ExerciseData> exerciseDataList) {
       }
     }
   } else {
-    //print(exerciseDataList[0].actNames);
     for (var act in exerciseDataList[0].actNames) {
-      // inserisco dati di un solo giorno
       total[act] =
           (total[act] ?? 0) + (exerciseDataList[0].activities[act]?[0] ?? 0);
       names.add(act);
       t += exerciseDataList[0].activities[act]?[0] ?? 0;
     }
   }
-  //print('Da percentage: total $total, t: $t');
   Map<String, double> percentages = {};
   if (t == 0) {
-    // Return 0 percentage for each activity name
     for (var act in names) {
       percentages[act] = 0;
     }
@@ -1087,14 +1003,12 @@ Map<String, double>? calculatePercentage(List<ExerciseData> exerciseDataList) {
       percentages[act] = (total[act]! / t) * 100;
     }
   }
-  //print(percentages);
   return percentages;
 }
 
 List<String> getNames(List<ExerciseData> exerciseDataList) {
   List<String> names = [];
   for (var data in exerciseDataList) {
-    // seleziono dati, un giorno alla volta
     for (var act in data.actNames) {
       if (!names.contains(act)) {
         names.add(act);
@@ -1109,18 +1023,14 @@ PieChart _buildPieChart(
   double radius = _isPhasesCardExpanded ? 75 : 30;
   bool title = _isPhasesCardExpanded;
 
-  // Ottieni i nomi delle attività
   List<String> activityNames = exerciseData[0].actNames;
   Map<String, Color> colori = getColorForActivity(activityNames);
-  //print('getNames in _buildPiechart : $activityNames');
 
-  // Crea dinamicamente le sezioni del grafico a torta
   List<PieChartSectionData> sections = activityNames.map((activity) {
-    //print('activity in pie : ${calculatePercentage(exerciseData)![activity]}');
     return PieChartSectionData(
       value: (calculatePercentage(exerciseData)![activity]),
       color: colori[
-          activity], // Funzione per ottenere il colore in base all'attività
+          activity],
       title: activity,
       titlePositionPercentageOffset: 0.7,
       titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
@@ -1139,12 +1049,11 @@ PieChart _buildPieChart(
   );
 }
 
-// Funzione di esempio per ottenere un colore in base all'attività
 Color getRandomPurpleColor() {
   Random random = Random();
-  int red = 128 + random.nextInt(128); // Valori tra 128 e 255
+  int red = 128 + random.nextInt(128);
   int green = 0;
-  int blue = 128 + random.nextInt(128); // Valori tra 128 e 255
+  int blue = 128 + random.nextInt(128);
   return Color.fromARGB(255, red, green, blue);
 }
 
@@ -1190,75 +1099,5 @@ Widget _buildNoDataMessage() {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       ],
     ),
-  );
-}
-
-void surveySummary(BuildContext context, Map<String, dynamic> results,
-    List<int> days, int month) {
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: "Survey Results",
-    barrierColor: Colors.black54,
-    transitionDuration: Duration(milliseconds: 300),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return Center(
-        child: Material(
-          type: MaterialType.transparency,
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.6,
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: days.map((day) {
-                  String key = "resultS_${day}_${month}";
-                  String result = results[key] ?? "No survey";
-                  String displayText;
-
-                  if (result == "No survey") {
-                    displayText = "Nessun sondaggio";
-                  } else if (result == "Completed") {
-                    displayText = "Sondaggio completato";
-                  } else {
-                    displayText = result;
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Giorno $day",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        displayText,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Divider(),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: animation,
-          child: child,
-        ),
-      );
-    },
   );
 }

@@ -1,28 +1,13 @@
 import 'dart:math';
-
 import 'package:lag/models/sleepdata.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
  
 Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int age, bool ageInserted) async {
   List<double> scores = [];
   List<double> sleepHoursScores = [];
   List<double> minutesToFallAsleepScores = [];
   List<double> combinedPhaseScores = [];
-  //List<double> ageFlag = [];
-
-  /*
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  // int userAge = (sp.getString('userAge')) == null ? 25 : int.parse(sp.getString('userAge')!); // Default at 25 if not specified
-  int userAge = -1; // initialized
-  if ((sp.getString('userAge')) == null) {
-    userAge = 25; // Default at 25 if not specified
-    ageFlag.add(-1);
-  } else {
-    userAge = int.parse(sp.getString('userAge')!);
-    ageFlag.add(double.parse(sp.getString('userAge')!));
-  }
-  */
   String ageGroup = determineAgeGroup(age);
+
   for (var sleepData in sleeplist) {
     double score = -1; // -1 to distinguish days without data
     double sleepHoursScore = -1;
@@ -33,7 +18,6 @@ Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int a
     // EFFICIENCY
     if (sleepData.efficiency != null) {
       score = sleepData.efficiency * 0.4; // higher weigth for efficiency
-      // è POSSIBILE CHE MANCHI SOLO UN CAMPO IN SLEEP DATA (ES. SOLO EFFICIENCY?) O SE C'è UNO CI SONO TUTTI???
     }
     // MINUTE ASLEEP
     if (sleepData.minutesAsleep != null) {
@@ -44,7 +28,7 @@ Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int a
     // MINUTES TO FALL ASLEEP
     if (sleepData.minutesToFallAsleep != null) {
       minutesToFallAsleepScore = calculateMinutesToFallAsleepScore(sleepData.minutesToFallAsleep);
-      score += minutesToFallAsleepScore * 0.05; // wery low weight since we noticed that this quantity is always zero (maybe is due to Fitbit)
+      score += minutesToFallAsleepScore * 0.05; // very low weight since we noticed that this quantity is always zero (maybe is due to Fitbit)
     }
     // LEVELS
     if (sleepData.levels != null) {
@@ -57,9 +41,7 @@ Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int a
 
       combinedPhaseScore = (remScore + deepScore) / 2.0; // average of the two phases
       score += combinedPhaseScore * 0.2; 
-      print('Updated sleepHoursScore: $combinedPhaseScore');
     }
-    print('Updated sleepHoursScore: $combinedPhaseScore');
     if (score!=-1) {
       score = score.clamp(0, 100); // final score, between 0 and 100
     }
@@ -73,7 +55,6 @@ Future<Map<String, List<double>>> getSleepScore(List<SleepData> sleeplist, int a
     "scores" : scores,
     "minutesToFallAsleepScores" : minutesToFallAsleepScores,
     "combinedPhaseScores" : combinedPhaseScores,
-    //"ageFlag" : ageFlag,
   };
   return output;
 }

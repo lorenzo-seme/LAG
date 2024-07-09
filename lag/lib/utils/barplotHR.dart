@@ -3,20 +3,15 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/heartratedata.dart';
-//import 'package:lag/algorithms/sleep_score.dart';
 
 class BarChartSample7 extends StatefulWidget {
   const BarChartSample7(
       {super.key,
       required this.data,
-      //required this.pieCharts,
-      //required this.legend,
       required this.date});
 
   final DateTime date;
   final List<HeartRateData> data;
-  //final List<PieChart?> pieCharts;
-  //final List<String?> legend;
 
   @override
   State<BarChartSample7> createState() => _BarChartSample7State();
@@ -130,68 +125,6 @@ class _BarChartSample7State extends State<BarChartSample7> {
             }).toList(),
             maxY: double.parse((yValues).reduce(max).toStringAsFixed(0)) + 2,
             minY: double.parse(((yValues).where((element) => element != 0.0).toList().reduce(min).toStringAsFixed(0))) - 2,
-            //maxY: (maxY.toInt()).toDouble(),
-            /*
-            barTouchData: BarTouchData(
-                enabled: true,
-                handleBuiltInTouches: false, // Disable built-in tooltip
-                touchCallback: (FlTouchEvent event, barTouchResponse) {
-                  if (event.isInterestedForInteractions &&
-                      barTouchResponse != null &&
-                      barTouchResponse.spot != null) {
-                    final spot = barTouchResponse.spot!;
-                    int hours = spot.touchedRodData.toY.toInt();
-                    int minutes =
-                        ((spot.touchedRodData.toY - hours) * 60).toInt();
-
-                    PieChart? pie = widget.pieCharts[spot.touchedBarGroupIndex];
-                    String? legend = widget.legend[spot.touchedBarGroupIndex];
-
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: SizedBox(
-                              height: 380,
-                              width: 250,
-                              child: Column(
-                                children: [
-                                  const Text('Today\'s workout time:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text('$hours hours and $minutes minutes'),
-                                  const SizedBox(height: 10),
-                                  const Text('Exercise phase distribution: ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 200,
-                                        width: 200,
-                                        child: pie ?? const SizedBox(height: 1),
-                                      ),
-                                      const SizedBox(height: 1),
-                                      legend != null
-                                          ? Text(legend)
-                                          : const SizedBox(height: 1),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text('Close'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        });
-                  }
-                }),*/
           ),
         ),
       ),

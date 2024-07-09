@@ -5,7 +5,6 @@ import 'package:lag/models/sleepdata.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lag/screens/personal_info.dart';
-//import 'package:lag/screens/weeklyRecap.dart';
 import 'package:lag/utils/barplot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,7 +52,6 @@ class _SleepScreenState extends State<SleepScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
-            //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const WeeklyRecap()));
           },
         ),
         backgroundColor: const Color.fromARGB(255, 227, 211, 244), 
@@ -247,7 +245,6 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    //crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         children: [
@@ -284,21 +281,6 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
   
   Widget _sleepHoursAdvice(bool ageInserted, bool showAlertForAge, int age) {
     if (!ageInserted && showAlertForAge) {
-      /*return AlertDialog(
-        content: const Text("Estimates were made assuming that your age is 25. \n Add your birth year in the Personal Information section for a customized advice!",
-                style: TextStyle(fontSize: 11.0, fontStyle: FontStyle.italic),),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('To Personal Info',
-              style: TextStyle(fontSize: 11.0)),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => PersonalInfo())
-              );
-            },
-          )
-        ],
-      );*/
       return Column(
         children: [
           const Text("Estimates were made assuming that your age is 25. \nAdd your personal information for a customized advice!",
@@ -493,28 +475,28 @@ PieChart _buildPieChart(List<SleepData> sleepData, bool _isPhasesCardExpanded) {
               sections: [
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["deep"],
-                  color: const Color(0xFF8A2BE2), // Viola scuro per Deep Sleep
+                  color: const Color(0xFF8A2BE2),
                   title: "DEEP", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
                   showTitle: title,
                   radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["rem"],
-                  color: const Color(0xFFBA55D3), // Viola medio per REM Sleep
+                  color: const Color(0xFFBA55D3),
                   title: "REM", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
                   showTitle: title,
                   radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["light"],
-                  color: const Color(0xFF9370DB), // Viola chiaro per Light Sleep
+                  color: const Color(0xFF9370DB),
                   title: "LIGHT", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
                   showTitle: title,
                   radius: radius,
                 ),
                 PieChartSectionData(
                   value: (calculatePercentage(sleepData)!)["wake"],
-                  color: const Color.fromARGB(255, 216, 158, 216), // Viola chiaro per Awake
+                  color: const Color.fromARGB(255, 216, 158, 216),
                   title: "WAKE", titlePositionPercentageOffset: 0.7, titleStyle: const TextStyle(color: Colors.white, fontSize: 11),
                   showTitle: title,
                   radius: radius,
@@ -522,8 +504,7 @@ PieChart _buildPieChart(List<SleepData> sleepData, bool _isPhasesCardExpanded) {
               ],
               centerSpaceColor: Colors.transparent,
               centerSpaceRadius: 0.01,
-              sectionsSpace: 2, // Rimuove lo spazio tra le sezioni
-              // Altre opzioni come angolo di inizio, ecc.
+              sectionsSpace: 2,
             ),
           );
 }
@@ -549,4 +530,3 @@ String checkData(List<SleepData> sleepData) {
     return "${noDataDays.join(' ,')}: No data available";
   }
 }
-

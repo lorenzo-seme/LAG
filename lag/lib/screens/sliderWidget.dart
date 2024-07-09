@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
@@ -17,8 +15,7 @@ class SliderWidget extends StatefulWidget {
 }
 
 class _SliderWidgetState extends State<SliderWidget> {
-  final day = DateTime.now().subtract(Duration(days: 1)).day;
-  final month = DateTime.now().subtract(Duration(days: 1)).month;
+  String dateString = DateTime.now().subtract(const Duration(days: 1)).toIso8601String().split('T').first;
   final Map<int, double> _currentValue = {1: 0, 2: 0, 3: 0};
   final Map<int, String> _questionsWO = {
     1: 'Was the workout hard?',
@@ -34,12 +31,10 @@ class _SliderWidgetState extends State<SliderWidget> {
 
   _todayResults() async {
     final sp = await SharedPreferences.getInstance();
-    DateTime date = DateTime.now().subtract(Duration(days: 1));
-    String dateString = date.toIso8601String().split('T').first;
     setState(() {
-      _currentValue[1] = sp.getDouble('q1_${dateString}}') ?? 0;
-      _currentValue[2] = sp.getDouble('q2_${dateString}') ?? 0;
-      _currentValue[3] = sp.getDouble('q3_${dateString}') ?? 0;
+      _currentValue[1] = sp.getDouble('q1_$dateString') ?? 0;
+      _currentValue[2] = sp.getDouble('q2_$dateString') ?? 0;
+      _currentValue[3] = sp.getDouble('q3_$dateString') ?? 0;
     });
   }
 
@@ -51,13 +46,13 @@ class _SliderWidgetState extends State<SliderWidget> {
           Padding(
             padding: const EdgeInsets.all(0),
             child: Container(
-              width: 300, // Imposta la larghezza desiderata
-              height: 200, // Imposta l'altezza desiderata
+              width: 300,
+              height: 200,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     "Your workout performance of today",
                     style: TextStyle(fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
@@ -70,8 +65,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                       ),
                       const SizedBox(width: 12),
                       _currentValue[1]! > 5
-                          ? Icon(Icons.thumb_up)
-                          : Icon(Icons.thumb_down),
+                          ? const Icon(Icons.thumb_up)
+                          : const Icon(Icons.thumb_down),
                     ],
                   ),
                   const SizedBox(height: 15), // Aggiungi spazio tra le righe
@@ -82,8 +77,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                       ),
                       const SizedBox(width: 12),
                       _currentValue[2]! > 5
-                          ? Icon(Icons.thumb_up)
-                          : Icon(Icons.thumb_down),
+                          ? const Icon(Icons.thumb_up)
+                          : const Icon(Icons.thumb_down),
                     ],
                   ),
                   const SizedBox(height: 15), // Aggiungi spazio tra le righe
@@ -94,8 +89,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                       ),
                       const SizedBox(width: 12),
                       _currentValue[3]! > 5
-                          ? Icon(Icons.thumb_up)
-                          : Icon(Icons.thumb_down),
+                          ? const Icon(Icons.thumb_up)
+                          : const Icon(Icons.thumb_down),
                     ],
                   ),
                 ],
@@ -105,7 +100,7 @@ class _SliderWidgetState extends State<SliderWidget> {
           const SizedBox(height: 30),
           Center(
             child: TextButton(
-              child: Text('Close'),
+              child: const Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -129,7 +124,7 @@ class _SliderWidgetState extends State<SliderWidget> {
               setState(() {
                 _currentValue[1] = value;
               });
-              sp.setDouble('q1_d${day}_m${month}', _currentValue[1]!);
+              sp.setDouble('q1_$dateString', _currentValue[1]!);
             },
           ),
           const SizedBox(height: 8),
@@ -145,7 +140,7 @@ class _SliderWidgetState extends State<SliderWidget> {
               setState(() {
                 _currentValue[2] = value;
               });
-              sp.setDouble('q2_d${day}_m${month}', _currentValue[2]!);
+              sp.setDouble('q2_$dateString', _currentValue[2]!);
             },
           ),
           const SizedBox(height: 8),
@@ -161,12 +156,12 @@ class _SliderWidgetState extends State<SliderWidget> {
               setState(() {
                 _currentValue[3] = value;
               });
-              sp.setDouble('q3_d${day}_m${month}', _currentValue[3]!);
+              sp.setDouble('q3_$dateString', _currentValue[3]!);
             },
           ),
           const SizedBox(height: 30),
           TextButton(
-            child: Text('Close'),
+            child: const Text('Close'),
             onPressed: () {
               Navigator.of(context).pop();
             },

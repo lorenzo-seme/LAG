@@ -56,21 +56,20 @@ class ExerciseData extends AllData {
     count = 1;
   }
   if (count == 0) {
-    return 0; // Return 0 if there are no heart rate values
+    return 0;
   }
   return (totalHR / count).round();
 }
 
   static List<String> _obtainActNames(Map<String, dynamic> json) {
     List<String> actNames = [];
-    if (json["data"] is List && json["data"].isNotEmpty) {  // json[data] una lista che contiene la mappa che contiene come key tutti i vari parametri che analizziamo
-      for (var item in json["data"]) { // item è uno dei tanti possibili map
+    if (json["data"] is List && json["data"].isNotEmpty) {
+      for (var item in json["data"]) {
           if (item.containsKey("activityName") && !actNames.contains(item["activityName"])) {
             actNames.add(item["activityName"]);
           }
     }
   } 
-  print("Got activity names $actNames");
   return actNames;
   }
 
@@ -123,7 +122,7 @@ class ExerciseData extends AllData {
               if (item.containsKey("duration")) {
                 double d = item["duration"]* math.pow(10, -3) / 60;
                 allActivities[act]?[0] += double.parse(d.toStringAsFixed(2));
-              } // non metto la condizione di else perchè è già a 0 il valore se non c'è
+              }
               if (item.containsKey("distance")) {
                 double d = item["distance"];
                 allActivities[act]?[1] += double.parse(d.toStringAsFixed(2));
@@ -131,19 +130,11 @@ class ExerciseData extends AllData {
                 double s = item["steps"]*0.762/1000;  // converte il numero di step in km
                 allActivities[act]?[1] += double.parse(s.toStringAsFixed(2));
               }
-            } /*else if (item["activityName"] != 'Corsa' && item["activityName"] != 'Bici' && item["activityName"] != 'Camminata') {
-              if (item.containsKey("duration")) {
-                allActivities[item["activityName"]]?[0] += item["duration"];
-              }
-              if (item.containsKey("distance")) {
-                allActivities[item["activityName"]]?[1] += item["distance"];
-              }
-            }*/
+            }
           }
         }
       }
     }
-    print(allActivities);
     return allActivities;
   }
 

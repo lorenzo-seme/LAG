@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/home.dart';
-import 'package:lag/utils/impact.dart';
+import 'package:lag/services/impact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  final HomeProvider provider;
+  const Login({super.key, required this.provider});
 
   @override
   State<Login> createState() => _LoginState();
@@ -146,14 +148,14 @@ class _LoginState extends State<Login> {
                                 await sp.setString('password', passwordController.text);
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                      builder: (context) => const Home()),
+                                      builder: (context) =>  Home(provider: widget.provider,)),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context)
                                   ..removeCurrentSnackBar()
                                   ..showSnackBar(
                                     const SnackBar(
-                                      backgroundColor: Colors.grey,
+                                      backgroundColor: Color.fromARGB(255, 243, 110, 110),
                                       behavior: SnackBarBehavior.floating,
                                       margin: EdgeInsets.all(8),
                                       duration: Duration(seconds: 2),
@@ -168,11 +170,12 @@ class _LoginState extends State<Login> {
                               ..removeCurrentSnackBar()
                               ..showSnackBar(
                                 const SnackBar(
-                                  backgroundColor: Colors.grey,
+                                  backgroundColor: Color.fromARGB(255, 243, 110, 110),
                                   behavior: SnackBarBehavior.floating,
                                   margin: EdgeInsets.all(8),
                                   duration: Duration(seconds: 2),
-                                  content: Text("IMPACT backend is down"),
+                                  content: Text("IMPACT backend is down",
+                                    textAlign: TextAlign.center,),
                                 ),
                               );
                           }
@@ -192,15 +195,6 @@ class _LoginState extends State<Login> {
                         child: const Text('Log In'),
                       ),
                     )),
-                /*  
-                const Spacer(),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text(
-                    "By logging in, you agree to LAG's\nTerms & Conditions and Privacy Policy",
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),*/
               ],
             ),
           ),

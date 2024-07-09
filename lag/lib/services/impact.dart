@@ -1,6 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -13,14 +14,10 @@ class Impact{
   static String refreshEndpoint = 'gate/v1/refresh/';
   
   static String sleepEndpoint = 'data/v1/sleep/patients/';
-  static String heartRateEndpoint = 'data/v1/resting_heart_rate/patients/'; //resting heart rate!!
+  static String heartRateEndpoint = 'data/v1/resting_heart_rate/patients/';
   static String exerciseEndpoint = 'data/v1/exercise/patients/';
 
-  static String username = 'gq9MVRmZK8';
-  static String password = '12345678!';
-
   static String patientUsername = 'Jpefaq6m58';
-
 
   //This method allows to check if the IMPACT backend is up
   static Future<bool> isImpactUp() async {
@@ -32,8 +29,6 @@ class Impact{
     //Just return if the status code is OK
     return response.statusCode == 200;
   } //_isImpactUp
- 
-
 
   //This method allows to obtain the JWT token pair from IMPACT and store it in SharedPreferences
   static Future<int> getAndStoreTokens(String username, String password) async {
@@ -80,7 +75,6 @@ class Impact{
     return 401; 
   } //_refreshTokens
 
-
   static Future<dynamic> fetchSleepData(String startDay, String endDay) async {
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
@@ -110,8 +104,7 @@ class Impact{
     return result;
   } //_fetchSleepData
 
-
-static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async {
+  static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async {
     //Get the stored access token (Note that this code does not work if the tokens are null)
     final sp = await SharedPreferences.getInstance();
     var access = sp.getString('access');
@@ -133,14 +126,12 @@ static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async 
     final response = await http.get(Uri.parse(url), headers: headers);
     //if OK parse the response, otherwise return null
     var result = null;
-    //print('status code: ${response.statusCode}');
     if (response.statusCode == 200) {
       result = jsonDecode(response.body);
     } 
     //Return the result
     return result;
   } //_fetchHeartRateData
-
 
   static Future<dynamic> fetchExerciseData(String startDay, String endDay) async {
     //Get the stored access token (Note that this code does not work if the tokens are null)
@@ -170,7 +161,5 @@ static Future<dynamic> fetchHeartRateData(String startDay, String endDay) async 
     //Return the result
     return result;
   } //_fetchExerciseData
-
-
 }//Impact 
 

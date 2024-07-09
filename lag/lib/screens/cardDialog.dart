@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ignore: must_be_immutable
-class CardDialog extends StatefulWidget {
-  bool buttonClickedToday;
 
-  CardDialog(
+class CardDialog extends StatefulWidget {
+  final bool buttonClickedToday;
+
+  const CardDialog(
     this.buttonClickedToday, {
     super.key,
   });
@@ -41,12 +41,12 @@ class _CardDialogState extends State<CardDialog> {
 
   _loadResult() async {
     final sp = await SharedPreferences.getInstance();
-    DateTime date = DateTime.now().subtract(Duration(days: 1));
+    DateTime date = DateTime.now().subtract(const Duration(days: 1));
     String dateString = date.toIso8601String().split('T').first;
     for (int i = 0; i < 2; i++) {
-      if (sp.getBool('survey${i}_${dateString}') != null) {
+      if (sp.getBool('survey${i}_$dateString') != null) {
         setState(() {
-          answers[i] = sp.getBool('survey${i}_${dateString}')!;
+          answers[i] = sp.getBool('survey${i}_$dateString')!;
         });
       }
     }
@@ -54,9 +54,9 @@ class _CardDialogState extends State<CardDialog> {
 
   void _saveResult(bool value) async {
     final sp = await SharedPreferences.getInstance();
-    DateTime date = DateTime.now().subtract(Duration(days: 1));
+    DateTime date = DateTime.now().subtract(const Duration(days: 1));
     String dateString = date.toIso8601String().split('T').first;
-    sp.setBool('survey${currentQuestionIndex}_${dateString}', value);
+    sp.setBool('survey${currentQuestionIndex}_$dateString', value);
   }
 
   Widget _returnDialog() {
@@ -69,7 +69,7 @@ class _CardDialogState extends State<CardDialog> {
               children: [
                 Text(
                   questions[currentQuestionIndex],
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -88,7 +88,7 @@ class _CardDialogState extends State<CardDialog> {
                           }
                         });
                       },
-                      child: Text('Yes'),
+                      child: const Text('Yes'),
                     ),
                     const SizedBox(width: 20),
                     ElevatedButton(
@@ -103,7 +103,7 @@ class _CardDialogState extends State<CardDialog> {
                           }
                         });
                       },
-                      child: Text('No'),
+                      child: const Text('No'),
                     ),
                   ],
                 ),
@@ -117,32 +117,32 @@ class _CardDialogState extends State<CardDialog> {
 
   Widget _getResults() {
     List<Widget> results = [
-      Text(
+      const Text(
         'YOUR STATUS TODAY 🥵',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 30),
       Row(
         children: [
-          Text('Tired'),
+          const Text('Tired'),
           const SizedBox(width: 12),
-          (answers[0]) ? Icon(Icons.check) : Icon(Icons.close)
+          (answers[0]) ? const Icon(Icons.check) : const Icon(Icons.close)
         ],
       ),
       const SizedBox(height: 15),
       Row(
         children: [
-          Text('Lack of motivation'),
+          const Text('Lack of motivation'),
           const SizedBox(width: 12),
-          (answers[1]) ? Icon(Icons.check) : Icon(Icons.close),
+          (answers[1]) ? const Icon(Icons.check) : const Icon(Icons.close),
         ],
       ),
       const SizedBox(height: 15),
       Row(
         children: [
-          Text('No time'),
+          const Text('No time'),
           const SizedBox(width: 12),
-          (answers[2]) ? Icon(Icons.check) : Icon(Icons.close),
+          (answers[2]) ? const Icon(Icons.check) : const Icon(Icons.close),
         ],
       ),
       const SizedBox(height: 20),
@@ -153,21 +153,20 @@ class _CardDialogState extends State<CardDialog> {
         Column(
           children: [
             const SizedBox(height: 10),
-            Row( 
+            const Row( 
               children: [
                 Icon(Icons.priority_high, color: Color.fromARGB(255, 131, 35, 233)),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Expanded(
                   child: Text(
                   'I don\'t understand why you have not done your',
                   style: TextStyle(fontStyle: FontStyle.italic),)
-                  //overflow: TextOverflow.ellipsis,),
                 )
               ],
             ),
             const SizedBox(height: 15,),
             ElevatedButton(
-                child: Text('Discover how to fix it!',
+                child: const Text('Discover how to fix it!',
                 style: TextStyle(fontStyle: FontStyle.italic),),
               onPressed: () async {
                 await launchUrl(Uri.parse(
@@ -179,7 +178,7 @@ class _CardDialogState extends State<CardDialog> {
       );
       results.add(
         TextButton(
-           child: Text('Close'),
+           child: const Text('Close'),
            onPressed: () {
             Navigator.of(context).pop();
             },
@@ -191,7 +190,7 @@ class _CardDialogState extends State<CardDialog> {
         if (answers[i]) {
           buttons.add(
             ElevatedButton(
-              child: Text('${typeProblems[i]}'),
+              child: Text(typeProblems[i]),
               onPressed: () async {
                 await launchUrl(Uri.parse(solutions[i]));
               },
@@ -200,7 +199,7 @@ class _CardDialogState extends State<CardDialog> {
         }
       }
       results.add(
-        Text(
+        const Text(
           'Get here some specific advices:',
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
@@ -223,7 +222,7 @@ class _CardDialogState extends State<CardDialog> {
       );
       results.add(
         TextButton(
-           child: Text('Close'),
+           child: const Text('Close'),
            onPressed: () {
             Navigator.of(context).pop();
             },
@@ -232,23 +231,7 @@ class _CardDialogState extends State<CardDialog> {
 
     return Column(children: results);
   }
-
-/*
-  @override
-Widget build(BuildContext context) {
-  return FutureBuilder(
-    future: _loadResult(),
-    builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        // Mostra uno spinner o indicatore di caricamento se necessario
-        return CircularProgressIndicator();
-      } else {
-        // Dopo il caricamento, restituisci il widget appropriato
-        return widget.buttonClickedToday ? _getResults() : _returnDialog();
-      }
-    },
-  );
-}*/
+  
 @override
   Widget build(BuildContext context) {
     return widget.buttonClickedToday ? _getResults() : _returnDialog();

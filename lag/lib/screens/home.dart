@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/diaryScreen.dart';
 import 'package:lag/screens/profile.dart';
 import 'package:lag/screens/weeklyRecap.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final HomeProvider provider;
+  const Home({super.key, required this.provider});
 
   @override
   State<Home> createState() => _HomeState();
@@ -23,7 +26,11 @@ class _HomeState extends State<Home> {
       icon: Icon(Icons.home),
       label: 'Home',
     ),
-    BottomNavigationBarItem(
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.book),
+      label: 'Diary',
+    ),
+    const BottomNavigationBarItem(
       icon: Icon(Icons.manage_accounts),
       label: 'Profile',
     ),
@@ -34,19 +41,19 @@ class _HomeState extends State<Home> {
   }) {
     switch (index) {
       case 0:
-        return WeeklyRecap();
+        return const WeeklyRecap();
       case 1:
-        return Profile();
+        return DiaryScreen(provider: widget.provider, showArrow: false,);
+      case 2:
+        return Profile(provider: widget.provider,);
       default:
-        return WeeklyRecap();
+        return const WeeklyRecap();
     }
   }
  
   @override
   Widget build(BuildContext context) {
-    return /*ChangeNotifierProvider(
-        create: (context) => HomeProvider(), // homeprovider is the class implementing the change notifier
-        builder: (context, child) => */Scaffold(
+    return Scaffold(
         body: _selectPage(index: _selIdx),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: const Color(0xFFf5f7f7),
@@ -54,7 +61,6 @@ class _HomeState extends State<Home> {
           currentIndex: _selIdx,
           onTap: _onItemTapped,
         )
-      //)
     );
   }
 }
