@@ -12,7 +12,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/diaryScreen.dart';
@@ -344,6 +343,7 @@ class _MoodScreenState extends State<MoodScreen> {
     );
   }
 
+/*
   void _submitFeelings() {
     setState(() {
       _saved = true;
@@ -351,15 +351,51 @@ class _MoodScreenState extends State<MoodScreen> {
       _moodController.clear(); // Clear the text field
     });
   }
+  */
+  void _submitFeelings() async {
+  // Verifica se il contenuto del TextField è vuoto
+  if (_moodController.text.isEmpty) {
+    // Mostra un messaggio di errore o un feedback all'utente
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please enter your thoughts before saving.')),
+    );
+    return;
+  }
+
+
+  // Salva il contenuto del TextField
+  await _saveMoodText(_moodController.text);
+
+  // Aggiorna lo stato per riflettere che i dati sono stati salvati
+  setState(() {
+    _saved = true;
+  });
+
+  // Cancella il contenuto del TextField
+  _moodController.clear();
+
+  // Mostra un messaggio di conferma o un feedback all'utente
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Your mood has been saved successfully.')),
+  );
+}
+
+
 
   Future<void> _saveMood() async {
     int moodScore = _selectedMoodIndex! + 1;
     await widget.provider.saveMoodScore(DateTime.now(), moodScore);
   }
 
+/*
   Future<void> _saveMoodText(String text) async {
     await widget.provider.saveMoodText(DateTime.now(), text);
   }
+*/
+Future<void> _saveMoodText(String text) async {
+  await widget.provider.saveMoodText(DateTime.now(), text);
+}
+
 
   void _selectRandomMotivationalPhrase(String moodLabel) {
     final List<String> phrases = moodMotivationalPhrases[moodLabel]!;

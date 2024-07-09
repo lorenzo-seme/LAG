@@ -13,7 +13,7 @@ class ReachedGoal extends StatefulWidget {
 
 class _ReachedGoalState extends State<ReachedGoal> {
   @override
-  void initState() {
+  void initState() { 
     super.initState();
     _showDialogIfGoalReached();
   }

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/models/exercisedata.dart';
 import 'package:lag/providers/homeProvider.dart';
+import 'package:lag/screens/cardDialog.dart';
 import 'package:lag/screens/personal_info.dart';
 import 'package:lag/screens/reachedGoal.dart';
 import 'package:lag/screens/sliderWidget.dart';
 import 'package:lag/utils/barplotEx.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:lag/screens/cardDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -82,12 +82,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     DateTime firstDayOfYear = DateTime(now.year, 1, 1);
     int daysDifference = now.difference(firstDayOfYear).inDays;
     double weekNumber = (daysDifference / 7).floor() + 1;
-    //print("week $week, weeknumber $weekNumber, currentWeek $currentWeek");
 
     if (week == null || currentWeek == weekNumber) {
       setState(() {
         _currentWeek = true;
-        //_goalDisable = true;
       });
     } else if (currentWeek == weekNumber) {
       setState(() {
@@ -100,8 +98,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       });
     }
     sp.setDouble('CurrentWeek', weekNumber);
-    //print("cw: ${_currentWeek}");
-    //return currentWeek == weekNumber;
   }
 
   Future<void> _onButtonClick() async {
@@ -135,8 +131,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   _exerciseToday() async {
     final sp = await SharedPreferences.getInstance();
-    final day = DateTime.now().subtract(Duration(days: 1)).day;
-    final month = DateTime.now().subtract(Duration(days: 1)).month;
+    DateTime date = DateTime.now().subtract(Duration(days: 1));
+    String dateString = date.toIso8601String().split('T').first;
     if (widget.provider.exerciseToday()) {
       setState(() {
         _exToday = true;
@@ -144,8 +140,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     } else {
       _exToday = false;
     }
-    sp.setBool('exToday_${day}_${month}', _exToday);
-    print('exToday_${day}_${month} ${_exToday}');
+    sp.setBool('exToday_${dateString}', _exToday);
+    print('exToday_${dateString} ${_exToday}');
   }
 
   // ----- GOAL INTERNAL METHODS:----------------------
@@ -156,7 +152,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         false; // se il goal è già stato settato nella settimana
     List<String> names = getNames(widget.provider.exerciseData);
     Map<String, double> performance = {};
-    print("widget.week : ${widget.week}");
 
     setState(() {
       // setto ora perchè questi non cambiano nell'arco della settimana
@@ -173,7 +168,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       if (_sameDay && _goalDisable) {
         // significa che ho già messo il goal e che sto rientrando nell pagina oggi
         setState(() {
-          _percentage = // -----> metti savedPercentage
+          _percentage =
               savedPercentage; // every time that open the page but it is the same day, returns the same value of percentage
           _performances = performance;
         });
@@ -255,9 +250,9 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     };
 
     //Map<String, double> thresholds = {'Lazy': 1, 'Medium': 0.15, 'Hard': 0.05};
-    print("score $score");
+    /*print("score $score");
     print("_threshold $_threshold");
-    print("level $_level");
+    print("level $_level");*/
     double p = score / thresholds[_level]!;
     if (p >= 1) {
       setState(() {
@@ -273,8 +268,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   }
 
   _setGoal(String level) {
-    //List<String> names = getNames(widget.provider.exerciseData);
-    print("enter in _setGoal");
     double wRun = 0.3;
     double wBike = 0.2;
     double wWalk = 0.05;
@@ -302,14 +295,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       'Hard': 150.5
     };
 
-    // Map<String, double> thresholds = {'Lazy': 1, 'Medium': 0.15, 'Hard': 0.05};
-
     setState(() {
       _threshold = thresholds[level]!;
       _currentScore = score;
       _performances = distances;
       if (_currentScore / _threshold >= 1) {
-        _reachGoal = true; // -> troppo presto per mettere _reachedGoal()
+        _reachGoal = true;
         _percentage = _currentScore / _threshold;
       } else {
         _percentage = _currentScore / _threshold;
@@ -319,14 +310,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   _upDateGoal() async {
     Map<String, double> thresholds = {'Lazy': 50.5, 'Medium': 110, 'Hard': 150};
-    //Map<String, double> thresholds = {'Lazy': 1, 'Medium': 0.15, 'Hard': 0.05};
 
     final sp = await SharedPreferences.getInstance();
     String currLevel = _level;
     double currScore = _currentScore;
     double newthreshold = currScore;
     double difference = currScore % thresholds[currLevel]!;
-    print("difference ${difference}");
 
     if (currLevel == 'Lazy') {
       newthreshold = thresholds['Medium']!;
@@ -448,6 +437,46 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     }
   }
 
+  Future<void> _notifyOnePossibilityGoal() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Be careful! This is your goal for the week.',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
+          content: const Text(
+              'Once you set a goal, you won\'t be able to change it until the next week. Make sure to choose wisely and stay committed!',
+              style: const TextStyle(fontSize: 13),
+              textAlign: TextAlign.center),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _goalDisable = true;
+                    });
+                  },
+                  child: const Text('Set goal'),
+                ),
+                const SizedBox(width: 70),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Chiude il pop-up
+                  },
+                  child: const Text('Back'),
+                )
+              ],
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Widget _lateralText() {
     List<ExerciseData> exerciseDataList = widget.provider.exerciseData;
     if (exerciseDataList.isEmpty) {
@@ -534,17 +563,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       );
     }
   }
-
-/*
-  _updatePerformances() async {
-    final sp = await SharedPreferences.getInstance();
-    String week = _getCurrentWeekIdentifier();
-    List<String> names = getNames(widget.provider.exerciseData);
-    for (String act in names) {
-      sp.setDouble("${act}_$week", _performances[act]!);
-    }
-  }
-  */
 
   Widget _exerciseAdvice(bool ageInserted, bool showAlertForAge, int age) {
     if (!ageInserted && showAlertForAge) {
@@ -703,263 +721,157 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                   hoverColor:
                                       const Color.fromARGB(255, 227, 211, 244),
                                   onTap: () async {
-                                    _goalDisable
-                                        ? await launchUrl(Uri.parse(
-                                            'https://www.aidstation.com.au/blogs/news/10-proven-tips-for-setting-and-achieving-your-athletic-goals'))
-                                        : showGeneralDialog(
-                                            barrierDismissible: true,
-                                            barrierLabel: "",
-                                            transitionDuration: const Duration(
-                                                milliseconds: 200),
-                                            context: context,
-                                            pageBuilder: (context, animation1,
-                                                animation2) {
-                                              return Container();
-                                            },
-                                            transitionBuilder:
-                                                (context, a1, a2, widget) {
-                                              return ScaleTransition(
-                                                scale: Tween<double>(
-                                                        begin: 0.5, end: 1.0)
-                                                    .animate(a1),
-                                                child: FadeTransition(
-                                                  opacity: Tween<double>(
-                                                          begin: 0.5, end: 1.0)
-                                                      .animate(a1),
-                                                  child: AlertDialog(
-                                                    backgroundColor:
-                                                        const Color.fromARGB(
-                                                            255, 242, 239, 245),
-                                                    content:
-                                                        SingleChildScrollView(
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.all(20),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Text(
-                                                              'How strong are you this week?',
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                                height: 20),
-                                                            Card(
-                                                                elevation: 3,
-                                                                color: Colors
-                                                                        .purple[
-                                                                    100],
-                                                                //shape: ShapeBorder.,
-                                                                child: ListTile(
-                                                                    title: Text(
-                                                                        'Lazy level'),
-                                                                    subtitle:
-                                                                        const Text(
-                                                                      'Minimum activity acceptable to live in a healthy way',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              11),
-                                                                    ),
-                                                                    trailing: Icon(
-                                                                        Icons
-                                                                            .battery_0_bar),
-                                                                    iconColor:
-                                                                        Colors
-                                                                            .black,
-                                                                    onTap:
-                                                                        () async {
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                      setState(
-                                                                          () {
-                                                                        _level =
-                                                                            'Lazy';
-                                                                        _goalDisable =
-                                                                            true;
-                                                                      });
-                                                                      _setGoal(
-                                                                          _level);
-                                                                      final sp =
-                                                                          await SharedPreferences
-                                                                              .getInstance();
-                                                                      String
-                                                                          currentWeekKey =
-                                                                          _getCurrentWeekIdentifier();
-                                                                      sp.setDouble(
-                                                                          'percentage_$currentWeekKey',
-                                                                          _percentage);
-                                                                      sp.setString(
-                                                                          'level_$currentWeekKey',
-                                                                          _level);
-                                                                      sp.setBool(
-                                                                          'goal_$currentWeekKey',
-                                                                          true);
-                                                                      for (var act
-                                                                          in _performances
-                                                                              .keys) {
-                                                                        sp.setDouble(
-                                                                            "${act}_$currentWeekKey",
-                                                                            _performances[act]!);
-                                                                      }
-                                                                      //Navigator.of(context).pop();
-                                                                      //(_reachGoal)
-                                                                      //? _reachedGoal()
-                                                                      //: null;
-                                                                    })),
-                                                            Card(
-                                                                elevation: 3,
-                                                                color: Colors
-                                                                        .purple[
-                                                                    200],
-                                                                //shape: ShapeBorder.,
-                                                                child: ListTile(
-                                                                    title: Text(
-                                                                        'Medium level'),
-                                                                    subtitle:
-                                                                        const Text(
-                                                                      'Medium activity to live in a healthy way',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              11),
-                                                                    ),
-                                                                    trailing: Icon(
-                                                                        Icons
-                                                                            .battery_3_bar),
-                                                                    iconColor:
-                                                                        Colors
-                                                                            .black,
-                                                                    onTap:
-                                                                        () async {
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                      setState(
-                                                                          () {
-                                                                        _level =
-                                                                            'Medium';
-                                                                        _goalDisable =
-                                                                            true;
-                                                                      });
-                                                                      _setGoal(
-                                                                          _level);
-                                                                      final sp =
-                                                                          await SharedPreferences
-                                                                              .getInstance();
-                                                                      String
-                                                                          currentWeekKey =
-                                                                          _getCurrentWeekIdentifier();
-                                                                      sp.setDouble(
-                                                                          'percentage_$currentWeekKey',
-                                                                          _percentage);
-                                                                      sp.setString(
-                                                                          'level_$currentWeekKey',
-                                                                          _level);
-                                                                      sp.setBool(
-                                                                          'goal_$currentWeekKey',
-                                                                          true);
-                                                                      for (var act
-                                                                          in _performances
-                                                                              .keys) {
-                                                                        sp.setDouble(
-                                                                            "${act}_$currentWeekKey",
-                                                                            _performances[act]!);
-                                                                      }
-                                                                      //Navigator.of(context).pop();
-                                                                      //(_reachGoal)
-                                                                      //? _reachedGoal()
-                                                                      //: null;
-                                                                    })),
-                                                            Card(
-                                                                elevation: 3,
-                                                                color: Colors
-                                                                        .purple[
-                                                                    300],
-                                                                //shape: ShapeBorder.,
-                                                                child: ListTile(
-                                                                    title: Text(
-                                                                        'Hard level'),
-                                                                    subtitle:
-                                                                        const Text(
-                                                                      'Strong activity life',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              11),
-                                                                    ),
-                                                                    trailing: Icon(
-                                                                        Icons
-                                                                            .battery_full),
-                                                                    iconColor:
-                                                                        Colors
-                                                                            .black,
-                                                                    onTap:
-                                                                        () async {
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop();
-                                                                      setState(
-                                                                          () {
-                                                                        _level =
-                                                                            'Hard';
-                                                                        _goalDisable =
-                                                                            true;
-                                                                      });
-                                                                      _setGoal(
-                                                                          _level);
-                                                                      final sp =
-                                                                          await SharedPreferences
-                                                                              .getInstance();
-                                                                      String
-                                                                          currentWeekKey =
-                                                                          _getCurrentWeekIdentifier();
-                                                                      sp.setDouble(
-                                                                          'percentage_$currentWeekKey',
-                                                                          _percentage);
-                                                                      sp.setString(
-                                                                          'level_$currentWeekKey',
-                                                                          _level);
-                                                                      sp.setBool(
-                                                                          'goal_$currentWeekKey',
-                                                                          true);
-                                                                      for (var act
-                                                                          in _performances
-                                                                              .keys) {
-                                                                        sp.setDouble(
-                                                                            "${act}_$currentWeekKey",
-                                                                            _performances[act]!);
-                                                                      }
-                                                                      //Navigator.of(context).pop();
-                                                                      //(_reachGoal)
-                                                                      //? _reachedGoal()
-                                                                      //: null;
-                                                                    })),
-                                                            SizedBox(
-                                                                height: 20),
-                                                            TextButton(
-                                                              child:
-                                                                  Text('Close'),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                            )
-                                                          ],
-                                                        ),
+                                    if (_goalDisable) {
+                                      await launchUrl(Uri.parse(
+                                          'https://www.aidstation.com.au/blogs/news/10-proven-tips-for-setting-and-achieving-your-athletic-goals'));
+                                    } else {
+                                      await _notifyOnePossibilityGoal();
+                                      if (_goalDisable) {
+                                        showGeneralDialog(
+                                          barrierDismissible: true,
+                                          barrierLabel: "",
+                                          transitionDuration:
+                                              const Duration(milliseconds: 200),
+                                          context: context,
+                                          pageBuilder: (context, animation1, animation2) {
+                                            return Container();
+                                          },
+                                          transitionBuilder:
+                                              (context, a1, a2, widget) {
+                                            return SlideTransition(
+                                              position: Tween(
+                                                      begin: Offset(0, 1),
+                                                      end: Offset(0, 0)).animate(a1),
+                                              child: FadeTransition(
+                                                opacity: Tween<double>(
+                                                        begin: 0.5, end: 1.0).animate(a1),
+                                                child: AlertDialog(
+                                                  backgroundColor:
+                                                      const Color.fromARGB(255, 242, 239, 245),
+                                                  content:
+                                                      SingleChildScrollView(
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(20),
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Text('How strong are you this week?',
+                                                            style: TextStyle(
+                                                              fontWeight:FontWeight.bold),
+                                                          ),
+                                                          SizedBox(height: 20),
+                                                          Card(
+                                                              elevation: 3,
+                                                              color: Colors.purple[100],
+                                                              child: ListTile(
+                                                                  title: Text('Lazy level'),
+                                                                  subtitle: const Text('Minimum activity acceptable to live in a healthy way',
+                                                                    style: TextStyle(
+                                                                        fontSize: 11),
+                                                                  ),
+                                                                  trailing:
+                                                                      Icon(Icons.battery_0_bar),
+                                                                  iconColor: Colors.black,
+                                                                  onTap: () async {
+                                                                    Navigator.of(context).pop();
+                                                                    setState(() {
+                                                                      _level = 'Lazy';
+                                                                      _goalDisable = true;
+                                                                    });
+                                                                    _setGoal(_level);
+                                                                    final sp = await SharedPreferences.getInstance();
+                                                                    String currentWeekKey = _getCurrentWeekIdentifier();
+                                                                    sp.setDouble('percentage_$currentWeekKey', _percentage);
+                                                                    sp.setString('level_$currentWeekKey', _level);
+                                                                    sp.setBool('goal_$currentWeekKey',  true);
+                                                                    for (var act in _performances.keys) {
+                                                                      sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                    }
+                                                                  },),),
+                                                          Card(
+                                                              elevation: 3,
+                                                              color: Colors.purple[200],
+                                                              child: ListTile(
+                                                                  title: Text('Medium level'),
+                                                                  subtitle: const Text('Medium activity to live in a healthy way',
+                                                                    style: TextStyle(
+                                                                        fontSize: 11),
+                                                                  ),
+                                                                  trailing:
+                                                                      Icon(Icons.battery_3_bar),
+                                                                  iconColor: Colors.black,
+                                                                  onTap: () async {
+                                                                    Navigator.of(context).pop();
+                                                                    setState(() {
+                                                                      _level = 'Medium';
+                                                                      _goalDisable = true;
+                                                                    });
+                                                                    _setGoal(_level);
+                                                                    final sp = await SharedPreferences.getInstance();
+                                                                    String currentWeekKey = _getCurrentWeekIdentifier();
+                                                                    sp.setDouble('percentage_$currentWeekKey', _percentage);
+                                                                    sp.setString('level_$currentWeekKey', _level);
+                                                                    sp.setBool('goal_$currentWeekKey', true);
+                                                                    for (var act in _performances.keys) {
+                                                                      sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                    }
+                                                                  },
+                                                                  ),
+                                                                  ),
+                                                          Card(
+                                                              elevation: 3,
+                                                              color: Colors.purple[300],
+                                                              child: ListTile(
+                                                                  title: Text('Hard level'),
+                                                                  subtitle:
+                                                                      const Text('Strong activity life',
+                                                                    style: TextStyle(
+                                                                        fontSize: 11),
+                                                                  ),
+                                                                  trailing:
+                                                                      Icon(Icons.battery_full),
+                                                                  iconColor:Colors.black,
+                                                                  onTap: () async {
+                                                                    Navigator.of(context).pop();
+                                                                    setState(() {
+                                                                      _level = 'Hard';
+                                                                      _goalDisable = true;
+                                                                    });
+                                                                    _setGoal(_level);
+                                                                    final sp = await SharedPreferences.getInstance();
+                                                                    String currentWeekKey = _getCurrentWeekIdentifier();
+                                                                    sp.setDouble('percentage_$currentWeekKey', _percentage);
+                                                                    sp.setString('level_$currentWeekKey', _level);
+                                                                    sp.setBool('goal_$currentWeekKey', true);
+                                                                    for (var act in _performances.keys) {
+                                                                      sp.setDouble("${act}_$currentWeekKey", _performances[act]!);
+                                                                    }
+                                                                  },
+                                                                  ),
+                                                                  ),
+                                                          SizedBox(height: 20),
+                                                          TextButton(
+                                                            child: Text('Close'),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _goalDisable = false;
+                                                              });
+                                                              Navigator.of(context).pop();
+                                                            },
+                                                          )
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                          );
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    }
                                   }),
                             )
                           :
@@ -994,7 +906,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                               child: ListTile(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
-                                leading: const Icon(Icons.live_help, color: Color.fromARGB(255, 131, 35, 233),),
+                                leading: const Icon(
+                                  Icons.live_help,
+                                  color: Color.fromARGB(255, 131, 35, 233),
+                                ),
                                 tileColor:
                                     const Color.fromARGB(255, 227, 211, 244),
                                 title: Text(
@@ -1024,41 +939,22 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                     transitionBuilder:
                                         (context, a1, a2, widget) {
                                       return ScaleTransition(
-                                          scale: Tween<double>(
-                                                  begin: 0.5, end: 1.0)
-                                              .animate(a1),
+                                          scale: Tween<double>(begin: 0.5, end: 1.0).animate(a1),
                                           child: FadeTransition(
-                                            opacity: Tween<double>(
-                                                    begin: 0.5, end: 1.0)
-                                                .animate(a1),
+                                            opacity: Tween<double>(begin: 0.5, end: 1.0).animate(a1),
                                             child: AlertDialog(
                                               backgroundColor:
-                                                  const Color.fromARGB(
-                                                      255, 242, 239, 245),
+                                                  const Color.fromARGB(255, 242, 239, 245),
                                               content: SingleChildScrollView(
                                                 child: Container(
-                                                  padding: EdgeInsets.all(20),
+                                                  padding: EdgeInsets.all(5),
                                                   child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisSize: MainAxisSize.min,
                                                     children: [
                                                       _exToday
-                                                          ? SliderWidget(
-                                                              _buttonClickedToday)
-                                                          : CardDialog(
-                                                              _buttonClickedToday), // CARD HERE
-                                                      const SizedBox(
-                                                          height: 20),
-                                                      TextButton(
-                                                        child: Text('Close'),
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                      )
+                                                          ? SliderWidget(_buttonClickedToday)
+                                                          : CardDialog(_buttonClickedToday), // CARD HERE
                                                     ],
                                                   ),
                                                 ),
@@ -1071,10 +967,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                                 },
                               ),
                             )
-                          : SizedBox(
-                              height: 10,
-                            ), 
-                      SizedBox(height: 10,),
+                          : SizedBox(height: 10),
+                      SizedBox(height: 10),
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
@@ -1083,8 +977,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                           child: InkWell(
                             onTap: () {
                               setState(() {
-                                _isExerciseCardExpanded =
-                                    !_isExerciseCardExpanded;
+                                _isExerciseCardExpanded = !_isExerciseCardExpanded;
                               });
                             },
                             child: Column(
@@ -1092,8 +985,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                               children: [
                                 ListTile(
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                  leading: const Icon(Icons.fitness_center, color: Color.fromARGB(255, 131, 35, 233),),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  leading: const Icon(
+                                    Icons.fitness_center,
+                                    color: Color.fromARGB(255, 131, 35, 233),
+                                  ),
                                   tileColor: Color.fromARGB(255, 227, 211, 244),
                                   title: Text(
                                     "Why sport is important for YOU",
@@ -1296,80 +1192,6 @@ Widget _buildNoDataMessage() {
     ),
   );
 }
-
-/*
-void surveySummary(BuildContext context, Map<String, dynamic> results, List<int> days, int month) {
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: "Survey Results",
-    barrierColor: Colors.black54,
-    transitionDuration: Duration(milliseconds: 300),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return Center(
-        child: Material(
-          type: MaterialType.transparency,
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.6,
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: days.map((day) {
-                  String key = "resultS_${day}_${month}";
-                  var result = results[key];
-                  String displayText;
-
-                  if (result == 0) {
-                    displayText = "No survey";
-                  } else if (result is String) {
-                    if (result == 'Yes0') {
-                      displayText = 'Workout done';
-                    }
-                  } else if (result is List) {
-                    displayText = result.join(", ");
-                  } else {
-                    displayText = "Tipo di dato non supportato";
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "$day",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        results[key] ?? "No survey",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Divider(),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: animation,
-          child: child,
-        ),
-      );
-    },
-  );
-}
-*/
 
 void surveySummary(BuildContext context, Map<String, dynamic> results,
     List<int> days, int month) {

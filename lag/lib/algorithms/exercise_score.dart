@@ -1,4 +1,3 @@
-
 import 'package:lag/models/exercisedata.dart';
 
 List<double> getExerciseScore(List<ExerciseData> exerciseDataList, int age, bool ageInserted) {
@@ -60,7 +59,7 @@ List<double> getExerciseScore(List<ExerciseData> exerciseDataList, int age, bool
   }
 
   List<double> scores = List.filled(durations.length, 0.0);
-  if (exerciseDataList.isNotEmpty) {
+  if (exerciseDataList.isNotEmpty && frequencyScore.reduce((a, b) => a + b) != 0) {
     for (int i = 0; i < exerciseDataList.length; i++) {
       scores[i] = base[i] + frequencyScore[i] * (weights["frequency"] ?? 0) + ageScore * (weights["age"] ?? 0);
       if (exerciseDataList[i].actNames.isNotEmpty) {

@@ -233,7 +233,10 @@ class WeeklyRecap extends StatelessWidget {
                       trailing: Container(
                         child: getIconScore(calculateAverageExerciseScore(provider.exerciseScores)),
                         ),
-                      title: Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%'),
+                      title: 
+                      calculateAverageExerciseScore(provider.exerciseScores) != 0
+                      ? Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%')
+                      : Text('No data available'),
                       subtitle: const Text('about your exercise activity of this week',
                                           style: TextStyle(fontSize: 11),),
                       onTap: () {
@@ -619,7 +622,9 @@ double calculateAverageExerciseScore(List<double> scores) {
 }
 
 Widget getIconScore(double score) {
-  if (score >= 90) {
+  if (score == 0) {
+    return const Icon(Icons.error);
+  } else if (score >= 90) {
     return const Icon(Icons.sentiment_very_satisfied); 
   } else if (score >= 80) {
     return const Icon(Icons.sentiment_satisfied); 

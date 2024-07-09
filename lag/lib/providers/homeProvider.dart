@@ -63,7 +63,7 @@ class HomeProvider extends ChangeNotifier {
     String dateString = date.toIso8601String().split('T').first;
     return moodScores[dateString];
   }
-
+ 
   Future<void> saveMoodText(DateTime date, String text) async {
     firstThoughtsubmitted = true;
     final prefs = await SharedPreferences.getInstance();
@@ -80,7 +80,7 @@ class HomeProvider extends ChangeNotifier {
     if (moodTexts.containsKey(dateString)) {
       moodTexts[dateString] = "${moodTexts[dateString]}\n\n'$text'";
     } else {
-      moodTexts[dateString] = "'text'";
+      moodTexts[dateString] = "'$text'";
     }
     // Save the updated dictionary back to shared preferences
     jsonString = json.encode(moodTexts);
