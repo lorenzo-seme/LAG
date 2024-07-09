@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:lag/providers/homeProvider.dart';
 //import 'package:lag/providers/homeProvider.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 //import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,7 +22,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
   DateTime selectedDate = (DateTime.now().month == 2 && DateTime.now().day == 29) 
                   ? DateTime(DateTime.now().year - 6, 2, 28) // menage leap year
                   : DateTime(DateTime.now().year - 6, DateTime.now().month, DateTime.now().day);
-  int? bs;
+  //int? bs;
 
   @override
   void initState() {
@@ -48,11 +47,11 @@ class _PersonalInfoState extends State<PersonalInfo> {
   void _loadPrefs() async {
     final sp = await SharedPreferences.getInstance();
     // Use a default value if the key doesn't exist
-    String bioS = sp.getString('bs') ?? "";
+    //String bioS = sp.getString('bs') ?? "";
     String dob = sp.getString('dob') ?? "";
     String name = sp.getString('name') ?? "";
     setState(() {
-      bs = int.tryParse(bioS);
+      //bs = int.tryParse(bioS);
       dateController.text = dob;
       nameController.text = name;
     });
@@ -132,7 +131,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     hintText: 'Date of Birth: YYYY-MM-DD',
                   ),
                 ),
-              ),
+              ),/*
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 8.0),
                 child: DropdownButtonFormField(
@@ -169,7 +168,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     bs = value ?? bs;
                   },
                 ),
-              ),
+              ),*/
               const SizedBox(
                 height: 20,
               ),
@@ -180,7 +179,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final sp = await SharedPreferences.getInstance();
-                        await sp.setString('bs', bs.toString());
+                        //await sp.setString('bs', bs.toString());
                         await sp.setString('dob', dateController.text.toString());
                         await sp.setString('name', nameController.text.toString());
                         // Calculate userAge from date of birth
@@ -211,7 +210,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   ElevatedButton(
                     onPressed: () async {
                       final sp = await SharedPreferences.getInstance();
-                      await sp.remove('bs');
+                      //await sp.remove('bs');
                       await sp.remove('dob');
                       await sp.remove('name');
                       await sp.remove('userAge');

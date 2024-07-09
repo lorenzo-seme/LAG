@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lag/algorithms/exercise_score.dart';
@@ -21,10 +20,12 @@ class HomeProvider extends ChangeNotifier {
   List<ExerciseData> exerciseData = [];
   List<double> exerciseScores = [];
   Map<String, List<double>> sleepScores = {};
+  List<double> moodScores = [];
+  int plantScore = 0;
   double exerciseScore = 0;
   List<String> months = [];
  
-  double score = 0;
+  //double score = 0;
 
   String nick = 'User';
   int age = 25;
@@ -33,6 +34,78 @@ class HomeProvider extends ChangeNotifier {
   bool isReady = true;
   bool todayMoodTracked = false;
   bool firstThoughtsubmitted = false;
+
+  DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
+  DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+  DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
+  DateTime end = DateTime.now().subtract(const Duration(days: 1));
+  DateTime start = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
+  
+  final Impact impact = Impact();
+
+  // constructor of provider which manages the fetching of all data from the servers and then notifies the ui to build
+  // HomeProvider() {getDataOfDay(showDate);}
+  HomeProvider() {_init();}
+
+  List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
+    List<DateTime> daysOfWeek = [];
+    for (int i = 0; i <= end.difference(start).inDays; i++) {
+      daysOfWeek.add(start.add(Duration(days: i)));
+    }
+    notifyListeners();
+    return daysOfWeek;
+  }
+
+  Future<void> imageToShow(List<double>? sleepScores, List<double> exerciseScores, List<double> moodScores) async {
+    plantScore = 0;
+    if(sleepScores != null)
+    {
+      for (double value in sleepScores) {
+        if (value > 90) {
+          plantScore = plantScore + 2;
+        } else if (value < 80) {
+        } 
+        else {
+          plantScore++;
+        }
+      }
+    }
+
+    for (double value in exerciseScores) {
+      if (value > 85) {
+        plantScore = plantScore + 2;
+      } else if (value < 60) {
+      } 
+      else {
+        plantScore++;
+      }
+    }
+
+    for (double value in moodScores) {
+      plantScore = (plantScore + 2*value).toInt();
+    }
+
+    plantScore = plantScore ~/ 3;
+    print(plantScore);
+    notifyListeners();
+  } //imageToShow
+
+  Future<void> calculateMoodScores() async{
+    List<DateTime> daysOfWeek = generateDaysOfWeek(start, end);
+    for (DateTime day in daysOfWeek) {
+      double score = 0;
+      if (await getMoodScore(day) != null) {
+        score = score + 0.5;
+      }
+      if (await getMoodText() != null) {
+        if ((await getMoodText())![day] != null) {
+          score = score + 0.5;
+        }
+      }
+      moodScores.add(score);
+    }
+    notifyListeners();
+  }
 
   Future<void> saveMoodScore(DateTime date, int score) async {
     todayMoodTracked = true;
@@ -97,17 +170,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   
-  DateTime showDate = DateTime.now().subtract(const Duration(days: 1));
-  DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
-  DateTime monday = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
-  DateTime end = DateTime.now().subtract(const Duration(days: 1));
-  DateTime start = DateTime.now().subtract(const Duration(days: 1)).subtract(Duration(days: DateTime.now().subtract(const Duration(days: 1)).weekday - DateTime.monday));
-  
-  final Impact impact = Impact();
 
-  // constructor of provider which manages the fetching of all data from the servers and then notifies the ui to build
-  // HomeProvider() {getDataOfDay(showDate);}
-  HomeProvider() {_init();}
 
   Future<void> _init() async {
     final sp = await SharedPreferences.getInstance();
@@ -344,15 +407,19 @@ class HomeProvider extends ChangeNotifier {
       exerciseData = [];
       await fetchExerciseSleep(start.toString(), end.toString());
     }
+    moodScores = [];
+    
+    await calculateMoodScores();
+    await imageToShow(sleepScores["scores"], exerciseScores, moodScores);   // da valutare se gestire null di exerciseScores
 
     isReady = true;
     
-    _loading(); 
+    //_loading(); 
 
     // heartRates = await impact.getDataFromWeek(monday, sunday);
     //heartRates = [1, 2, 3]; // Esempio temporaneo
 
-    score = Random().nextDouble() * 100;
+    //score = Random().nextDouble() * 100;
     print('Got data for week from $start to $end');//: ${heartRates.length}');
     notifyListeners();
     print('\n $dateRange \n');
@@ -397,8 +464,9 @@ class HomeProvider extends ChangeNotifier {
         } 
         calculateSleepScore(sleepData);
       }
-      notifyListeners();
+      
     }//if
+    notifyListeners();
   }//fetchSleepData
 
   Future<void> fetchMonthlyHeartRateData(String date, bool lastOnly) async {
@@ -612,9 +680,11 @@ class HomeProvider extends ChangeNotifier {
             }
             //print(exerciseData.last);
         }
-      notifyListeners();
       calculateExerciseScore(exerciseData);
+      
+
       }}//if
+      notifyListeners();
   }//fetchExerciseData
   
 
@@ -629,13 +699,14 @@ class HomeProvider extends ChangeNotifier {
     await fetchSleepData(startDay,endDay);
   }
 
+/*
   // method to give a loading ui feedback to the user
   void _loading() {
     //heartRates = [];
     score = 0;
     notifyListeners();
   }
-
+*/
   void calculateExerciseScore(List<ExerciseData> exerciseData) async{
     exerciseScores = await getExerciseScore(exerciseData, this.age, this.ageInserted).map((score) => score.toDouble()).toList();
     notifyListeners();

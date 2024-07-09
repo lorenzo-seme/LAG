@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lag/providers/homeProvider.dart';
 import 'package:lag/screens/login.dart';
 import 'package:lag/screens/personal_info.dart';
-import 'package:lag/screens/settings.dart';
 import 'package:provider/provider.dart';
 // import 'package:lag/screens/splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';

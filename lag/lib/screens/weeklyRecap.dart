@@ -480,8 +480,8 @@ class WeeklyRecap extends StatelessWidget {
           // Second Column (center)
           Column(
               children: [
-                ((provider.sleepScores)["scores"] != null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
-                    ?  FutureBuilder<int>(
+                ((provider.plantScore) != null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
+                    ?  /*FutureBuilder<int>(
                         future: imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores, provider),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -493,7 +493,7 @@ class WeeklyRecap extends StatelessWidget {
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           } else {
-                            return Container(
+                            return*/ Container(
                               width: 160,
                               height: 260,
                               decoration: BoxDecoration(
@@ -504,13 +504,13 @@ class WeeklyRecap extends StatelessWidget {
                                   topRight: Radius.circular(15.0)),
                                 image: DecorationImage(
                                   fit: BoxFit.contain,
-                                  image: AssetImage('assets/rewards2/${fromIntToImg[snapshot.data]}'),
+                                  image: AssetImage('assets/rewards2/${fromIntToImg[provider.plantScore]}'),
                                 ),
                               ),
-                            );
-                          }
-                        },
-                      )
+                            )
+                          
+                        
+                      
                     : Container(
                               width: 160,
                               height: 260,
@@ -530,7 +530,7 @@ class WeeklyRecap extends StatelessWidget {
           // Third Column (right)
           Column(
             children: [
-              ((provider.sleepScores)["scores"] != null) // metti mood nel provider, in modo da poter fare un controllo tip provider.mood != null
+              (provider.moodScores != null) // metti mood nel provider, in modo da poter fare un controllo tip provider.mood != null
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -539,13 +539,13 @@ class WeeklyRecap extends StatelessWidget {
                       animation: true,
                       animationDuration: 1000,
                       footer: Text('Mood', style: TextStyle(fontSize: 10)),
-                      percent: percentageSun(provider),
+                      percent: calculateAverageMoodScore(provider.moodScores),
                       circularStrokeCap: CircularStrokeCap.round,
                     //widgetIndicator: _reachedGoal(),
                   )
                 : CircularProgressIndicator(),
                 const SizedBox(height: 40),
-                ((provider.sleepScores)["scores"]!=null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
+                (provider.plantScore !=null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
                 ?  CircularPercentIndicator(
                     radius: 35,
                     lineWidth: 8,
@@ -554,9 +554,7 @@ class WeeklyRecap extends StatelessWidget {
                     animation: true,
                     animationDuration: 1000,
                     footer: Text('Plant progress', style: TextStyle(fontSize: 10)),
-                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null  // qui metti risultato della funzione imageToShow/14
-                      ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
-                      : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
+                    percent: provider.plantScore / 14,
                     circularStrokeCap: CircularStrokeCap.round,
                     //widgetIndicator: _reachedGoal(),
                   )
@@ -568,66 +566,6 @@ class WeeklyRecap extends StatelessWidget {
     ),
     );
   }
-
-  Future<int> imageToShow(List<double> sleepScores, List<double> exerciseScores, HomeProvider provider) async {
-    int ind = 0;
-    DateTime start = provider.start;
-    DateTime end = provider.end;
-
-    List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
-      List<DateTime> daysOfWeek = [];
-      for (int i = 0; i <= end.difference(start).inDays; i++) {
-        daysOfWeek.add(start.add(Duration(days: i)));
-      }
-      return daysOfWeek;
-    }
-    List<DateTime> daysOfWeek = generateDaysOfWeek(start, end);
-
-    for (double value in sleepScores) {
-      if (value > 90) {
-        ind = ind + 2;
-      } else if (value < 80) {
-      } 
-      else {
-        ind++;
-      }
-    }
-
-    for (double value in exerciseScores) {
-      if (value > 85) {
-        ind = ind + 2;
-      } else if (value < 60) {
-      } 
-      else {
-        ind++;
-      }
-    }
-
-    for (DateTime day in daysOfWeek) {
-      if (await provider.getMoodScore(day) != null) {
-        ind++;
-      }
-      if (await provider.getMoodText() != null) {
-        if ((await provider.getMoodText())![day] != null) {
-          ind++;
-        }
-      }
-    }
-
-    print(ind ~/ 3);
-    return ind ~/ 3;
-  } //imageToShow
-
-  
-  double percentageSun(HomeProvider provider) {
-    if (provider.todayMoodTracked) {
-      return 0.5;
-    } else if (provider.firstThoughtsubmitted) {
-      return 1;
-    } else {
-      return 0;
-    }
-  } //percentageSun
 }
 
 
@@ -643,6 +581,16 @@ double? calculateAverageSleepScore(List<double> scores) {
 
 double calculateAverageExerciseScore(List<double> scores) {
   //List<double> scores = calculateExerciseScore(exerciseData, age, ageInserted).map((score) => score.toDouble()).toList(); 
+  if (scores.isEmpty) {
+    return 0;
+  } else {
+    double sum = scores.reduce((a, b) => a + b); // Sum all elements in the list
+    double average = sum / scores.length;
+    return double.parse(average.toStringAsFixed(2));
+  }
+}
+
+double calculateAverageMoodScore(List<double> scores) {
   if (scores.isEmpty) {
     return 0;
   } else {
