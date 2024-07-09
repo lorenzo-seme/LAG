@@ -113,6 +113,7 @@ class WeeklyRecap extends StatelessWidget {
                       ),
                     ),
                     Gamification(provider),
+                    /*
                     Padding(
                             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 10, bottom: 4),
                             child: Column(
@@ -145,6 +146,7 @@ class WeeklyRecap extends StatelessWidget {
                               ],
                             ),
                     ),
+                    */
                     const SizedBox(height: 15),
                     (DateTime.now().subtract(const Duration(days: 1)).year == provider.end.year && DateTime.now().subtract(const Duration(days: 1)).month == provider.end.month && DateTime.now().subtract(const Duration(days: 1)).day == provider.end.day)
                         ? Card(
@@ -446,7 +448,7 @@ class WeeklyRecap extends StatelessWidget {
                     )
                   : CircularProgressIndicator(),
               const SizedBox(height: 40),
-              ((provider.sleepScores)["scores"] != null)
+              (provider.exerciseScores != null)
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -478,12 +480,16 @@ class WeeklyRecap extends StatelessWidget {
           // Second Column (center)
           Column(
               children: [
-                ((provider.sleepScores)["scores"] != null)
-                    ? FutureBuilder<int>(
+                ((provider.sleepScores)["scores"] != null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
+                    ?  FutureBuilder<int>(
                         future: imageToShow(provider.sleepScores["scores"]!, provider.exerciseScores, provider),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return CircularProgressIndicator();
+                            return Container(
+                              width: 160,
+                              height: 260,
+                              child: CircularProgressIndicator(),
+                            );
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           } else {
@@ -505,7 +511,11 @@ class WeeklyRecap extends StatelessWidget {
                           }
                         },
                       )
-                    : CircularProgressIndicator(),
+                    : Container(
+                              width: 160,
+                              height: 260,
+                              child: CircularProgressIndicator(),
+                    ),
                 (provider.end.year == provider.showDate.year &&
                         provider.end.month == provider.showDate.month &&
                         provider.end.day == provider.showDate.day)
@@ -520,7 +530,7 @@ class WeeklyRecap extends StatelessWidget {
           // Third Column (right)
           Column(
             children: [
-              ((provider.sleepScores)["scores"] != null)
+              ((provider.sleepScores)["scores"] != null) // metti mood nel provider, in modo da poter fare un controllo tip provider.mood != null
                   ? CircularPercentIndicator(
                       radius: 35,
                       lineWidth: 8,
@@ -535,7 +545,7 @@ class WeeklyRecap extends StatelessWidget {
                   )
                 : CircularProgressIndicator(),
                 const SizedBox(height: 40),
-                ((provider.sleepScores)["scores"]!=null)
+                ((provider.sleepScores)["scores"]!=null) // cambia il controllo, va fatto sul risultato della funzione imageToShow, da mettere nel provider
                 ?  CircularPercentIndicator(
                     radius: 35,
                     lineWidth: 8,
@@ -543,8 +553,8 @@ class WeeklyRecap extends StatelessWidget {
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
-                    footer: Text('Score', style: TextStyle(fontSize: 10)),
-                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
+                    footer: Text('Plant progress', style: TextStyle(fontSize: 10)),
+                    percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null  // qui metti risultato della funzione imageToShow/14
                       ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)!/100
                       : 0, // PENSA A COME GESTIRE IL CASO IN CUI NON CI SIANO DATI
                     circularStrokeCap: CircularStrokeCap.round,
@@ -655,7 +665,7 @@ Widget getIconScore(double score) {
     return const Icon(Icons.sentiment_very_dissatisfied); 
   }
 }
-
+/*
 double computeScore(HomeProvider provider) {
   //List<ExerciseData> exerciseData = provider.exerciseData;
   double sleepScore;
@@ -671,4 +681,4 @@ double computeScore(HomeProvider provider) {
 
   return totalScore;
 }
-
+*/
