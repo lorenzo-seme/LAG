@@ -6,15 +6,15 @@ class InfoScore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("How do we calculate your score?", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold,)),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
-                const Text("How do we calculate your score?", style: TextStyle(fontSize: 24, color: Colors.black)),
-                SizedBox(height: 15),
                 Hero(
                   tag: 'score',
                   child: Container(
@@ -29,14 +29,137 @@ class InfoScore extends StatelessWidget {
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: AssetImage(
-                            'assets/sleep.jpg'),
+                            'assets/info_score.png'),
                       ),
                     ),
                   ),),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed velit neque. Quisque facilisis gravida tincidunt. In volutpat mollis metus, ut viverra massa rhoncus vel. Aenean vestibulum dignissim ultricies. Duis quis luctus elit, ac commodo orci. Curabitur feugiat, ante ac auctor malesuada, arcu leo tempus quam, eu tincidunt nisi lorem quis nisi. Proin pulvinar dolor eu diam sollicitudin, id viverra libero porttitor. Nullam venenatis tortor vitae rhoncus luctus. Sed nec enim finibus, varius felis id, facilisis diam. Vestibulum fermentum urna sit amet augue eleifend consectetur. Nam tincidunt hendrerit ex, nec dignissim dui vulputate tempor. Duis auctor pulvinar nunc ut pharetra.'),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text.rich(
+                    TextSpan(
+                      text: 'Our score is based on the analysis of three fundamental characteristics for maintaining a healthy lifestyle: the quality of sleep and exercise, and the consistency in becoming aware of emotions.\n\n',
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: 'Sleep\n',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        TextSpan(
+                          text: 'One of the main aspects considered is ',
+                        ),
+                        TextSpan(
+                          text: 'efficiency',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' which measures how much time the user actually spends sleeping compared to the total time spent in bed.\n'
+                              'The amount of ',
+                        ),
+                        TextSpan(
+                          text: 'hours slept',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' is another key factor. The function compares this duration with the recommendations for the user\'s age. \n'
+                              'The ',
+                        ),
+                        TextSpan(
+                          text: 'time to fall asleep',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' is also evaluated. This parameter has a lower weight in the final calculation, as it has been observed that it often tends to be zero in the collected data.\n'
+                              'Another evaluated aspect is the distribution of sleep among the different phases, in particular ',
+                        ),
+                        TextSpan(
+                          text: 'REM',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                        ),
+                        TextSpan(
+                          text: 'Deep',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: '.\n'
+                        ),
+                        TextSpan(
+                          text: '\n'
+                        ),
+                        TextSpan(
+                          text: 'Exercise\n',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        TextSpan(
+                          text: 'Starting from the ',
+                        ),
+                        TextSpan(
+                          text: 'user\'s age',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ', it is possible to define recommendations to ensure a healthy lifestyle. For each type of ',
+                        ),
+                        TextSpan(
+                          text: 'activity',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' performed, the score assigns a weight based on the ',
+                        ),
+                        TextSpan(
+                          text: 'distance',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' covered and the ',
+                        ),
+                        TextSpan(
+                          text: 'duration',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' of each exercise, such as running, walking, and cycling. The ',
+                        ),
+                        TextSpan(
+                          text: 'frequency',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' of weekly workouts is crucial as it promotes consistency. Additionally, if the user engages in a minimum level of ',
+                        ),
+                        TextSpan(
+                          text: 'activity',
+                        ),
+                        TextSpan(
+                          text: ' every day, a baseline score value will be assigned.\n',
+                        ),
+                        TextSpan(
+                          text: '\n',
+                        ),
+                        TextSpan(
+                          text: 'Mood\n',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        TextSpan(
+                          text: 'The user is rewarded if he/she takes time each day to reflect on how he/she '
+                        ),
+                        TextSpan(
+                          text: 'feels',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text: ' and to write down his/her thoughts. This is a good first step towards better '
+                        ),
+                        TextSpan(
+                          text: 'mood management.',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    style: TextStyle(fontSize: 14.0),
+                  ),
                 )
               ],
             ),

@@ -33,7 +33,7 @@ class _SplashState extends State<Splash> {
   // Method for navigation SplashPage -> DownScreen
   void _toDownScreen(BuildContext context) {
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: ((context) => DownScreen())));
+        .pushReplacement(MaterialPageRoute(builder: ((context) => const DownScreen())));
   } //_toDownScreen
 
   Future<void> _checkLogin(BuildContext context) async {

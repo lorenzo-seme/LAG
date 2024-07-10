@@ -160,11 +160,13 @@ class _SliderWidgetState extends State<SliderWidget> {
             },
           ),
           const SizedBox(height: 30),
-          TextButton(
-            child: const Text('Close'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+          Center(
+            child: TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
           )
         ],
       );

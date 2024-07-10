@@ -96,7 +96,8 @@ class WeeklyRecap extends StatelessWidget {
                       ),
                     ),
                     Gamification(provider),
-                    const SizedBox(height: 15),
+                    const Center(child: Text('Take care of yourself as you would take care of the plant', style: TextStyle(fontSize: 13.5, fontStyle: FontStyle.italic),)),
+                    const SizedBox(height: 10),
                     Container(
                       width: 370,
                       padding: const EdgeInsets.only(top: 15, bottom: 15, left: 8, right: 8),
@@ -133,7 +134,7 @@ class WeeklyRecap extends StatelessWidget {
                                     title: 
                                       calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
                                       ? Text("Sleep score: ${calculateAverageSleepScore((provider.sleepScores)["scores"]!)!.toStringAsFixed(1)}%")
-                                      : Text("No sleep data available"),
+                                      : const Text("No sleep data available"),
                                     subtitle: const Text('about quality of your sleep this week',
                                                         style: TextStyle(fontSize: 11),),
                                     onTap: () => _toSleepPage(context, provider.start, provider.end, provider),
@@ -156,14 +157,14 @@ class WeeklyRecap extends StatelessWidget {
                               : Card(
                                 elevation: 5,
                                 child: ListTile(
-                                  leading: Icon(Icons.directions_run),
+                                  leading: const Icon(Icons.directions_run),
                                   trailing: Container(
                                     child: getIconScore(calculateAverageExerciseScore(provider.exerciseScores)),
                                     ),
                                   title: 
                                   calculateAverageExerciseScore(provider.exerciseScores) != 0
                                   ? Text('Exercise score: ${calculateAverageExerciseScore(provider.exerciseScores)}%')
-                                  : Text('No exercise data available'),
+                                  : const Text('No exercise data available'),
                                   subtitle: const Text('about your exercise activity of this week',
                                                       style: TextStyle(fontSize: 11),),
                                   onTap: () {
@@ -186,12 +187,12 @@ class WeeklyRecap extends StatelessWidget {
                           elevation: 5,
                           child: ListTile(
                             leading: const Icon(Icons.wb_cloudy),
-                            title: Text("Today's mood"), 
+                            title: const Text("Today's mood"), 
                             subtitle: const Text("Track today's feeling to provide sun to your little plant!", style: TextStyle(fontSize: 11),),
                             onTap: () => _toMoodPage(context, provider),
                           ),
                       )
-                    : SizedBox(height: 10,),
+                    : const SizedBox(height: 10,),
                     const SizedBox(height: 20), 
                     const Text(
                       "Learn Something More",
@@ -228,8 +229,8 @@ class WeeklyRecap extends StatelessWidget {
                                       child: Hero(
                                         tag: 'rhr',
                                         child: Container(
-                                        width: 300,
-                                        height: 200,
+                                        width: 280,
+                                        height: 180,
                                         decoration: const BoxDecoration(
                                           borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(15.0),
@@ -267,12 +268,12 @@ class WeeklyRecap extends StatelessWidget {
                                     InkWell(
                                       onTap: () => Navigator.of(context).push(
                                           MaterialPageRoute(
-                                              builder: (_) => InfoScore())),
+                                              builder: (_) => const InfoScore())),
                                       child: Hero(
                                         tag: 'score',
                                         child: Container(
-                                        width: 300,
-                                        height: 200,
+                                        width: 280,
+                                        height: 180,
                                         decoration: const BoxDecoration(
                                           borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(15.0),
@@ -282,7 +283,7 @@ class WeeklyRecap extends StatelessWidget {
                                           image: DecorationImage(
                                             fit: BoxFit.cover,
                                             image: AssetImage(
-                                                'assets/sleep.jpg'),
+                                                'assets/info_score.png'),
                                           ),
                                         ),
                                       ),),
@@ -372,13 +373,13 @@ class WeeklyRecap extends StatelessWidget {
                       progressColor: const Color(0xFF4e50bf),
                       animation: true,
                       animationDuration: 1000,
-                      footer: Text('Sleep', style: TextStyle(fontSize: 10)),
+                      footer: const Text('Sleep', style: TextStyle(fontSize: 10)),
                       percent: calculateAverageSleepScore((provider.sleepScores)["scores"]!) != null
                           ? calculateAverageSleepScore((provider.sleepScores)["scores"]!)! / 100
                           : 0,
                       circularStrokeCap: CircularStrokeCap.round,
                     )
-                  : CircularProgressIndicator(),
+                  : const CircularProgressIndicator(),
               const SizedBox(height: 40),
               // ignore: unnecessary_null_comparison
               (provider.exerciseScores != null)
@@ -399,16 +400,16 @@ class WeeklyRecap extends StatelessWidget {
                       progressColor: const Color(0xFF4e50bf),
                       animation: true,
                       animationDuration: 1000,
-                      footer: Text('Exercise', style: TextStyle(fontSize: 10)),
+                      footer: const Text('Exercise', style: TextStyle(fontSize: 10)),
                       percent: calculateAverageExerciseScore(provider.exerciseScores) / 100,
                       circularStrokeCap: CircularStrokeCap.round,
                     )
-                  : CircularProgressIndicator(),
+                  : const CircularProgressIndicator(),
             ],
           ),
           
           // Spacer to push second column to center
-          Spacer(),
+          const Spacer(),
 
           // Second Column (center)
           Column(
@@ -433,18 +434,18 @@ class WeeklyRecap extends StatelessWidget {
                     : Container(
                         width: 160,
                         height: 260,
-                        child: CircularProgressIndicator(),
+                        child: const CircularProgressIndicator(),
                     ),
                 (provider.end.year == provider.showDate.year &&
                         provider.end.month == provider.showDate.month &&
                         provider.end.day == provider.showDate.day)
-                    ? Text("Still growing!")
-                    : Text("Your plant for that week"),
+                    ? const Text("Still growing!")
+                    : const Text("Your plant for that week"),
               ],
             ),
           
           // Spacer to push third column to the right
-          Spacer(),
+          const Spacer(),
 
           // Third Column (right)
           Column(
@@ -458,11 +459,11 @@ class WeeklyRecap extends StatelessWidget {
                       progressColor: const Color(0xFF4e50bf),
                       animation: true,
                       animationDuration: 1000,
-                      footer: Text('Mood', style: TextStyle(fontSize: 10)),
+                      footer: const Text('Mood', style: TextStyle(fontSize: 10)),
                       percent: calculateAverageMoodScore(provider.moodScores),
                       circularStrokeCap: CircularStrokeCap.round,
                   )
-                : CircularProgressIndicator(),
+                : const CircularProgressIndicator(),
               const SizedBox(height: 40),
               // ignore: unnecessary_null_comparison
               (provider.plantScore !=null)
@@ -473,11 +474,11 @@ class WeeklyRecap extends StatelessWidget {
                     progressColor: const Color(0xFF4e50bf),
                     animation: true,
                     animationDuration: 1000,
-                    footer: Text('Plant progress', style: TextStyle(fontSize: 10)),
+                    footer: const Text('Plant progress', style: TextStyle(fontSize: 10)),
                     percent: provider.plantScore / 10,
                     circularStrokeCap: CircularStrokeCap.round,
                   )
-                : CircularProgressIndicator(),
+                : const CircularProgressIndicator(),
               ],
             ),
         ],

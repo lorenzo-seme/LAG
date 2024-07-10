@@ -293,7 +293,7 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
                   style: TextStyle(fontSize: 11.0)),
                 onPressed: () async {
                   await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => PersonalInfo())
+                    MaterialPageRoute(builder: (context) => const PersonalInfo())
                   );
                   final sp = await SharedPreferences.getInstance();
                   final name = sp.getString('name');
@@ -338,7 +338,7 @@ Widget _buildMinutesToFallDataCard(List<SleepData> sleepData) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(message, style: TextStyle(fontSize: 11.0)),
+          Text(message, style: const TextStyle(fontSize: 11.0)),
           const Text("- National Sleep Foundation",
             style: TextStyle(fontStyle: FontStyle.italic, fontSize: 11.0))
         ]

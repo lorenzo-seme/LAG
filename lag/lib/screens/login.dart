@@ -121,7 +121,7 @@ class _LoginState extends State<Login> {
                 Row(
                   children: [
                     Checkbox(
-                      activeColor: Color(0xFF4e50bf),
+                      activeColor: const Color(0xFF4e50bf),
                       value: isChecked,
                       onChanged: (value) async{
                         setState(() {

@@ -9,15 +9,15 @@ class InfoRHR extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("Check your heart rate at rest now!", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold,)),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
-                const Text("Check your heart rate at rest now!", style: TextStyle(fontSize: 22, color: Colors.black)),
-                const SizedBox(height: 15),
                 Hero(
                   tag: 'rhr',
                   child:  Container(

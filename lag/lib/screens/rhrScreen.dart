@@ -59,7 +59,7 @@ class _RhrScreenState extends State<RhrScreen>{
                 children: [
                   const SizedBox(height: 5),
                   (widget.provider.monthlyHeartRateData.isEmpty) 
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : SizedBox(
                     height: 230,
                     width: 330,
@@ -70,7 +70,7 @@ class _RhrScreenState extends State<RhrScreen>{
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     child: Card(
-                      color: Color.fromARGB(255, 247, 245, 248),
+                      color: const Color.fromARGB(255, 247, 245, 248),
                       elevation: 5,
                       child: InkWell(
                         onTap: () {
@@ -85,18 +85,18 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.monitor_heart),
                                 trailing: SizedBox(
                                   width: 10,
-                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0)) ? Icon(Icons.thumb_down) : Icon(Icons.thumb_up),
+                                  child: ((widget.provider.monthlyHeartRateData.last.value > 80.0)) ? const Icon(Icons.thumb_down) : const Icon(Icons.thumb_up),
                                 ),
                                 title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Average of current month: ${widget.provider.monthlyHeartRateData.last.value} bpm", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Text("Average of current month: ${widget.provider.monthlyHeartRateData.last.value} bpm", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isAvgRhrCardExpanded
                                     ? const Text('Tap to learn more', style: TextStyle(fontSize: 15.0))
                                     : null,
                               ),
                               if (_isAvgRhrCardExpanded)
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -115,7 +115,7 @@ class _RhrScreenState extends State<RhrScreen>{
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     child: Card(
-                      color: Color.fromARGB(255, 247, 245, 248),
+                      color: const Color.fromARGB(255, 247, 245, 248),
                       elevation: 5,
                       child: InkWell(
                         onTap: () {
@@ -130,7 +130,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                 leading: const Icon(Icons.directions_run),
                                 title: (widget.provider.monthlyHeartRateData.isEmpty) ? 
                                   const CircularProgressIndicator.adaptive() : 
-                                  Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  const Text("Keep your resting heart rate low!", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                                 subtitle: !_isRhrCalculatorExpanded
                                     ? const Text('Check your cholesterol levels and do exercise, tap here to learn more about this latter point.', style: TextStyle(fontSize: 15.0))
                                     : null,
@@ -149,7 +149,7 @@ class _RhrScreenState extends State<RhrScreen>{
                                             style: TextStyle(fontSize: 11.0)),
                                           onPressed: () async {
                                             await Navigator.of(context).push(
-                                              MaterialPageRoute(builder: (context) => PersonalInfo())
+                                              MaterialPageRoute(builder: (context) => const PersonalInfo())
                                             );
                                             final sp = await SharedPreferences.getInstance();
                                             final name = sp.getString('name');
@@ -179,14 +179,14 @@ class _RhrScreenState extends State<RhrScreen>{
                                 ),
                                 ] else if(_isRhrCalculatorExpanded)...[
                                 Padding(
-                                  padding: EdgeInsets.all(16.0),
+                                  padding: const EdgeInsets.all(16.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Exercise is the best way to lower your resting heart rate. Here we guide you in setting a target heart rate to be maintained while exercising. Keep in mind that high-intensity aerobic training is the best way, but if you don't exercise regularly, you should check with your doctor before you set a target heart rate. We recommend you to gradually increase the intensity. ", style: TextStyle(fontSize: 14.0),),
-                                      SizedBox(height: 10,),
-                                      Text("Choose an intensity level: ", style: TextStyle(fontSize: 14.0)),
-                                      SizedBox(height: 10,),
+                                      const Text("Exercise is the best way to lower your resting heart rate. Here we guide you in setting a target heart rate to be maintained while exercising. Keep in mind that high-intensity aerobic training is the best way, but if you don't exercise regularly, you should check with your doctor before you set a target heart rate. We recommend you to gradually increase the intensity. ", style: TextStyle(fontSize: 14.0),),
+                                      const SizedBox(height: 10,),
+                                      const Text("Choose an intensity level: ", style: TextStyle(fontSize: 14.0)),
+                                      const SizedBox(height: 10,),
                                       DropdownButtonHideUnderline(
                                         child: DropdownButton2<String>(
                                           isExpanded: true,
@@ -275,9 +275,9 @@ class _RhrScreenState extends State<RhrScreen>{
                                         ),
                                       ),
                                       if(selectedValue!=null) ...[
-                                        SizedBox(height: 10,),
+                                        const SizedBox(height: 10,),
                                         Text("Considering your age (${widget.provider.age}), your target heart rate during a ${selectedValue!.toLowerCase()} exercise session should be: "),
-                                        SizedBox(height: 8,),
+                                        const SizedBox(height: 8,),
                                         Text("[${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![0]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)} - ${(((206.9-(0.67*widget.provider.age))-widget.provider.monthlyHeartRateData.last.value)*(mappedItems[selectedValue]![1]/100)+widget.provider.monthlyHeartRateData.last.value).toStringAsFixed(0)}]")
                                       ]
                                     ],

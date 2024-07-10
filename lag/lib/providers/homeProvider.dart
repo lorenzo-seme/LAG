@@ -250,7 +250,7 @@ class HomeProvider extends ChangeNotifier {
           } else {
             firstDayOfFollowingMonth = DateTime(year, month + 1, 1);
           }
-          DateTime lastDayOfCurrMonth = firstDayOfFollowingMonth.subtract(Duration(days: 1));
+          DateTime lastDayOfCurrMonth = firstDayOfFollowingMonth.subtract(const Duration(days: 1));
           endingDay = lastDayOfCurrMonth.day;
           end = months[i] + "-" + endingDay.toString().padLeft(2, '0');
           if(endingDay<startingDay) //manages february with 28 days
@@ -336,28 +336,20 @@ class HomeProvider extends ChangeNotifier {
     plantScore = (4*sleepValue + 4*exerciseValue + 2*moodValue);
     notifyListeners();
   } //imageToShow
-/*
+  
   List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
     List<DateTime> daysOfWeek = [];
-    for (int i = 0; i <= end.difference(start).inDays; i++) {
-      daysOfWeek.add(start.add(Duration(days: i)));
+
+    DateTime startDate = DateTime(start.year, start.month, start.day);
+    DateTime endDate = DateTime(end.year, end.month, end.day);
+
+    for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
+      daysOfWeek.add(startDate.add(Duration(days: i)));
     }
+
     notifyListeners();
     return daysOfWeek;
-  }*/
-
-List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
-  List<DateTime> daysOfWeek = [];
-  
-  DateTime currentDate = start;
-  while (!currentDate.isAfter(end)) {
-    daysOfWeek.add(currentDate);
-    currentDate = currentDate.add(Duration(days: 1));
   }
-
-  notifyListeners();
-  return daysOfWeek;
-}
 
   Future<void> calculateMoodScores() async{
     List<DateTime> daysOfWeek = generateDaysOfWeek(start, end);
@@ -463,7 +455,7 @@ List<DateTime> generateDaysOfWeek(DateTime start, DateTime end) {
   }
   
   bool exerciseToday() {
-    DateTime today = DateTime.now().subtract(Duration(days: 1));
+    DateTime today = DateTime.now().subtract(const Duration(days: 1));
     int dayIndex = today.weekday -1 ;
     if (exerciseData[dayIndex].duration > 0) {
       return true;
